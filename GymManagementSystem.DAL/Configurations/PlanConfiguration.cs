@@ -11,12 +11,17 @@ namespace GymManagement.Configurations
             builder.Property(p => p.Name)
                 .HasColumnType("varchar")
                 .HasMaxLength(128);
+
             builder.Property(p => p.Description)
-                .HasMaxLength(200);
+                .HasMaxLength(200)
+                .HasColumnType("varchar");
+
             builder.Property(p => p.Price)
                 .HasPrecision(18, 3);
+
             builder.Property(p => p.CreatedAt)
                 .HasDefaultValueSql("GetDate()");
+
             builder.ToTable(tb =>
             {
                 tb.HasCheckConstraint("PlanDurationDaysCheck", "DurationDays Between 1 and 356");
