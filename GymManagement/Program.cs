@@ -1,4 +1,6 @@
 using GymManagement.DbContexts;
+using GymManagementSystem.BLL.Services.Classes;
+using GymManagementSystem.BLL.Services.Interfaces;
 using GymManagementSystem.DAL.Repositories.Classes;
 using GymManagementSystem.DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -6,9 +8,15 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IPlanRepositories,PlanRepositories>(); //Dependency Injection tell CLR to create object of thease
+//builder.Services.AddScoped<IPlanRepositories,PlanRepositories>(); //Dependency Injection tell CLR to create object of thease
 //builder.Services.AddScoped<GymDbContext>();
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped(typeof(IGenericRepositories<>), typeof(GenericRepositories<>));
+
+builder.Services.AddScoped<IMemberService, MemberService>();
+builder.Services.AddScoped<IPlanService, PlanService>();
+builder.Services.AddScoped<ITrainerService, TrainerService>();
 
 
 builder.Services.AddDbContext<GymDbContext>(options =>
@@ -16,6 +24,7 @@ builder.Services.AddDbContext<GymDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 });
+
 
 var app = builder.Build();
 

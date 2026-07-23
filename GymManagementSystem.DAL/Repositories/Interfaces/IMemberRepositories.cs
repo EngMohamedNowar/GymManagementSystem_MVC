@@ -1,14 +1,13 @@
 ﻿using GymManagement.Models;
-using GymManagementSystem.DAL.Repositories.Classes;
+using GymManagementSystem.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace GymManagementSystem.DAL.Repositories.Interfaces
 {
-    public interface IPlanRepositories : IGenericRepositories<Plan>
+    public interface IMemberRepositories : IGenericRepositories<Member>
     {
-        
 
     }
 }
