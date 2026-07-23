@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GymManagementSystem.DAL.Models.Enums
 {
-    public enum Spectiality
+    public enum Specialization
     {
         GeneralFitness = 1,
         Yoga,

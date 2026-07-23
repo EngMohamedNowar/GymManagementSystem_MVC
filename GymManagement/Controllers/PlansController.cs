@@ -1,4 +1,7 @@
 ﻿using GymManagement.DbContexts;
+using GymManagementSystem.BLL.Services.Classes;
+using GymManagementSystem.BLL.Services.Interfaces;
+using GymManagementSystem.BLL.ViewModes.Plans;
 using GymManagementSystem.DAL.Repositories.Classes;
 using GymManagementSystem.DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -9,27 +12,66 @@ namespace GymManagement.Controllers
     public class PlansController :Controller
     {
 
-        private readonly IPlanRepositories _planRepositories;
-        public PlansController(IPlanRepositories planRepositories)
+        private readonly IPlanService _planService;
+        public PlansController(IPlanService planService)
         {
-            _planRepositories = planRepositories;
+            _planService = planService;
         }
         // Index
+        [HttpGet]
         public async Task<IActionResult> Index(CancellationToken ct= default)
         {
-            //var plans= await _Context.Plans.ToListAsync();
-            var plans = await _planRepositories.GetAllPlansAsync(ct:ct);
+            var plans = await _planService.GetAllAsync(ct:ct);
 
             return View(plans); // name inedex .cshtml
         }
+        // Details
+        [HttpGet]
         public async Task<IActionResult> Details(int id,CancellationToken ct = default)
         {
             //var plan = await _Context.Plans.FirstOrDefaultAsync(p => p.Id == id);
-            var plan = await _planRepositories.GetByIdAsync(id,ct:ct);
+            var plan = await _planService.GetByIdAsync(id,ct:ct);
 
             if (plan is null) return RedirectToAction(nameof(Index));
             return View(plan); // name details.cshtml
         }
-        // Details
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int id, CancellationToken ct)
+        {
+            var (success, message) = await _planService.TogglePlanStatus(id, ct);
+
+            TempData["FlashMessage"] = message;
+            TempData["FlashSuccess"] = success;
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id, CancellationToken ct)
+        {
+            var planUpdated = await _planService.GetForUpdateAsync(id, ct);
+            if (planUpdated is null)
+            {
+                TempData["FailedMessage"] = "plan is Not Found";
+                return RedirectToAction("Index");
+
+            }
+            return View(planUpdated);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(PlanViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var success = await _planService.UpdateAsync(model);
+
+            if (!success)
+                return NotFound();
+
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }

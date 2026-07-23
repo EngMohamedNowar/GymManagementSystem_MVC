@@ -1,5 +1,6 @@
 ﻿using GymManagement.DbContexts;
 using GymManagement.Models;
+using GymManagementSystem.DAL.Models;
 using GymManagementSystem.DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -8,11 +9,13 @@ using System.Text;
 
 namespace GymManagementSystem.DAL.Repositories.Classes
 {
-    public class PlanRepositories : GenericRepositories<Plan>, IPlanRepositories 
+    public class MemberRepositories : GenericRepositories<Member>, IMemberRepositories 
     {
 
-        public PlanRepositories(GymDbContext Context) :base(Context)
+        public MemberRepositories(GymDbContext Context) :base(Context)
         {
         }
+
+
     }
 }

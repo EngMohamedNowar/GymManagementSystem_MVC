@@ -6,6 +6,7 @@ namespace GymManagementSystem.DAL.Models
 {
     public class Session : Base
     {
+        public int Id { get; set; }
         public string Description { get; set; }
         public int Capacity { get; set; }
         public DateTime StartDate { get; set; }
@@ -15,7 +16,5 @@ namespace GymManagementSystem.DAL.Models
         public Category Category { get; set; }
         public int CategoryId { get; set; }
         public ICollection<Booking> Members { get; set; }
-
-
     }
 }
