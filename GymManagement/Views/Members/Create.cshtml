@@ -10,7 +10,7 @@ ViewData["Title"] = "Create";
         <header class="mb-4">
             <h3 class="text-primary-color">Add Member</h3>
         </header>
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
 
             <!-- Step navigation -->
             <ul class="nav nav-tabs mb-4" id="addMemberTabs" role="tablist">
@@ -37,7 +37,15 @@ ViewData["Title"] = "Create";
                         <h5 class="text-primary fw-bold">Personal Information</h5>
                         <hr class="mt-2">
                     </div>
-                    <div class="row g-3">
+                    <div>
+                        <div>
+                            <div>
+                                <img id="photoPreview" alt="Photo Preview" class="img-thumbnail" style="max-width:200px;display:none;" />
+                            </div>
+                            <label asp-for="Photo" class="form-label"></label>
+                            <input asp-for="Photo" class="form-control" id="photoInput" />
+                            <span asp-validation-for="Photo" class="text-danger"></span>
+                        </div>
                         <div class="col-12 col-md-6">
                             <label asp-for="Name" class="form-label"></label>
                             <input asp-for="Name" class="form-control" />

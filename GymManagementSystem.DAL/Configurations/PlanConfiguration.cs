@@ -24,7 +24,7 @@ namespace GymManagement.Configurations
 
             builder.ToTable(tb =>
             {
-                tb.HasCheckConstraint("PlanDurationDaysCheck", "DurationDays Between 1 and 356");
+                tb.HasCheckConstraint("PlanDurationDaysCheck", "DurationDays Between 1 and 365");
             });
 
         }

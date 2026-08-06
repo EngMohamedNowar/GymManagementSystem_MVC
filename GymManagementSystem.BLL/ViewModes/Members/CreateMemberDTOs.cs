@@ -1,5 +1,6 @@
 ﻿using GymManagementSystem.DAL.Models;
 using GymManagementSystem.DAL.Models.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,6 +10,9 @@ namespace GymManagementSystem.BLL.ViewModes.Members
 {
     public class CreateMemberDTOs
     {
+        [Required(ErrorMessage ="Profile Picture Is Required")]
+        [Display(Name="Profile Picture")]
+        public IFormFile Photo { get; set; }
         [Required(ErrorMessage ="Name Is Required")]
         [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage ="Name Can Only Contain a Letter")]
         public string Name { get; set; }

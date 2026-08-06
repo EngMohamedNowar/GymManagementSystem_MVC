@@ -11,11 +11,11 @@ namespace GymManagementSystem.DAL.Repositories.Interfaces
     {
         Task<IEnumerable<TEntity>> GetAllAsync(bool tracking = false, CancellationToken ct = default);
         Task<TEntity?> GetByIdAsync(int id, CancellationToken ct = default);
-        Task<int> AddAsync(TEntity entity, CancellationToken ct = default);
-        Task<int> UpdateAsync(TEntity entity, CancellationToken ct = default);
-        Task<int> DeleteAsync(TEntity entity, CancellationToken ct = default);
+        void Add(TEntity entity);
+        void Update(TEntity entity);
+        void Delete(TEntity entity);
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct);
         Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct);
-
+        Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default);
     }
 }
