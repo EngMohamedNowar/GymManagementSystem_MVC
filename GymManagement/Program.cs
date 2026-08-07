@@ -27,6 +27,7 @@ builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddAutoMapper(M => M.AddProfile(new MappingProfile()));
 builder.Services.AddScoped<IHomeService, HomeServices>();
 
+builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 
 
 

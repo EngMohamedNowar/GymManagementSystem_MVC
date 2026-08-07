@@ -17,3 +17,8 @@
 /.vs
 /GymManagementSystem.DAL/obj
 /GymManagementSystem.DAL/Migrations
+/GymManagementSystem.DAL/Data/Migrations/20260707210322_Initial Create.cs
+/GymManagementSystem.DAL/Data/Migrations/20260707210322_Initial Create.Designer.cs
+/GymManagementSystem.DAL/Data/Migrations/GymDbContextModelSnapshot.cs
+/GymManagementSystem.PL
+/GymManagementSystmem.PL

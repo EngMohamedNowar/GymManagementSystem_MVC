@@ -15,53 +15,117 @@ namespace GymManagementSystem.BLL.Services.Classes
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IAttachmentService _attachmentService;
 
-        public MemberService(IUnitOfWork unitOfWork,IMapper mapper)
+        public MemberService(IUnitOfWork unitOfWork,IMapper mapper,IAttachmentService attachmentService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _attachmentService = attachmentService;
         }
         public async Task<bool> CreateMemberAsync(CreateMemberDTOs model, CancellationToken ct = default)
         {
-            var emailExist = await _unitOfWork.GetRepositories<Member>().AnyAsync(m => m.Email == model.Email,ct);
-            var phoneExist = await _unitOfWork.GetRepositories<Member>().AnyAsync(m => m.Phone == model.Phone,ct);
-            if (emailExist || phoneExist) return false;
-            //var member = new Member()
-            //{
-            //    Name = model.Name,
-            //    Email = model.Email,
-            //    Phone = model.Phone,
-            //    Gender = model.Gender,
-            //    Address = new Address()
-            //    {
-            //        BuildingNumber = model.BuildingNumber,
-            //        Street = model.Street,
-            //        City = model.City
-            //    },
-            //    Health = new HealthRecord()
-            //    {
-            //        Height = model.HealthRecordViewModel.Height,
-            //        BloodType = model.HealthRecordViewModel.BloodType,
-            //        weight = model.HealthRecordViewModel.Weight,
-            //        Note = model.HealthRecordViewModel.Note
-            //    } 
-            //};
-            var member = _mapper.Map<Member>(model);
-            _unitOfWork.GetRepositories<Member>().Add(member);
-            var count = await _unitOfWork.SaveChanegesAsync(ct);
-            return count > 0;
-        }
+            if (model.Photo == null)
+            {
+                throw new Exception("Photo is null");
+            }
 
+            string? fileName = null;
+
+            try
+            {
+                var emailExist = await _unitOfWork
+                    .GetRepositories<Member>()
+                    .AnyAsync(m => m.Email == model.Email, ct);
+
+                var phoneExist = await _unitOfWork
+                    .GetRepositories<Member>()
+                    .AnyAsync(m => m.Phone == model.Phone, ct);
+
+                if (emailExist || phoneExist)
+                    return false;
+
+
+                // رفع الصورة
+                using (var stream = model.Photo.OpenReadStream())
+                {
+                    fileName = await _attachmentService.UploadAsync(
+                        stream,
+                        "MembersPicture",
+                        model.Photo.FileName,
+                        ct
+                    );
+                }
+
+
+                if (string.IsNullOrWhiteSpace(fileName))
+                    return false;
+
+
+                var member = _mapper.Map<Member>(model);
+
+                member.Photo = fileName;
+
+
+                _unitOfWork.GetRepositories<Member>().Add(member);
+
+                var count = await _unitOfWork.SaveChanegesAsync(ct);
+
+                if (count <= 0)
+                {
+                    // لو فشل الحفظ نحذف الصورة التي تم رفعها
+                    _attachmentService.Delete("MembersPicture", fileName);
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // لو حصل Exception بعد رفع الصورة
+                if (!string.IsNullOrWhiteSpace(fileName))
+                {
+                    _attachmentService.Delete("MembersPicture", fileName);
+                }
+
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+
+                throw;
+            }
+        }
         public async Task<bool> DeleteMemberAsync(int memberId, CancellationToken ct = default)
         {
-            var member = await _unitOfWork.GetRepositories<Member>().GetByIdAsync(memberId);
-            if (member == null) return false;
-            var hasFutureSession = await _unitOfWork.GetRepositories<Booking>()
-                .AnyAsync(M => M.MemberId == memberId && M.Session.StartDate > DateTime.Now, ct);
+            var member = await _unitOfWork.GetRepositories<Member>()
+                .GetByIdAsync(memberId);
 
-            if (hasFutureSession) return false;
+            if (member == null)
+                return false;
+
+            var hasFutureSession = await _unitOfWork.GetRepositories<Booking>()
+                .AnyAsync(m => m.MemberId == memberId && m.Session.StartDate > DateTime.Now, ct);
+
+            if (hasFutureSession)
+                return false;
+
+
+            // حذف صورة العضو من الملفات
+            if (!string.IsNullOrWhiteSpace(member.Photo))
+            {
+                var deleted = _attachmentService.Delete("MemberPicture", member.Photo);
+
+                if (!deleted)
+                {
+                    // اختياري: لو عايز توقف الحذف لو الصورة فشلت
+                    // return false;
+                }
+            }
+
+
             _unitOfWork.GetRepositories<Member>().Delete(member);
+
             var count = await _unitOfWork.SaveChanegesAsync(ct);
+
             return count > 0;
         }
 
