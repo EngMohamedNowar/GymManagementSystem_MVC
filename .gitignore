@@ -1,0 +1,19 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/GymManagementSystem.BLL/bin/Debug/net10.0
+/GymManagementSystem.BLL/obj
+/GymManagement/bin/Debug/net10.0
+/GymManagement/obj/Debug/net10.0
+/GymManagement/obj/Debug/net10.0/compressed/04zwc0kwk0-{0}-37tfw0ft22-37tfw0ft22.gz
+/GymManagement/obj/Release/net10.0
+/GymManagement/obj
+/GymManagementSystem.DAL/bin/Debug/net10.0
+/GymManagementSystem.DAL/obj/Debug/net10.0
+/GymManagementSystem.DAL/obj/Release/net10.0
+/GymManagementSystem.PL/obj
+/GymManagementSystmem.PL/obj
+/.vs
+/GymManagementSystem.DAL/obj
+/GymManagementSystem.DAL/Migrations

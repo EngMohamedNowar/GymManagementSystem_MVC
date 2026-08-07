@@ -1,6 +1,10 @@
+using AutoMapper;
 using GymManagement.DbContexts;
+using GymManagementSystem.BLL;
 using GymManagementSystem.BLL.Services.Classes;
 using GymManagementSystem.BLL.Services.Interfaces;
+using GymManagementSystem.DAL;
+using GymManagementSystem.DAL.DataSeeding;
 using GymManagementSystem.DAL.Repositories.Classes;
 using GymManagementSystem.DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +21,14 @@ builder.Services.AddScoped(typeof(IGenericRepositories<>), typeof(GenericReposit
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<IPlanService, PlanService>();
 builder.Services.AddScoped<ITrainerService, TrainerService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ISessionRepository, SessionRepository>();
+builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddAutoMapper(M => M.AddProfile(new MappingProfile()));
+builder.Services.AddScoped<IHomeService, HomeServices>();
+
+
+
 
 
 builder.Services.AddDbContext<GymDbContext>(options =>
@@ -27,7 +39,16 @@ builder.Services.AddDbContext<GymDbContext>(options =>
 
 
 var app = builder.Build();
-
+var scope = app.Services.CreateScope();
+var _context = scope.ServiceProvider.GetRequiredService<GymDbContext>();
+var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+var folderPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "files");
+var pendingMigrations = await _context.Database.GetPendingMigrationsAsync();
+if (pendingMigrations.Any())
+{
+    await _context.Database.MigrateAsync();
+}
+await GymDataSeeding.SeedAsync(_context, logger, folderPath);
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

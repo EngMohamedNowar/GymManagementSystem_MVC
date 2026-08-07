@@ -25,21 +25,18 @@ namespace GymManagementSystem.DAL.Repositories.Classes
         public async Task<TEntity?> GetByIdAsync(int id, CancellationToken ct = default)
            => await _dbSet.FindAsync(id,ct);
 
-        public async Task<int> AddAsync(TEntity entity, CancellationToken ct = default)
+        public void Add(TEntity entity)
         {
-            await _dbSet.AddAsync(entity,ct);
-            return await _context.SaveChangesAsync();
+             _dbSet.AddAsync(entity);
         }
 
-        public async Task<int> UpdateAsync(TEntity entity, CancellationToken ct = default)
+        public void Update(TEntity entity)
         {
             _dbSet.Update(entity);
-            return await _context.SaveChangesAsync();
         }
-        public async Task<int> DeleteAsync(TEntity entity, CancellationToken ct = default)
+        public void Delete(TEntity entity)
         {
             _dbSet.Remove(entity);
-            return await _context.SaveChangesAsync();
         }
 
         public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct)
@@ -52,6 +49,10 @@ namespace GymManagementSystem.DAL.Repositories.Classes
             return await _context.Set<TEntity>().FirstOrDefaultAsync(predicate, ct = default);
 
         }
+
+        // Overload بياخد شرط (lambda)
+        public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default)
+        => predicate is null ? await _context.Set<TEntity>().AsNoTracking().CountAsync(ct) : await _context.Set<TEntity>().AsNoTracking().CountAsync(predicate, ct);
     }
 }
  

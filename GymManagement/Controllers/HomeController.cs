@@ -1,4 +1,5 @@
 using GymManagement.Models;
+using GymManagementSystem.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -6,9 +7,16 @@ namespace GymManagement.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly IHomeService _homeService;
+
+        public HomeController(IHomeService homeService)
         {
-            return View();
+            _homeService = homeService;
+        }
+        public async Task<IActionResult> Index()
+        {
+            var dashboard =await _homeService.GetDashboardStatsAsync();
+            return View(dashboard);
         }
 
         public IActionResult Privacy()

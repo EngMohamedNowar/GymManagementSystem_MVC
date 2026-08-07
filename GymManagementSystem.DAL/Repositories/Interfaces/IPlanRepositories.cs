@@ -7,8 +7,6 @@ using System.Text;
 namespace GymManagementSystem.DAL.Repositories.Interfaces
 {
     public interface IPlanRepositories : IGenericRepositories<Plan>
-    {
-        
-
+    {   
     }
 }
