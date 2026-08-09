@@ -95,6 +95,39 @@ namespace GymManagementSystem.BLL.Services.Classes
             return Result<SessionViewModel>.Ok(sessionDTOs);
         }
 
+        public async Task<IEnumerable<SessionViewModel>> GetSessionsScheduleAsync(CancellationToken ct = default)
+        {
+            var sessions = await _unitOfWork.sessionRepository.GetAllSessionWithTrainerAndCategoryAsync(ct);
+            if (sessions is null || !sessions.Any()) return null;
+
+            var sessionsDTOs = _mapper.Map<IEnumerable<SessionViewModel>>(sessions)
+                .OrderBy(s => s.StartDate)
+                .ToList();
+
+            foreach (var session in sessionsDTOs)
+            {
+                session.AvailableSlots = session.Capacity - await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(session.Id, ct);
+            }
+            return sessionsDTOs;
+        }
+
+        public async Task<Result<IEnumerable<AttendeeViewModel>>> GetSessionAttendeesAsync(int sessionId, CancellationToken ct = default)
+        {
+            var session = await _unitOfWork.sessionRepository.GetSessionByIdAsync(sessionId, ct);
+            if (session is null) return Result<IEnumerable<AttendeeViewModel>>.NotFound($"Session with id {sessionId} not found");
+
+            var attendees = await _unitOfWork.sessionRepository.GetAttendeesBySessionIdAsync(sessionId, ct);
+            var attendeesDTOs = attendees.Select(b => new AttendeeViewModel
+            {
+                MemberId = b.MemberId,
+                MemberName = b.Member.Name,
+                Phone = b.Member.Phone,
+                IsAttended = b.IsAttended
+            }).ToList();
+
+            return Result<IEnumerable<AttendeeViewModel>>.Ok(attendeesDTOs);
+        }
+
         public async Task<Result<UpdateSessionViewModel>> GetSessionToUpdateAsync(int sessionId, CancellationToken ct = default)
         {
             var session =await _unitOfWork.GetRepositories<Session>().GetByIdAsync(sessionId, ct);
