@@ -4,11 +4,14 @@ using GymManagementSystem.BLL.Services.Interfaces;
 using GymManagementSystem.BLL.ViewModes.Plans;
 using GymManagementSystem.DAL.Repositories.Classes;
 using GymManagementSystem.DAL.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymManagement.Controllers
 {
+    [Authorize(Roles = "SuperAdmin")]
+
     public class PlansController :Controller
     {
 

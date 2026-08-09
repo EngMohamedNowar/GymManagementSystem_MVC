@@ -4,11 +4,13 @@ using GymManagementSystem.BLL.ViewModes.Members;
 using GymManagementSystem.BLL.ViewModes.Trainers;
 using GymManagementSystem.DAL.Models;
 using GymManagementSystem.DAL.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymManagement.PL.Controllers
 {
+    [Authorize(Roles = "SuperAdmin")]
     public class MembersController : Controller
     {
         private readonly IMemberService _memberService;

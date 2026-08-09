@@ -5,15 +5,15 @@ using GymManagementSystem.BLL.Services.Classes;
 using GymManagementSystem.BLL.Services.Interfaces;
 using GymManagementSystem.DAL;
 using GymManagementSystem.DAL.DataSeeding;
+using GymManagementSystem.DAL.Models;
 using GymManagementSystem.DAL.Repositories.Classes;
 using GymManagementSystem.DAL.Repositories.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-//builder.Services.AddScoped<IPlanRepositories,PlanRepositories>(); //Dependency Injection tell CLR to create object of thease
-//builder.Services.AddScoped<GymDbContext>();
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped(typeof(IGenericRepositories<>), typeof(GenericRepositories<>));
@@ -29,27 +29,44 @@ builder.Services.AddScoped<IHomeService, HomeServices>();
 
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 
-
-
-
 builder.Services.AddDbContext<GymDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-
 });
 
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<GymDbContext>()
+    .AddDefaultTokenProviders();
 
 var app = builder.Build();
+
 var scope = app.Services.CreateScope();
-var _context = scope.ServiceProvider.GetRequiredService<GymDbContext>();
+var context = scope.ServiceProvider.GetRequiredService<GymDbContext>();
 var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-var folderPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "files");
-var pendingMigrations = await _context.Database.GetPendingMigrationsAsync();
+var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+
 if (pendingMigrations.Any())
 {
-    await _context.Database.MigrateAsync();
+    await context.Database.MigrateAsync(); // Update-database
 }
-await GymDataSeeding.SeedAsync(_context, logger, folderPath);
+
+var folderPath = Path.Combine(
+    app.Environment.ContentRootPath,
+    "wwwroot",
+    "files"
+);
+
+await GymDataSeeding.SeedAsync(context, logger, folderPath);
+
+await IdentityDataSeeding.SeedIdentityDataAsync(
+    userManager,
+    roleManager,
+    logger
+);
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -61,6 +78,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -69,6 +87,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();
