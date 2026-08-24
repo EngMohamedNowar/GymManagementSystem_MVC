@@ -15,7 +15,5 @@ namespace GymManagementSystem.DAL.Models
         public Category Category { get; set; }
         public int CategoryId { get; set; }
         public ICollection<Booking> Members { get; set; }
-
-
     }
 }
