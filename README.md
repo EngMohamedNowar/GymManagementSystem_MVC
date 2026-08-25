@@ -1,6 +1,6 @@
 <div align="center">
 
-# 💎 FITGYM — Gym Management System
+# FITGYM — Gym Management System
 
 ### A full-featured, professional gym management platform built with ASP.NET Core 10.0
 
@@ -13,26 +13,26 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [About](#about)
-- [Live Demo](#live-demo)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
 - [Features](#features)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
 - [Configuration](#configuration)
-- [Roles & Permissions](#roles--permissions)
+- [Roles and Permissions](#roles-and-permissions)
 - [Payment Integration](#payment-integration)
-- [Screenshots](#screenshots)
-- [API Endpoints](#api-endpoints)
+- [Key Endpoints](#key-endpoints)
 - [Contributing](#contributing)
 - [License](#license)
 
 ---
 
-## 🏋️ About
+<a id="about"></a>
+
+## About
 
 **FITGYM** is a comprehensive gym management system designed for real-world fitness centers. It provides:
 
@@ -40,42 +40,42 @@
 - **For Members:** A personal dashboard to manage their profile, view memberships, book sessions, track progress, and pay via **Stripe**.
 - **For Guests:** Easy registration with role-based access control ensuring members never see admin functionality.
 
----
-
-## 🌐 Live Demo
-
-> **Admin Credentials (seeded):**
-> - Email: `superadmin@example.com` | Password: `ChangeMe_Str0ngP@ss!`
-> - Email: `admin@example.com` | Password: `ChangeMe_Str0ngP@ss!`
+**Admin Credentials (seeded):**
+- Email: `superadmin@example.com` | Password: `ChangeMe_Str0ngP@ss!`
+- Email: `admin@example.com` | Password: `ChangeMe_Str0ngP@ss!`
 
 ---
 
-## 🏗️ Architecture
+<a id="architecture"></a>
+
+## Architecture
 
 The project follows **Clean Architecture** with three distinct layers:
 
 ```
-┌─────────────────────────────────────────────────┐
-│                  PL (Presentation)               │
-│          MVC Controllers + Razor Views           │
-├─────────────────────────────────────────────────┤
-│                  BLL (Business Logic)            │
-│     Services · ViewModels · AutoMapper           │
-├─────────────────────────────────────────────────┤
-│                  DAL (Data Access)               │
-│  EF Core · Repositories · Unit of Work · Models  │
-└─────────────────────────────────────────────────┘
++-------------------------------------------------+
+|                  PL (Presentation)               |
+|          MVC Controllers + Razor Views           |
++-------------------------------------------------+
+|                  BLL (Business Logic)            |
+|     Services  |  ViewModels  |  AutoMapper       |
++-------------------------------------------------+
+|                  DAL (Data Access)               |
+|  EF Core  |  Repositories  |  Unit of Work      |
++-------------------------------------------------+
 ```
 
 **Design Patterns Used:**
-- **Repository Pattern** — Generic repository with `IGenericRepositories<T>` for CRUD operations
-- **Unit of Work** — Transaction management via `IUnitOfWork`
-- **Service Layer** — Business logic encapsulated in services with interface segregation
-- **Result Pattern** — Typed `Result<T>` for clean error handling without exceptions
+- **Repository Pattern** - Generic repository with `IGenericRepositories<T>` for CRUD operations
+- **Unit of Work** - Transaction management via `IUnitOfWork`
+- **Service Layer** - Business logic encapsulated in services with interface segregation
+- **Result Pattern** - Typed `Result<T>` for clean error handling without exceptions
 
 ---
 
-## 🛠️ Tech Stack
+<a id="tech-stack"></a>
+
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -87,15 +87,18 @@ The project follows **Clean Architecture** with three distinct layers:
 | **Mapping** | AutoMapper v16 |
 | **QR Codes** | QRCoder v1.8 |
 | **Charts** | Chart.js |
-| **Frontend** | Bootstrap 5.3 · Inter Font · Bootstrap Icons |
+| **Frontend** | Bootstrap 5.3, Inter Font, Bootstrap Icons |
 | **Localization** | ASP.NET Core Localization (English + Arabic) |
-| **Security** | Rate Limiting · CSRF Protection · XSS Headers |
+| **Security** | Rate Limiting, CSRF Protection, XSS Headers |
 
 ---
 
-## ✨ Features
+<a id="features"></a>
 
-### 🔐 Authentication & Authorization
+## Features
+
+### Authentication and Authorization
+
 - User Registration with auto Member profile creation
 - Login with rate limiting (5 attempts/min per IP)
 - Forgot Password with email reset links
@@ -104,65 +107,77 @@ The project follows **Clean Architecture** with three distinct layers:
 - Cookie + JWT Bearer authentication
 - Access Denied page with clear messaging
 
-### 👥 Member Management
+### Member Management
+
 - Full CRUD with photo upload
 - Health records (height, weight, blood type, notes)
 - Address management
 - Member search and filtering
 - Profile self-editing for members
 
-### 🏋️ Trainer Management
+### Trainer Management
+
 - CRUD operations with specialization tracking
 - Trainer selection for sessions
 
-### 📅 Session Management
+### Session Management
+
 - Create, edit, view sessions with date/time/capacity
 - Category-based organization
 - Trainer assignment
 - Session scheduling with attendees view
 
-### 💳 Membership & Plans
+### Membership and Plans
+
 - Plan management (name, price, duration, active/inactive)
-- Membership lifecycle: **Pending → Active → Expired / Cancelled**
+- Membership lifecycle: **Pending**, **Active**, **Expired**, **Cancelled**
 - Discount code system with validation
 - Membership renewal
 - Payment recording with multiple methods
 
-### 💰 Stripe Payment Integration
+### Stripe Payment Integration
+
 - Stripe Checkout Session redirect flow
 - Secure hosted payment page (PCI compliant)
 - Webhook verification for payment confirmation
 - Pending membership auto-activation on payment success
 - Cancel flow with membership cleanup
 
-### 📊 Dashboard
+### Dashboard
+
 - Analytics overview (total members, revenue, active memberships)
 - Plan distribution charts
 - Recent activity
 
-### 🔍 Check-In System
+### Check-In System
+
 - QR code generation per member
 - QR scan endpoint for check-in
 - Today's check-in tracking
 
-### 📏 Body Measurements
+### Body Measurements
+
 - Track member progress (weight, height, etc.)
 - Measurement history
 
-### 🔔 Notifications
+### Notifications
+
 - Bell icon with unread count
 - Notification center
 
-### 📋 Audit Log
+### Audit Log
+
 - Full audit trail of admin actions
 - Logged user, action, entity, timestamp
 
-### 🌍 Localization
+### Localization
+
 - English (en-US) and Arabic (eg-EG) support
 - RTL layout for Arabic
 - Culture switcher in navbar
 
-### 🎨 Professional UI/UX
+### Professional UI/UX
+
 - Dark-only theme with indigo accent (#6366f1)
 - Inter font family
 - CSS diamond brand icon (no image logo)
@@ -178,61 +193,65 @@ The project follows **Clean Architecture** with three distinct layers:
 
 ---
 
-## 📁 Project Structure
+<a id="project-structure"></a>
+
+## Project Structure
 
 ```
 GymManagementSystem/
-├── GymManagement/                          # Presentation Layer (PL)
-│   ├── Controllers/                        # 15+ MVC Controllers
-│   │   ├── AccountController.cs            # Login, Register, ForgotPassword, ResetPassword
-│   │   ├── MembersController.cs            # Admin: Member CRUD
-│   │   ├── MemberController.cs             # Member portal: Profile, Membership, Bookings, Subscribe
-│   │   ├── TrainersController.cs           # Trainer CRUD
-│   │   ├── SessionsController.cs           # Session management
-│   │   ├── PlansController.cs              # Plan management
-│   │   ├── MembershipsController.cs        # Membership management + payments
-│   │   ├── DiscountsController.cs          # Discount management
-│   │   ├── BookingsController.cs           # Booking management
-│   │   ├── CheckInController.cs            # QR scan + today's check-ins
-│   │   ├── MeasurementsController.cs       # Body measurements
-│   │   ├── DashboardController.cs          # Analytics dashboard
-│   │   ├── AuditController.cs              # Audit logs
-│   │   ├── NotificationsController.cs      # Notifications
-│   │   └── CultureController.cs            # Language switching
-│   ├── Models/                             # PL-specific models (PageHeaderModel, etc.)
-│   ├── ViewComponents/                     # NotificationBell component
-│   ├── Views/                              # Razor views (~40 pages)
-│   ├── SharedResources/                    # Localization (.resx files)
-│   ├── wwwroot/                            # Static files (CSS, JS, images)
-│   ├── Program.cs                          # Application configuration & DI
-│   └── appsettings.json                    # Configuration
-│
-├── GymManagementSystem.BLL/               # Business Logic Layer
-│   ├── Services/
-│   │   ├── Interfaces/                     # 14 service interfaces
-│   │   └── Classes/                        # Service implementations
-│   ├── ViewModels/                         # View models for all entities
-│   ├── Common/                             # Result pattern, enums
-│   └── MappingProfile.cs                   # AutoMapper configuration
-│
-├── GymManagementSystem.DAL/               # Data Access Layer
-│   ├── Models/                             # Entity models (Member, Trainer, Session, etc.)
-│   ├── Configurations/                     # EF Core entity configurations
-│   ├── Repositories/
-│   │   ├── Interfaces/                     # Generic + specific repository interfaces
-│   │   └── Classes/                        # Repository implementations
-│   ├── DataSeeding/                        # Identity + data seeding
-│   ├── Migrations/                         # EF Core migrations
-│   ├── DbContexts/                         # GymDbContext
-│   └── UnitOfWork.cs                       # Unit of Work implementation
-│
-├── baseline.sql                            # Database baseline script
-└── GymManagementSystem.slnx                # Solution file
+|-- GymManagement/                          # Presentation Layer (PL)
+|   |-- Controllers/                        # 15+ MVC Controllers
+|   |   |-- AccountController.cs            # Login, Register, ForgotPassword, ResetPassword
+|   |   |-- MembersController.cs            # Admin: Member CRUD
+|   |   |-- MemberController.cs             # Member portal: Profile, Membership, Bookings, Subscribe
+|   |   |-- TrainersController.cs           # Trainer CRUD
+|   |   |-- SessionsController.cs           # Session management
+|   |   |-- PlansController.cs              # Plan management
+|   |   |-- MembershipsController.cs        # Membership management + payments
+|   |   |-- DiscountsController.cs          # Discount management
+|   |   |-- BookingsController.cs           # Booking management
+|   |   |-- CheckInController.cs            # QR scan + today's check-ins
+|   |   |-- MeasurementsController.cs       # Body measurements
+|   |   |-- DashboardController.cs          # Analytics dashboard
+|   |   |-- AuditController.cs              # Audit logs
+|   |   |-- NotificationsController.cs      # Notifications
+|   |   +-- CultureController.cs            # Language switching
+|   |-- Models/                             # PL-specific models
+|   |-- ViewComponents/                     # NotificationBell component
+|   |-- Views/                              # Razor views (~40 pages)
+|   |-- SharedResources/                    # Localization (.resx files)
+|   |-- wwwroot/                            # Static files (CSS, JS, images)
+|   |-- Program.cs                          # Application configuration and DI
+|   +-- appsettings.json                    # Configuration
+|
+|-- GymManagementSystem.BLL/               # Business Logic Layer
+|   |-- Services/
+|   |   |-- Interfaces/                     # 14 service interfaces
+|   |   +-- Classes/                        # Service implementations
+|   |-- ViewModels/                         # View models for all entities
+|   |-- Common/                             # Result pattern, enums
+|   +-- MappingProfile.cs                   # AutoMapper configuration
+|
+|-- GymManagementSystem.DAL/               # Data Access Layer
+|   |-- Models/                             # Entity models
+|   |-- Configurations/                     # EF Core entity configurations
+|   |-- Repositories/
+|   |   |-- Interfaces/                     # Generic + specific repository interfaces
+|   |   +-- Classes/                        # Repository implementations
+|   |-- DataSeeding/                        # Identity + data seeding
+|   |-- Migrations/                         # EF Core migrations
+|   |-- DbContexts/                         # GymDbContext
+|   +-- UnitOfWork.cs                       # Unit of Work implementation
+|
+|-- baseline.sql                            # Database baseline script
++-- GymManagementSystem.slnx                # Solution file
 ```
 
 ---
 
-## 🚀 Getting Started
+<a id="getting-started"></a>
+
+## Getting Started
 
 ### Prerequisites
 
@@ -253,7 +272,7 @@ dotnet restore
 # Update connection string in GymManagement/appsettings.json
 # "DefaultConnection": "Server=.; Database=GymManagementSystem;Trusted_Connection=True;TrustServerCertificate=True;"
 
-# Run migrations & start
+# Run migrations and start
 cd GymManagement
 dotnet run --urls "http://localhost:5050"
 ```
@@ -266,7 +285,9 @@ The app will automatically:
 
 ---
 
-## ⚙️ Configuration
+<a id="configuration"></a>
+
+## Configuration
 
 ### appsettings.json
 
@@ -301,47 +322,51 @@ stripe listen --forward-to localhost:5050/Member/StripeWebhook
 
 ---
 
-## 🔑 Roles & Permissions
+<a id="roles-and-permissions"></a>
+
+## Roles and Permissions
 
 | Feature | SuperAdmin | Admin | Member | Guest |
 |---------|:----------:|:-----:|:------:|:-----:|
-| Dashboard | ✅ | ✅ | — | — |
-| Members CRUD | ✅ | — | — | — |
-| Trainers CRUD | ✅ | — | — | — |
-| Sessions CRUD | ✅ | — | — | — |
-| Plans CRUD | ✅ | — | — | — |
-| Memberships | ✅ | — | — | — |
-| Discounts | ✅ | ✅ | — | — |
-| Bookings | ✅ | — | — | — |
-| Check-In | ✅ | ✅ | — | — |
-| Measurements | ✅ | ✅ | ✅ | — |
-| Audit Logs | ✅ | — | — | — |
-| Member Portal | ✅ | ✅ | ✅ | — |
-| Subscribe + Pay | — | — | ✅ | — |
-| Home Page | ✅ | ✅ | ✅ | ✅ |
-| Register | — | — | — | ✅ |
-| Login | ✅ | ✅ | ✅ | ✅ |
+| Dashboard | Yes | Yes | -- | -- |
+| Members CRUD | Yes | -- | -- | -- |
+| Trainers CRUD | Yes | -- | -- | -- |
+| Sessions CRUD | Yes | -- | -- | -- |
+| Plans CRUD | Yes | -- | -- | -- |
+| Memberships | Yes | -- | -- | -- |
+| Discounts | Yes | Yes | -- | -- |
+| Bookings | Yes | -- | -- | -- |
+| Check-In | Yes | Yes | -- | -- |
+| Measurements | Yes | Yes | Yes | -- |
+| Audit Logs | Yes | -- | -- | -- |
+| Member Portal | Yes | Yes | Yes | -- |
+| Subscribe + Pay | -- | -- | Yes | -- |
+| Home Page | Yes | Yes | Yes | Yes |
+| Register | -- | -- | -- | Yes |
+| Login | Yes | Yes | Yes | Yes |
 
 ---
 
-## 💳 Payment Integration (Stripe)
+<a id="payment-integration"></a>
+
+## Payment Integration (Stripe)
 
 ### Flow
 
 ```
-Member selects plan → Clicks "Pay with Stripe"
-        ↓
+Member selects plan -> Clicks "Pay with Stripe"
+        |
 Creates Pending membership in database
-        ↓
+        |
 Redirects to Stripe Checkout (hosted, PCI-compliant)
-        ↓
+        |
 Member pays with Visa/Mastercard on Stripe
-        ↓
+        |
 Stripe redirects to /Member/PaySuccess
-        ↓
+        |
 Stripe Webhook confirms payment
-        ↓
-Membership status: Pending → Active
+        |
+Membership status: Pending -> Active
 Payment record created with Stripe reference
 ```
 
@@ -357,9 +382,12 @@ Payment record created with Stripe reference
 
 ---
 
-## 📡 Key Endpoints
+<a id="key-endpoints"></a>
+
+## Key Endpoints
 
 ### Public
+
 | Route | Description |
 |-------|-------------|
 | `GET /` | Landing page with hero, features, stats |
@@ -368,6 +396,7 @@ Payment record created with Stripe reference
 | `GET /Account/ForgotPassword` | Password reset request |
 
 ### Admin (SuperAdmin)
+
 | Route | Description |
 |-------|-------------|
 | `GET /Dashboard` | Analytics dashboard |
@@ -382,6 +411,7 @@ Payment record created with Stripe reference
 | `GET /Audit` | Audit trail |
 
 ### Member Portal
+
 | Route | Description |
 |-------|-------------|
 | `GET /Member` | Personal dashboard |
@@ -393,7 +423,9 @@ Payment record created with Stripe reference
 
 ---
 
-## 🤝 Contributing
+<a id="contributing"></a>
+
+## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -403,22 +435,24 @@ Payment record created with Stripe reference
 
 ### Branch Strategy
 
-- `main` — Production-ready code
-- `develop` — Active development branch
+- `main` - Production-ready code
+- `develop` - Active development branch
 - Feature branches from `develop`
 
 ---
 
-## 📄 License
+<a id="license"></a>
 
-This project is licensed under the MIT License — see the [LICENSE.txt](LICENSE.txt) file for details.
+## License
+
+This project is licensed under the MIT License. See the [LICENSE.txt](LICENSE.txt) file for details.
 
 ---
 
 <div align="center">
 
-**Built with ❤️ using ASP.NET Core 10.0**
+**Built with .NET 10.0 and ASP.NET Core**
 
-[⬆ Back to Top](#-fitgym--gym-management-system)
+[Back to Top](#table-of-contents)
 
 </div>
