@@ -8,11 +8,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2:wght@400..800&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
+          rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <!-- ^ Bootstrap 5.3.8 css file -->
     <link rel="stylesheet" href="@(CultureInfo.CurrentUICulture.Name.StartsWith("ar") ? "~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" : "~/lib/bootstrap/dist/css/bootstrap.min.css")" />
+    <!-- ^ Our main css file -->
     <link rel="stylesheet" href="~/css/style.css" />
     <link rel="stylesheet" href="~/css/app.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,167 +24,106 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg sticky-top site-nav" id="siteNav">
+        <!-- ^ navbar -->
+        <nav class="navbar navbar-expand-lg sticky-top border-bottom app-navbar">
             <div class="container">
-                <!-- Brand -->
-                <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
-                    <span class="brand-mark">
-                        <i class="bi bi-diamond-fill"></i>
-                    </span>
-                    <span class="brand-name">FITGYM</span>
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" asp-controller="Home" asp-action="Index">
+                    <img src="~/Images/logo.jpg" alt="Gym Management" style="height:38px;" />
+                    <span class="d-none d-sm-inline text-primary-color">GymMS</span>
                 </a>
-
-                <!-- Toggler -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-                        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <!-- Nav content -->
-                <div class="collapse navbar-collapse" id="mainNav">
-
-                    <!-- Left / center nav -->
-                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 nav-center">
-
-                        <!-- Always: Home -->
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-house nav-icon"></i>@Localizer["Home"]
-                            </a>
+                            <a class="nav-link px-3" asp-controller="Home" asp-action="Index"><i class="bi bi-house-door me-1"></i>@Localizer["Home"]</a>
                         </li>
-
                         @if (User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
                         {
-                            <!-- Dashboard -->
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
-                                    <i class="bi bi-grid-1x2 nav-icon"></i>@Localizer["Dashboard"]
-                                </a>
+                                <a class="nav-link px-3" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2 me-1"></i>@Localizer["Dashboard"]</a>
                             </li>
-
-                            <!-- People dropdown -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                                    <i class="bi bi-people nav-icon"></i>@Localizer["People"]
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-lg">
-                                    <li class="dropdown-header-sm">Manage people</li>
-                                    <li><a class="dropdown-item" asp-controller="Members" asp-action="Index"><i class="bi bi-person me-2"></i>@Localizer["Members"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Trainers" asp-action="Index"><i class="bi bi-person-video2 me-2"></i>@Localizer["Trainers"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="CheckIn" asp-action="Today"><i class="bi bi-qr-code-scan me-2"></i>@Localizer["CheckIn"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Measurements" asp-action="Index"><i class="bi bi-activity me-2"></i>@Localizer["Measurements"]</a></li>
-                                </ul>
+                            <li class="nav-item">
+                                <a class="nav-link px-3" asp-controller="Members" asp-action="Index"><i class="bi bi-people me-1"></i>@Localizer["Members"]</a>
                             </li>
-
-                            <!-- Content dropdown -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                                    <i class="bi bi-calendar3 nav-icon"></i>@Localizer["Content"]
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-lg">
-                                    <li class="dropdown-header-sm">Manage content</li>
-                                    <li><a class="dropdown-item" asp-controller="Sessions" asp-action="Index"><i class="bi bi-easel me-2"></i>@Localizer["Sessions"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="SessionsSchedule" asp-action="Index"><i class="bi bi-calendar-week me-2"></i>@Localizer["Schedule"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Plans" asp-action="Index"><i class="bi bi-tag me-2"></i>@Localizer["Plans"]</a></li>
-                                </ul>
+                            <li class="nav-item">
+                                <a class="nav-link px-3" asp-controller="Trainers" asp-action="Index"><i class="bi bi-person-workspace me-1"></i>@Localizer["Trainers"]</a>
                             </li>
-
-                            <!-- Business dropdown -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                                    <i class="bi bi-currency-dollar nav-icon"></i>@Localizer["Business"]
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-lg">
-                                    <li class="dropdown-header-sm">Manage business</li>
-                                    <li><a class="dropdown-item" asp-controller="Memberships" asp-action="Index"><i class="bi bi-credit-card me-2"></i>@Localizer["Memberships"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Discounts" asp-action="Index"><i class="bi bi-percent me-2"></i>@Localizer["Discounts"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Bookings" asp-action="Index"><i class="bi bi-journal-check me-2"></i>@Localizer["Bookings"]</a></li>
-                                    @if (User.IsInRole("SuperAdmin"))
-                                    {
-                                        <li><hr class="dropdown-divider" /></li>
-                                        <li><a class="dropdown-item" asp-controller="Audit" asp-action="Index"><i class="bi bi-clock-history me-2"></i>@Localizer["Audit"]</a></li>
-                                    }
-                                </ul>
+                            <li class="nav-item">
+                                <a class="nav-link px-3" asp-controller="Sessions" asp-action="Index"><i class="bi bi-calendar-event me-1"></i>@Localizer["Sessions"]</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link px-3" asp-controller="Plans" asp-action="Index"><i class="bi bi-tags me-1"></i>@Localizer["Plans"]</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link px-3" asp-controller="Memberships" asp-action="Index"><i class="bi bi-credit-card me-1"></i>@Localizer["Memberships"]</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link px-3" asp-controller="SessionsSchedule" asp-action="Index"><i class="bi bi-calendar-week me-1"></i>@Localizer["Schedule"]</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link px-3" asp-controller="Discounts" asp-action="Index"><i class="bi bi-percent me-1"></i>@Localizer["Discounts"]</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link px-3" asp-controller="Measurements" asp-action="Index"><i class="bi bi-activity me-1"></i>@Localizer["Measurements"]</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link px-3" asp-controller="CheckIn" asp-action="Today"><i class="bi bi-box-arrow-in-right me-1"></i>@Localizer["CheckIn"]</a>
+                            </li>
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link px-3" asp-controller="Audit" asp-action="Index"><i class="bi bi-shield-check me-1"></i>@Localizer["Audit"]</a>
+                                </li>
+                            }
                         }
-
                         @if (User.IsInRole("Member"))
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                                    <i class="bi bi-person-circle nav-icon"></i>@Localizer["MyAccount"]
+                                <a class="nav-link px-3 dropdown-toggle" href="#" id="myAccountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle me-1"></i>@Localizer["MyAccount"]
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-lg">
-                                    <li class="dropdown-header-sm">My account</li>
-                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="Index"><i class="bi bi-speedometer2 me-2"></i>@Localizer["MyDashboard"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="MyMembership"><i class="bi bi-credit-card me-2"></i>@Localizer["MyMembership"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="MyBookings"><i class="bi bi-calendar-check me-2"></i>@Localizer["MyBookings"]</a></li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="MyProfile"><i class="bi bi-gear me-2"></i>@Localizer["MyProfile"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="MyQR"><i class="bi bi-qr-code me-2"></i>@Localizer["MyQR"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Measurements" asp-action="Index"><i class="bi bi-activity me-2"></i>@Localizer["Measurements"]</a></li>
+                                <ul class="dropdown-menu" aria-labelledby="myAccountDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="Index"><i class="bi bi-speedometer2 me-1"></i>@Localizer["MyDashboard"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="MyMembership"><i class="bi bi-credit-card me-1"></i>@Localizer["MyMembership"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="MyBookings"><i class="bi bi-calendar-check me-1"></i>@Localizer["MyBookings"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="MyProfile"><i class="bi bi-person me-1"></i>@Localizer["MyProfile"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="MyQR"><i class="bi bi-qr-code me-1"></i>@Localizer["MyQR"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Measurements" asp-action="Index"><i class="bi bi-activity me-1"></i>@Localizer["Measurements"]</a></li>
                                 </ul>
                             </li>
                         }
-
-                        <!-- Language -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-globe2 nav-icon"></i>@Localizer["Language"]
+                            <a class="nav-link px-3 dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-translate me-1"></i>@Localizer["Language"]
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="@Url.Action("SetCulture", "Culture", new { culture = "en-US", redirectUri = Context.Request.Path })"><span class="me-2">🇺🇸</span>English</a></li>
-                                <li><a class="dropdown-item" href="@Url.Action("SetCulture", "Culture", new { culture = "ar-EG", redirectUri = Context.Request.Path })"><span class="me-2">🇪🇬</span>العربية</a></li>
+                            <ul class="dropdown-menu" aria-labelledby="langDropdown">
+                                <li><a class="dropdown-item" href="@Url.Action("SetCulture", "Culture", new { culture = "en-US", redirectUri = Context.Request.Path } )">EN</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("SetCulture", "Culture", new { culture = "ar-EG", redirectUri = Context.Request.Path } )">ع</a></li>
                             </ul>
                         </li>
                     </ul>
-
-                    <!-- Right actions -->
-                    <ul class="navbar-nav mb-2 mb-lg-0 nav-right">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item d-flex align-items-center">
                                 @await Component.InvokeAsync("NotificationBell")
                             </li>
-                            <!-- User menu -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link nav-user dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="nav-avatar">
-                                        @((User.Identity?.Name ?? "?")[0].ToString().ToUpper())
-                                    </span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li class="dropdown-header-sm">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="nav-avatar" style="width:28px;height:28px;font-size:.7rem;">
-                                                @((User.Identity?.Name ?? "?")[0].ToString().ToUpper())
-                                            </span>
-                                            <div>
-                                                <div class="fw-semibold small">@User.Identity?.Name</div>
-                                                <div class="text-muted" style="font-size:.7rem;">
-                                                    @(User.IsInRole("SuperAdmin") ? "Super Admin" : User.IsInRole("Admin") ? "Admin" : "Member")
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li>
-                                        <form asp-action="Logout" asp-controller="Account" method="post">
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="bi bi-box-arrow-right me-2"></i>@Localizer["Logout"]
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
+                            <li class="nav-item">
+                                <form asp-action="Logout" asp-controller="Account" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-box-arrow-right"></i> @Localizer["Logout"]
+                                    </button>
+                                </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="btn btn-nav-ghost" asp-controller="Account" asp-action="Register">@Localizer["Register"]</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-nav-fill" asp-controller="Account" asp-action="Login">@Localizer["Login"]</a>
+                                <a class="btn btn-fill btn-sm px-3" asp-controller="Account" asp-action="Login"><i class="bi bi-box-arrow-in-right me-1"></i>@Localizer["Login"]</a>
                             </li>
                         }
                     </ul>
@@ -188,49 +131,31 @@
             </div>
         </nav>
     </header>
+    <div class="container app-main">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
 
-    <main role="main">
-        @RenderBody()
-    </main>
-
-    <footer class="site-footer">
+    <footer class="border-top footer text-muted">
         <div class="container">
-            <div class="d-flex flex-wrap justify-content-between align-items-center py-3">
-                <span class="footer-brand">FITGYM</span>
-                <span class="footer-copy">&copy; @DateTime.Now.Year All rights reserved</span>
-            </div>
+            &copy; @DateTime.Now.Year - GymManagement - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         (function () {
-            /* Active link highlight */
             var path = (window.location.pathname || '').toLowerCase();
             var seg = path.split('/').filter(Boolean)[0] || 'home';
-            document.querySelectorAll('#mainNav .nav-link').forEach(function (a) {
+            document.querySelectorAll('.app-navbar .navbar-nav > li > a.nav-link').forEach(function (a) {
                 var href = (a.getAttribute('href') || '').toLowerCase();
                 var cseg = href.split('/').filter(Boolean)[0] || 'home';
-                if (cseg === seg && !a.classList.contains('dropdown-toggle')) {
-                    a.classList.add('active');
-                }
+                if (cseg === seg) a.classList.add('active');
             });
-
-            /* Scroll effect on navbar */
-            var nav = document.getElementById('siteNav');
-            if (nav) {
-                var onScroll = function () {
-                    if (window.scrollY > 20) {
-                        nav.classList.add('nav-scrolled');
-                    } else {
-                        nav.classList.remove('nav-scrolled');
-                    }
-                };
-                window.addEventListener('scroll', onScroll, { passive: true });
-                onScroll();
-            }
         })();
     </script>
     @await RenderSectionAsync("Scripts", required: false)
