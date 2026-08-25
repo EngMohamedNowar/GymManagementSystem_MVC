@@ -112,10 +112,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromHours(24);
 });
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<GymDbContext>()
-    .AddDefaultTokenProviders();
-
 var app = builder.Build();
 
 using var scope = app.Services.CreateScope();
