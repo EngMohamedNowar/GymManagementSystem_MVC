@@ -1,0 +1,259 @@
+@using System.Globalization
+<!DOCTYPE html>
+<html lang="@CultureInfo.CurrentUICulture.Name" dir="@(CultureInfo.CurrentUICulture.Name.StartsWith("ar") ? "rtl" : "ltr")" data-bs-theme="dark" data-theme="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/style.css" />
+    <link rel="stylesheet" href="~/css/app.css" />
+    <title>@ViewData["Title"] - FITGYM</title>
+    <style>
+        .auth-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .auth-brand-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #0f1117 0%, #151822 50%, #0f1117 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-brand-panel::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -20%;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, .08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .auth-brand-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(167, 139, 250, .06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .auth-brand-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 380px;
+        }
+
+        .auth-brand-logo {
+            width: 72px;
+            height: 72px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #6366f1, #a78bfa);
+            color: #fff;
+            border-radius: 20px;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 40px rgba(99, 102, 241, .3);
+        }
+
+        .auth-brand-title {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: .06em;
+            margin-bottom: .75rem;
+            background: linear-gradient(135deg, #e8eaf0, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-brand-subtitle {
+            color: var(--text-muted);
+            font-size: .95rem;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-brand-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+
+        .auth-brand-features li {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .6rem 0;
+            color: var(--text-muted);
+            font-size: .875rem;
+        }
+
+        .auth-brand-features li i {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-soft);
+            color: var(--primary);
+            font-size: .85rem;
+            flex-shrink: 0;
+        }
+
+        .auth-form-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: var(--bg-body);
+        }
+
+        .auth-form-wrapper {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .auth-nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .auth-nav-brand {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            text-decoration: none;
+        }
+
+        .auth-nav-brand .brand-mark {
+            width: 30px;
+            height: 30px;
+            font-size: .75rem;
+        }
+
+        .auth-nav-brand .brand-name {
+            font-weight: 800;
+            font-size: .95rem;
+            letter-spacing: .06em;
+            color: var(--text-main);
+        }
+
+        .auth-nav-links {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .auth-nav-link {
+            font-size: .82rem;
+            font-weight: 600;
+            padding: .4rem .85rem;
+            border-radius: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all .2s;
+        }
+
+        .auth-nav-link:hover {
+            color: var(--text-main);
+            background: var(--primary-soft);
+        }
+
+        .auth-nav-link.active {
+            color: var(--primary);
+            background: var(--primary-soft);
+        }
+
+        /* Mobile: hide brand panel */
+        @@media (max-width: 991.98px) {
+            .auth-brand-panel {
+                display: none;
+            }
+            .auth-form-panel {
+                padding: 1rem;
+            }
+            .auth-nav {
+                position: relative;
+                padding: 1rem 1.25rem;
+                background: var(--bg-surface);
+                border-bottom: 1px solid var(--border-color);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Nav Bar -->
+    <div class="auth-nav">
+        <a class="auth-nav-brand" asp-controller="Home" asp-action="Index">
+            <span class="brand-mark"><i class="bi bi-diamond-fill"></i></span>
+            <span class="brand-name">FITGYM</span>
+        </a>
+        <div class="auth-nav-links">
+            <a class="auth-nav-link" asp-controller="Home" asp-action="Index"><i class="bi bi-house me-1"></i>Home</a>
+            <a class="auth-nav-link" asp-controller="Account" asp-action="Login">Sign In</a>
+            <a class="auth-nav-link active" asp-controller="Account" asp-action="Register">Register</a>
+        </div>
+    </div>
+
+    <div class="auth-layout" style="margin-top: 0;">
+        <!-- Branding Side -->
+        <div class="auth-brand-panel">
+            <div class="auth-brand-content">
+                <div class="auth-brand-logo">
+                    <i class="bi bi-diamond-fill"></i>
+                </div>
+                <h1 class="auth-brand-title">FITGYM</h1>
+                <p class="auth-brand-subtitle">Start your fitness journey with the most advanced gym management platform.</p>
+                <ul class="auth-brand-features">
+                    <li><i class="bi bi-calendar-check"></i> Book sessions with top trainers</li>
+                    <li><i class="bi bi-graph-up-arrow"></i> Track your progress &amp; health</li>
+                    <li><i class="bi bi-qr-code"></i> Quick check-in with QR codes</li>
+                    <li><i class="bi bi-shield-lock"></i> Secure &amp; private data</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Form Side -->
+        <div class="auth-form-panel">
+            <div class="auth-form-wrapper">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
