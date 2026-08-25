@@ -26,7 +26,30 @@
         }
     };
 
-    var membershipId = Model.Id.ToString();
+    if (Model.Status == "Active")
+    {
+        headerActions.Add(new PageHeaderAction
+        {
+            Text = "Cancel",
+            Icon = "bi bi-x-circle",
+            Controller = "Memberships",
+            Action = "Cancel",
+            RouteValues = new Dictionary<string, string> { { "id", Model.Id.ToString() } },
+            CssClass = "btn-danger-soft rounded-pill px-3 py-2"
+        });
+    }
+    else if (Model.Status != "Active")
+    {
+        headerActions.Add(new PageHeaderAction
+        {
+            Text = "Renew",
+            Icon = "bi bi-arrow-repeat",
+            Controller = "Memberships",
+            Action = "Renew",
+            RouteValues = new Dictionary<string, string> { { "id", Model.Id.ToString() } },
+            CssClass = "btn-fill rounded-pill px-3 py-2"
+        });
+    }
 
     var header = new PageHeaderModel
     {
@@ -45,28 +68,6 @@
 <div class="container">
     @await Html.PartialAsync("_Alerts")
     @await Html.PartialAsync("_PageHeader", header)
-
-    <div class="d-flex flex-wrap gap-2 mb-3">
-        @if (Model.Status == "Active")
-        {
-            <form asp-action="Cancel" asp-route-id="@Model.Id" method="post">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-danger-soft rounded-pill px-3 py-2" title="Cancel Membership"
-                        onclick="return confirm('Cancel this membership?')">
-                    <i class="bi bi-x-circle me-1"></i> Cancel
-                </button>
-            </form>
-        }
-        else if (Model.Status != "Active")
-        {
-            <form asp-action="Renew" asp-route-id="@Model.Id" method="post">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-fill rounded-pill px-3 py-2" title="Renew Membership">
-                    <i class="bi bi-arrow-repeat me-1"></i> Renew
-                </button>
-            </form>
-        }
-    </div>
 
     <div class="app-card mb-4">
         <div class="app-card-body">

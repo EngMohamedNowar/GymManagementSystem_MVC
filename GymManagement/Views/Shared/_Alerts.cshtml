@@ -5,11 +5,10 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }
-@if (TempData["ErrorMessage"] is not null || TempData["FailedMessage"] is not null)
+@if (TempData["ErrorMessage"] is not null)
 {
-    var msg = TempData["ErrorMessage"] ?? TempData["FailedMessage"];
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>@msg
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }
