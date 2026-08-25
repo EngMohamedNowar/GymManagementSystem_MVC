@@ -307,7 +307,7 @@ a:hover { color: var(--app-primary-strong); }
 
 .detail-list .detail-row:last-child { border-bottom: 0; }
 .detail-list .detail-key { color: var(--app-muted); font-weight: 500; font-size: .875rem; }
-.detail-list .detail-val { font-weight: 600; text-align: right; color: var(--app-text); font-size: .875rem; }
+.detail-list .detail-val { font-weight: 600; text-align: end; color: var(--app-text); font-size: .875rem; }
 
 /* ---- Section spacing ---- */
 .section-title {
@@ -367,5 +367,3 @@ a:hover { color: var(--app-primary-strong); }
 }
 
 /* ---- RTL ---- */
-html[dir="rtl"] .me-1, html[dir="rtl"] .me-2 { margin-right: .25rem !important; margin-left: 0 !important; }
-html[dir="rtl"] .text-end { text-align: left !important; }
