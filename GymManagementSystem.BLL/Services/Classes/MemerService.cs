@@ -165,6 +165,7 @@ namespace GymManagementSystem.BLL.Services.Classes
 
             if(activePlans is not null)
             {
+                memberDTOs.MembershipId = activePlans.Id;
                 var plan = await _unitOfWork.GetRepositories<Plan>().FirstOrDefaultAsync(p => p.Id == activePlans.PlanId, ct);
                 memberDTOs.PlanName = plan?.Name;
                 memberDTOs.MemberShipEndDate = activePlans.EndDate.ToString();

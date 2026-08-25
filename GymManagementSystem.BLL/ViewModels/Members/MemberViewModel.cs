@@ -17,6 +17,7 @@ namespace GymManagementSystem.BLL.ViewModels.Members
         public string DateOfBirth { get; set; }= string.Empty;
         public string Address { get; set; }    = string.Empty;
         public string? PlanName { get; set; } = default;
+        public int? MembershipId { get; set; }
         public string? MemberShipStartDate { get; set; }= default;
         public string? MemberShipEndDate { get; set; } = default;
     }
