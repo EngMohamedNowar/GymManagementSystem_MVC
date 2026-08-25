@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace GymManagementSystem.BLL.ViewModes.Bookings
+namespace GymManagementSystem.BLL.ViewModels.Bookings
 {
     public class SessionSelectViewModel
     {

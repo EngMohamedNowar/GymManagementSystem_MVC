@@ -1,6 +1,6 @@
 ﻿using GymManagementSystem.BLL.Common;
 using GymManagementSystem.BLL.Services.Interfaces;
-using GymManagementSystem.BLL.ViewModes.Bookings;
+using GymManagementSystem.BLL.ViewModels.Bookings;
 using GymManagementSystem.DAL;
 using GymManagementSystem.DAL.Models;
 using System;

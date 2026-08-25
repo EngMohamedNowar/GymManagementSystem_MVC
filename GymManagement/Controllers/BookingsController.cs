@@ -1,5 +1,5 @@
 ﻿using GymManagementSystem.BLL.Services.Interfaces;
-using GymManagementSystem.BLL.ViewModes.Bookings;
+using GymManagementSystem.BLL.ViewModels.Bookings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
