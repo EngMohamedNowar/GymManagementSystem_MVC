@@ -121,5 +121,41 @@ namespace GymManagementSystem.BLL.Services.Classes
 
             return count > 0;
         }
+
+        public async Task<(bool Success, string Message)> CreateAsync(PlanViewModel model, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(model.Name))
+                return (false, "Plan name is required");
+
+            if (model.Price <= 0)
+                return (false, "Price must be greater than zero");
+
+            if (model.DurationDays <= 0)
+                return (false, "Duration must be greater than zero");
+
+            var plan = new Plan
+            {
+                Name = model.Name.Trim(),
+                Price = model.Price,
+                DurationDays = model.DurationDays,
+                Description = model.Description?.Trim() ?? string.Empty,
+                IsActive = true
+            };
+
+            _unitOfWork.GetRepositories<Plan>().Add(plan);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
+
+            return count > 0 ? (true, "Plan created successfully") : (false, "Failed to create plan");
+        }
+
+        public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
+        {
+            var plan = await _unitOfWork.GetRepositories<Plan>().GetByIdAsync(id);
+            if (plan is null) return false;
+
+            _unitOfWork.GetRepositories<Plan>().Delete(plan);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
+            return count > 0;
+        }
     }
 }

@@ -6,12 +6,22 @@ namespace GymManagementSystem.BLL.Services.Classes
     public class StripePaymentService : IStripePaymentService
     {
         private readonly string _webhookSecret;
+        private readonly bool _isConfigured;
 
         public StripePaymentService(IConfiguration configuration)
         {
-            var secretKey = configuration["Stripe:SecretKey"] ?? throw new InvalidOperationException("Stripe:SecretKey is not configured.");
-            _webhookSecret = configuration["Stripe:WebhookSecret"] ?? throw new InvalidOperationException("Stripe:WebhookSecret is not configured.");
-            Stripe.StripeConfiguration.ApiKey = secretKey;
+            var secretKey = configuration["Stripe:SecretKey"];
+            _webhookSecret = configuration["Stripe:WebhookSecret"] ?? string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(secretKey) && !secretKey.Contains("REPLACE"))
+            {
+                _isConfigured = true;
+                Stripe.StripeConfiguration.ApiKey = secretKey;
+            }
+            else
+            {
+                _isConfigured = false;
+            }
         }
 
         public async Task<string> CreateCheckoutSessionAsync(
@@ -25,6 +35,9 @@ namespace GymManagementSystem.BLL.Services.Classes
             string cancelUrl,
             CancellationToken ct = default)
         {
+            if (!_isConfigured)
+                throw new InvalidOperationException("Stripe is not configured. Please set Stripe:SecretKey in appsettings.json.");
+
             var options = new Stripe.Checkout.SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string> { "card" },

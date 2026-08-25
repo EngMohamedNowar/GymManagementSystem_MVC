@@ -81,7 +81,8 @@ namespace GymManagement.Controllers
             var all = (await _membershipService.GetAllAsync(ct))?.ToList() ?? new List<MembershipViewModel>();
             var myMemberships = all.Where(m => m.MemberId == member.Id).ToList();
             ViewBag.Member = member;
-            ViewBag.Payments = await _membershipService.GetAllPaymentsAsync(ct);
+            var allPayments = (await _membershipService.GetAllPaymentsAsync(ct))?.ToList() ?? new List<PaymentViewModel>();
+            ViewBag.Payments = allPayments;
             return View(myMemberships);
         }
 
@@ -374,12 +375,14 @@ namespace GymManagement.Controllers
             if (member is null) return RedirectToAction("Index", "Home");
 
             var result = await _membershipService.GetDetailsAsync(membershipId, ct);
-            if (result.success)
+            if (result.success && result.value?.Status == "Pending")
             {
-                TempData["SuccessMessage"] = "Payment successful! Your membership is now active.";
-                await _auditService.LogAsync(User.Identity?.Name, "Stripe Payment Success", "Membership", membershipId.ToString(), null, ct);
+                await _membershipService.ActivateMembershipAsync(membershipId, ct);
+                await _membershipService.RecordMemberPaymentAsync(membershipId, result.value.Price, "Stripe", null, "Stripe Checkout success", ct);
             }
 
+            TempData["SuccessMessage"] = "Payment successful! Your membership is now active.";
+            await _auditService.LogAsync(User.Identity?.Name, "Stripe Payment Success", "Membership", membershipId.ToString(), null, ct);
             return RedirectToAction(nameof(MyMembership));
         }
 

@@ -9,14 +9,14 @@ namespace GymManagementSystem.BLL.Services.Interfaces
 
         Task<PlanViewModel?> GetByIdAsync(int id, CancellationToken ct = default);
 
-        Task<(bool Success, string Message)> TogglePlanStatus(int id,CancellationToken ct);
+        Task<(bool Success, string Message)> TogglePlanStatus(int id, CancellationToken ct);
 
-        //Task<bool> CreateAsync(TCreateDto model, CancellationToken ct = default);
+        Task<(bool Success, string Message)> CreateAsync(PlanViewModel model, CancellationToken ct = default);
 
         Task<PlanViewModel?> GetForUpdateAsync(int id, CancellationToken ct = default);
 
         Task<bool> UpdateAsync(PlanViewModel model, CancellationToken ct = default);
 
-        //Task<bool> DeleteAsync(int id, CancellationToken ct = default);
+        Task<bool> DeleteAsync(int id, CancellationToken ct = default);
     }
 }

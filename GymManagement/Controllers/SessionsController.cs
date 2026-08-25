@@ -118,7 +118,7 @@ namespace GymManagement.PL.Controllers
                 var result = await _sessionService.CreateSessionAsync(model, ct);
                 if (result.success)
                 {
-                    TempData["SuccessMessage"] = "session Created Successfully";
+                TempData["SuccessMessage"] = "Session updated successfully";
                     await _auditService.LogAsync(User.Identity?.Name, "Create Session", "Session", null, model.Description, ct);
                 }
                 else
