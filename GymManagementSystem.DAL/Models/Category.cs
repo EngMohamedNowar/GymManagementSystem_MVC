@@ -6,7 +6,7 @@ namespace GymManagementSystem.DAL.Models
 {
     public class Category : Base
     {
-        public string Name { get; set; }
-        public ICollection<Session> Sessions { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public ICollection<Session> Sessions { get; set; } = new List<Session>();
     }
 }

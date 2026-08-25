@@ -21,7 +21,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         public async Task<IEnumerable<BookingViewModel>> GetAllBookingsAsync(CancellationToken ct = default)
         {
             var bookings = await _unitOfWork.bookingRepository.GetAllBookingsWithDetailsAsync(ct);
-            if (bookings is null) return null;
+            if (bookings is null) return Enumerable.Empty<BookingViewModel>();
 
             var bookingsDTOs = bookings.Select(b => new BookingViewModel()
             {
@@ -43,7 +43,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         public async Task<IEnumerable<MemberSelectViewModel>> GetAllMembersForDropDownAsync(CancellationToken ct = default)
         {
             var members = await _unitOfWork.GetRepositories<Member>().GetAllAsync(ct: ct);
-            if (members is null) return null;
+            if (members is null) return Enumerable.Empty<MemberSelectViewModel>();
 
             var membersDTOs = members.Select(m => new MemberSelectViewModel()
             {
@@ -57,7 +57,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         public async Task<IEnumerable<SessionSelectViewModel>> GetAvailableSessionsForDropDownAsync(CancellationToken ct = default)
         {
             var sessions = await _unitOfWork.sessionRepository.GetAllSessionWithTrainerAndCategoryAsync(ct);
-            if (sessions is null) return null;
+            if (sessions is null) return Enumerable.Empty<SessionSelectViewModel>();
 
             var result = new List<SessionSelectViewModel>();
             foreach (var session in sessions.Where(s => s.StartDate > DateTime.Now).OrderBy(s => s.StartDate))

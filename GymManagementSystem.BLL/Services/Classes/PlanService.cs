@@ -26,7 +26,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         {
             var plans = await _unitOfWork.GetRepositories<Plan>().GetAllAsync();
 
-            if (plans is null) return null;
+            if (plans is null) return Enumerable.Empty<PlanViewModel>();
 
             var plansDto = plans.Select(plan => new PlanViewModel()
             {

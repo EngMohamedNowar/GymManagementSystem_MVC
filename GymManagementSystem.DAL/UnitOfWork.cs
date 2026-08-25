@@ -35,7 +35,7 @@ namespace GymManagementSystem.DAL
 
             var typeName = typeof(TEntity).Name;
             if(_repositories.TryGetValue(typeName,out object? value)){
-                return value as IGenericRepositories<TEntity>;
+                return (value as IGenericRepositories<TEntity>)!;
             }
             var repo = new GenericRepositories<TEntity>(_context);
             _repositories.Add(typeName, repo);

@@ -32,6 +32,7 @@ namespace GymManagement.Controllers
             if (User.IsInRole("Member"))
             {
                 var email = User.Identity?.Name;
+                if (string.IsNullOrEmpty(email)) return null;
                 var me = await _memberService.GetMemberByEmailAsync(email, ct);
                 return me?.Id;
             }

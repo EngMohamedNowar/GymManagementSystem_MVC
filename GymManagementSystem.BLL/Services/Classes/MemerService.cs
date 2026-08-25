@@ -128,7 +128,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         public async Task<IEnumerable<MemberViewModel>> GetAllMembersAsync(CancellationToken ct = default)
         {
             var members = await _unitOfWork.GetRepositories<Member>().GetAllAsync(ct: ct);
-            if (members is null) return null;
+            if (members is null) return Enumerable.Empty<MemberViewModel>();
 
             // Mapping --> Casting 
             //var membersDTOs = members.Select(member => new MemberViewModel()
@@ -209,7 +209,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             return healthRecord;
         }
 
-        public async Task<UpdateMemberDTOs> MemberToUpdateAsync(int memberId, CancellationToken ct = default)
+        public async Task<UpdateMemberDTOs?> MemberToUpdateAsync(int memberId, CancellationToken ct = default)
         {
             var member = await _unitOfWork.GetRepositories<Member>().GetByIdAsync(memberId, ct);
             if (member is null) return null;
@@ -238,7 +238,7 @@ namespace GymManagementSystem.BLL.Services.Classes
 
             if (emailExist || phoneExist) return false;
 
-            member.Name = model.Name;
+            member.Name = model.Name ?? member.Name;
             member.Email = model.Email;
             member.Phone = model.Phone;
             member.Address.BuildingNumber = model.BuildingNumber;

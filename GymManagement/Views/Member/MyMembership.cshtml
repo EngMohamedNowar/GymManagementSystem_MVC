@@ -69,7 +69,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var p in payments.Where(p => p.MembershipId == ms.Id))
+                                    @foreach (var p in (payments ?? new List<PaymentViewModel>()).Where(p => p.MembershipId == ms.Id))
                                     {
                                         <tr>
                                             <td>@p.PaymentDate.ToString("yyyy-MM-dd")</td>

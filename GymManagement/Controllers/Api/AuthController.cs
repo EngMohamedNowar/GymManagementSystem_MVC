@@ -54,7 +54,7 @@ namespace GymManagement.Controllers.Api
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.UserName ?? user.Email),
+                new Claim(ClaimTypes.Name, user.UserName ?? user.Email ?? string.Empty),
                 new Claim(ClaimTypes.Email, user.Email ?? string.Empty)
             };
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));

@@ -12,21 +12,21 @@ namespace GymManagementSystem.BLL.ViewModels.Members
     {
         [Required(ErrorMessage ="Profile Picture Is Required")]
         [Display(Name="Profile Picture")]
-        public IFormFile Photo { get; set; }
+        public IFormFile Photo { get; set; } = null!;
         [Required(ErrorMessage ="Name Is Required")]
         [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage ="Name Can Only Contain a Letter")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Email Is Required")]
         [EmailAddress(ErrorMessage ="Invalid Email Format")]
         [DataType(DataType.EmailAddress)]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Phone Is Required")]
         [Phone(ErrorMessage = "Invalid Phone Format")]
         [DataType(DataType.PhoneNumber)]
         [RegularExpression(@"^(010|011|012|015)\d{8}$",ErrorMessage ="Invalid Phone Number")]
-        public string Phone { get; set; }
+        public string Phone { get; set; } = string.Empty;
 
 
         [Required(ErrorMessage = "Gender  Is Required")]
@@ -37,12 +37,12 @@ namespace GymManagementSystem.BLL.ViewModels.Members
         [Required(ErrorMessage = "City Is Required")]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "Building Number Must Beetween 2 and 100")]
         [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "City Can Only Contain a Letter")]
-        public string City { get; set; }
+        public string City { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Street Is Required")]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "Street Number Must Beetween 2 and 100")]
         [RegularExpression(@"^[a-zA-Z0-9\s]+$", ErrorMessage = "Street Can Only Contain a Letter And Number")]
-        public string Street { get; set; }
+        public string Street { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Date Of Birth Is Required")]
         [DataType(DataType.Date)]

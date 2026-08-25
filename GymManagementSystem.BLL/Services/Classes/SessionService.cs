@@ -43,7 +43,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         public async Task<IEnumerable<CategorySelectViewModel>> GetAllCategoriesForDropDownAsync(CancellationToken ct)
         {
             var categories = await _unitOfWork.GetRepositories<Category>().GetAllAsync(ct: ct);
-            if (categories is null) return null;
+            if (categories is null) return Enumerable.Empty<CategorySelectViewModel>();
             var categoriesDTOs = categories.Select(m => new CategorySelectViewModel()
             {
                 Id = m.Id,
@@ -55,7 +55,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         public async Task<IEnumerable<SessionViewModel>> GetAllSessionsAsync(CancellationToken ct)
         {
            var sessions = await _unitOfWork.sessionRepository.GetAllSessionWithTrainerAndCategoryAsync(ct);
-            if (sessions is null || !sessions.Any()) return null;
+            if (sessions is null || !sessions.Any()) return Enumerable.Empty<SessionViewModel>();
             //var sessionsDTOs = sessions.Select(s => new SessionViewModel()
             // {
             //     Id = s.Id,
@@ -86,7 +86,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         public async Task<IEnumerable<TrainerSelectViewModel>> GetAllTrainersForDropDownAsync(CancellationToken ct)
         {
             var trainers = await _unitOfWork.GetRepositories<Trainer>().GetAllAsync(ct: ct);
-            if (trainers is null) return null;
+            if (trainers is null) return Enumerable.Empty<TrainerSelectViewModel>();
             var trainersDTOs = trainers.Select(m => new TrainerSelectViewModel()
             {
                 Id = m.Id,
@@ -106,8 +106,8 @@ namespace GymManagementSystem.BLL.Services.Classes
 
         public async Task<IEnumerable<SessionViewModel>> GetSessionsScheduleAsync(CancellationToken ct = default)
         {
-            var sessions = await _unitOfWork.sessionRepository.GetAllSessionWithTrainerAndCategoryAsync(ct);
-            if (sessions is null || !sessions.Any()) return null;
+           var sessions = await _unitOfWork.sessionRepository.GetAllSessionWithTrainerAndCategoryAsync(ct);
+            if (sessions is null || !sessions.Any()) return Enumerable.Empty<SessionViewModel>();
 
             var sessionsDTOs = _mapper.Map<IEnumerable<SessionViewModel>>(sessions)
                 .OrderBy(s => s.StartDate)
