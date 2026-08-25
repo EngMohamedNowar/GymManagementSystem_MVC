@@ -71,7 +71,7 @@ namespace GymManagement.Controllers
         {
             ViewBag.Members = new SelectList(await _membershipService.GetAllMembersForDropDownAsync(ct), "Id", "Name");
             ViewBag.Plans = new SelectList(await _membershipService.GetAllPlansForDropDownAsync(ct), "Id", "Name");
-            return View();
+            return View(new CreateMembershipViewModel());
         }
 
         [HttpPost]

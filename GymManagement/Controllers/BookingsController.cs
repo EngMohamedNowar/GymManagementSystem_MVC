@@ -29,7 +29,7 @@ namespace GymManagement.PL.Controllers
         {
             ViewBag.Members = new SelectList(await _bookingService.GetAllMembersForDropDownAsync(ct), "Id", "Name");
             ViewBag.Sessions = new SelectList(await _bookingService.GetAvailableSessionsForDropDownAsync(ct), "Id", "Display");
-            return View();
+            return View(new CreateBookingViewModel());
         }
 
         [HttpPost]

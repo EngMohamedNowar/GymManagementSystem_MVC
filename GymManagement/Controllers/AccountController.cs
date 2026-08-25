@@ -27,7 +27,7 @@ namespace GymManagement.PL.Controllers
             _unitOfWork = unitOfWork;
         }
         [HttpGet]
-        public IActionResult Login() => View();
+        public IActionResult Login() => View(new LoginViewModel());
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)

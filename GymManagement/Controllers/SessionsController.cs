@@ -107,7 +107,7 @@ namespace GymManagement.PL.Controllers
             ViewBag.Trainers = new SelectList(await _sessionService.GetAllTrainersForDropDownAsync(ct), "Id", "Name");
             ViewBag.Categories = new SelectList(await _sessionService.GetAllCategoriesForDropDownAsync(ct), "Id", "Name");
 
-            return View();
+            return View(new CreateSessionViewModel());
         }
 
         [HttpPost]
