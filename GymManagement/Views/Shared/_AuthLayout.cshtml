@@ -141,7 +141,7 @@
             top: 0;
             left: 0;
             right: 0;
-            padding: 1.25rem 2rem;
+            padding: .75rem 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -168,16 +168,16 @@
             color: var(--text-main);
         }
 
-        .auth-nav-links {
+        .auth-nav-center {
             display: flex;
             align-items: center;
-            gap: .5rem;
+            gap: .25rem;
         }
 
         .auth-nav-link {
             font-size: .82rem;
-            font-weight: 600;
-            padding: .4rem .85rem;
+            font-weight: 500;
+            padding: .5rem .85rem;
             border-radius: 8px;
             color: var(--text-muted);
             text-decoration: none;
@@ -194,7 +194,51 @@
             background: var(--primary-soft);
         }
 
-        /* Mobile: hide brand panel */
+        .auth-nav-right {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .auth-nav-right .btn-nav-ghost {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: .82rem;
+            padding: .45rem .9rem;
+            border-radius: 8px;
+            transition: all .2s ease;
+            text-decoration: none;
+        }
+
+        .auth-nav-right .btn-nav-ghost:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-soft);
+        }
+
+        .auth-nav-right .btn-nav-fill {
+            background: var(--primary);
+            border: 1px solid var(--primary);
+            color: #fff;
+            font-weight: 600;
+            font-size: .82rem;
+            padding: .45rem .9rem;
+            border-radius: 8px;
+            transition: all .2s ease;
+            text-decoration: none;
+        }
+
+        .auth-nav-right .btn-nav-fill:hover {
+            background: var(--primary-strong);
+            border-color: var(--primary-strong);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, .25);
+        }
+
+        /* Mobile: hide brand panel, stack nav */
         @@media (max-width: 991.98px) {
             .auth-brand-panel {
                 display: none;
@@ -204,25 +248,38 @@
             }
             .auth-nav {
                 position: relative;
-                padding: 1rem 1.25rem;
+                padding: .75rem 1.25rem;
                 background: var(--bg-surface);
                 border-bottom: 1px solid var(--border-color);
+                flex-wrap: wrap;
+                gap: .5rem;
+            }
+            .auth-nav-center {
+                display: none;
+            }
+            .auth-nav-right {
+                margin-left: auto;
             }
         }
     </style>
 </head>
 <body>
     <!-- Top Nav Bar -->
-    <div class="auth-nav">
+    <nav class="auth-nav">
         <a class="auth-nav-brand" asp-controller="Home" asp-action="Index">
             <span class="brand-mark"><i class="bi bi-diamond-fill"></i></span>
             <span class="brand-name">FITGYM</span>
         </a>
-        <div class="auth-nav-links">
+        <div class="auth-nav-center">
             <a class="auth-nav-link" asp-controller="Home" asp-action="Index"><i class="bi bi-house me-1"></i>Home</a>
-            <a class="auth-nav-link" asp-controller="Account" asp-action="Login">Sign In</a>
-            <a class="auth-nav-link active" asp-controller="Account" asp-action="Register">Register</a>
+            <a class="auth-nav-link" asp-controller="Home" asp-action="Index"><i class="bi bi-info-circle me-1"></i>About</a>
+            <a class="auth-nav-link" asp-controller="Home" asp-action="Index"><i class="bi bi-envelope me-1"></i>Contact</a>
         </div>
+        <div class="auth-nav-right">
+            <a class="btn btn-nav-ghost" asp-controller="Account" asp-action="Login"><i class="bi bi-box-arrow-in-right me-1"></i>Sign In</a>
+            <a class="btn btn-nav-fill" asp-controller="Account" asp-action="Register"><i class="bi bi-person-plus me-1"></i>Register</a>
+        </div>
+    </nav>
     </div>
 
     <div class="auth-layout" style="margin-top: 0;">
