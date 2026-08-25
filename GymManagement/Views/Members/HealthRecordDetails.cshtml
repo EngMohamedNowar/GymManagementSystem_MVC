@@ -3,6 +3,15 @@
 @{
     ViewData["Title"] = "Health Record";
 
+    var bloodTypeMap = new Dictionary<string, string>
+    {
+        ["1"] = "A+", ["2"] = "A-", ["3"] = "B+", ["4"] = "B-",
+        ["5"] = "AB+", ["6"] = "AB-", ["7"] = "O+", ["8"] = "O-"
+    };
+    var displayBlood = Model.BloodType;
+    if (!string.IsNullOrEmpty(displayBlood) && bloodTypeMap.ContainsKey(displayBlood))
+        displayBlood = bloodTypeMap[displayBlood];
+
     var header = new PageHeaderModel
     {
         Title = "Health Record",
@@ -38,7 +47,7 @@
                 </div>
                 <div class="detail-row">
                     <span class="detail-key">Blood Type</span>
-                    <span class="detail-val">@(Model.BloodType?.ToString() ?? "—")</span>
+                    <span class="detail-val">@(displayBlood ?? "—")</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-key">Note</span>
