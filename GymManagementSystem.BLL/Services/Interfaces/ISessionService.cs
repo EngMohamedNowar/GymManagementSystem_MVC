@@ -1,5 +1,5 @@
-﻿using GymManagementSystem.BLL.Common;
-using GymManagementSystem.BLL.ViewModes.Sessions;
+using GymManagementSystem.BLL.Common;
+using GymManagementSystem.BLL.ViewModels.Sessions;
 using GymManagementSystem.DAL.Models;
 using System;
 using System.Collections.Generic;
@@ -20,6 +20,7 @@ namespace GymManagementSystem.BLL.Services.Interfaces
 
         Task<IEnumerable<SessionViewModel>> GetSessionsScheduleAsync(CancellationToken ct = default);
         Task<Result<IEnumerable<AttendeeViewModel>>> GetSessionAttendeesAsync(int sessionId, CancellationToken ct = default);
+        Task<Result> SetAttendanceAsync(int sessionId, int memberId, bool isAttended, CancellationToken ct = default);
 
     }
 }

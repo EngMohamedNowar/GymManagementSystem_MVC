@@ -1,0 +1,45 @@
+@*
+    Unified Form Actions Partial
+    Usage: @await Html.PartialAsync("_FormActions", new FormActionsModel { ... })
+*@
+@model GymManagement.PL.Models.FormActionsModel
+
+<div class="d-flex justify-content-end gap-3 mt-4">
+    @if (Model.BackAction is not null)
+    {
+        <a asp-controller="@Model.BackAction.Controller" asp-action="@Model.BackAction.Action"
+           asp-all-route-data="@Model.BackAction.RouteValues"
+           class="btn @Model.BackAction.CssClass">
+            @if (!string.IsNullOrEmpty(Model.BackAction.Icon))
+            {
+                <i class="@Model.BackAction.Icon me-2"></i>
+            }
+            @Model.BackAction.Text
+        </a>
+    }
+    @if (Model.SubmitAction is not null)
+    {
+        <button type="submit" class="btn @Model.SubmitAction.CssClass">
+            @if (!string.IsNullOrEmpty(Model.SubmitAction.Icon))
+            {
+                <i class="@Model.SubmitAction.Icon me-2"></i>
+            }
+            @Model.SubmitAction.Text
+        </button>
+    }
+    @if (Model.CustomActions is not null)
+    {
+        @foreach (var action in Model.CustomActions)
+        {
+            <a asp-controller="@action.Controller" asp-action="@action.Action"
+               asp-all-route-data="@action.RouteValues"
+               class="btn @action.CssClass">
+                @if (!string.IsNullOrEmpty(action.Icon))
+                {
+                    <i class="@action.Icon me-2"></i>
+                }
+                @action.Text
+            </a>
+        }
+    }
+</div>

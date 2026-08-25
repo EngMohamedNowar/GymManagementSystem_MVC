@@ -75,7 +75,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         {
             try
             {
-                var filePath = Path.Combine(_env.ContentRootPath, folderName, fileName);
+                var filePath = Path.Combine(_env.WebRootPath, folderName, fileName);
                 if (!File.Exists(filePath)) return false;
                 File.Delete(filePath);
                 return true;
@@ -92,7 +92,11 @@ namespace GymManagementSystem.BLL.Services.Classes
             if (string.IsNullOrWhiteSpace(folderName) || string.IsNullOrWhiteSpace(fileName))
                 return null;
 
-            var filePath = Path.Combine(_env.WebRootPath, folderName, fileName);
+            var resolvedRoot = Path.GetFullPath(_env.WebRootPath);
+            var filePath = Path.GetFullPath(Path.Combine(resolvedRoot, folderName, fileName));
+
+            if (!filePath.StartsWith(resolvedRoot, StringComparison.OrdinalIgnoreCase))
+                return null;
 
             if (!File.Exists(filePath))
                 return null;

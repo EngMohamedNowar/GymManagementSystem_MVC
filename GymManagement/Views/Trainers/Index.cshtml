@@ -1,95 +1,68 @@
-﻿@model IEnumerable<TrainerViewModel>
+﻿@using GymManagementSystem.BLL.ViewModels.Trainers
+@using GymManagementSystem.BLL.ViewModels.Common
+@model PaginationViewModel<TrainerViewModel>
+@{ ViewData["Title"] = "Trainers"; }
 
 <div class="container">
-    <header class="d-flex justify-content-between mt-5 mb-4 align-items-center">
-        <div>
-            <h2 class="text-primary-color mb-0">Our Trainers</h2>
-            <p class="text-muted">Professional fitness instructors</p>
-        </div>
-        <a asp-controller="Trainers" asp-action="Create" class="btn btn-fill fw-medium rounded-pill px-4 py-3">
-            <i class="bi bi-plus-lg me-2"></i>Add Trainer
-        </a>
-    </header>
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", new PageHeaderModel { Title = "Trainers", Subtitle = "Professional fitness instructors", Actions = new List<PageHeaderAction> { new PageHeaderAction { Text = "Add Trainer", Icon = "bi bi-person-plus", Controller = "Trainers", Action = "Create", CssClass = "btn-fill rounded-pill px-3 py-2" } } })
 
-    @if (Model != null && Model.Any())
+    <form method="get" class="mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <input type="text" name="search" class="form-control" placeholder="Name, email or specialty" value="@ViewBag.Search" />
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-fill btn-sm px-3"><i class="bi bi-search me-1"></i>Search</button>
+                <a asp-action="Index" class="btn btn-soft btn-sm px-3">Clear</a>
+            </div>
+        </div>
+    </form>
+
+    @if (Model?.Items?.Any() == true)
     {
-        <div class="table-responsive" style="overflow: visible;">
-            <table class="table table-borderless">
-                <thead>
-                    <tr>
-                        <th><span>Name</span></th>
-                        <th><span>Email</span></th>
-                        <th><span>Phone</span></th>
-                        <th><span>Specialization</span></th>
-                        <th><span>Action</span></th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @foreach (var trainer in Model)
-                    {
+        <div class="app-card">
+            <div class="table-responsive">
+                <table class="table-app">
+                    <thead>
                         <tr>
-                            <td><span class="fw-bold">@trainer.Name</span></td>
-                            <td><span>@trainer.Email</span></td>
-                            <td><span>@trainer.Phone</span></td>
-                            <td>
-                                <span class="badge bg-primary-color">@trainer.Specialization</span>
-                            </td>
-                            <td class="action position-relative">
-                                <div class="dropdown">
-                                    <button class="btn btn-link p-0 border-0" type="button" id="dropdownMenuButton-@trainer.Id" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <img src="~/images/action dots.jpg" alt="action icon" />
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-start" aria-labelledby="dropdownMenuButton-@trainer.Id">
-                                        <li>
-                                            <a asp-controller="Trainers" asp-action="Details" asp-route-id="@trainer.Id" class="dropdown-item d-flex align-items-center gap-3">
-                                                <i class="bi bi-eye text-primary-color"></i>
-                                                <span>View Details</span>
-                                            </a>
-                                        </li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <a asp-controller="Trainers" asp-action="Edit" asp-route-id="@trainer.Id" class="dropdown-item d-flex align-items-center gap-3">
-                                                <i class="bi bi-pencil text-primary-color"></i>
-                                                <span>Edit Details</span>
-                                            </a>
-                                        </li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <a asp-controller="Trainers" asp-action="Delete" asp-route-id="@trainer.Id"
-                                               class="dropdown-item d-flex align-items-center gap-3 text-danger">
-                                                <i class="bi bi-trash"></i>
-                                                <span>Delete</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
+                            <th>Trainer</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Specialization</th>
+                            <th class="text-end">Actions</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="avatar">@(string.IsNullOrEmpty(t.Name) ? "?" : t.Name[0].ToString())</span>
+                                        <span class="cell-strong">@t.Name</span>
+                                    </div>
+                                </td>
+                                <td>@t.Email</td>
+                                <td>@t.Phone</td>
+                                <td><span class="badge-soft">@t.Specialization</span></td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <a class="btn-icon" title="Details" asp-action="Details" asp-route-id="@t.Id"><i class="bi bi-eye"></i></a>
+                                        <a class="btn-icon" title="Edit" asp-action="Edit" asp-route-id="@t.Id"><i class="bi bi-pencil"></i></a>
+                                        <a class="btn-icon btn-danger-soft" title="Delete" asp-action="Delete" asp-route-id="@t.Id"><i class="bi bi-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
+        @await Html.PartialAsync("_Pagination", Model)
     }
     else
     {
-        <div class="text-center py-5">
-            <i class="bi bi-person-workspace display-1 text-muted"></i>
-            <h4 class="mt-3 text-muted">No Trainers Available</h4>
-            <p class="text-muted">Add your first trainer to get started</p>
-        </div>
+        @await Html.PartialAsync("_EmptyState", new EmptyStateModel { Icon = "bi bi-person-workspace", Title = "No Trainers Yet", Message = "Add your first trainer to get started.", Action = new EmptyStateAction { Text = "Add Trainer", Icon = "bi bi-person-plus", Controller = "Trainers", Action = "Create" } })
     }
 </div>
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <script>
-        alert('@TempData["SuccessMessage"]');
-    </script>
-}
-@if (TempData["FailedMessage"] != null)
-{
-    <script>
-        alert('@TempData["FailedMessage"]');
-    </script>
-}

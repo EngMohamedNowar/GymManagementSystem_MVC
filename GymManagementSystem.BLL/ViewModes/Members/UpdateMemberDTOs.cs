@@ -10,6 +10,7 @@ namespace GymManagementSystem.BLL.ViewModes.Members
     {
         //[Required(ErrorMessage = "Name Is Required")]
         //[RegularExpression(@"^[a-zA-Z]\s+$", ErrorMessage = "Name Can Only Contain a Letter")]
+        public int Id { get; set; }
         public string? Name { get; set; }
 
         public string? Photo { get; set; }

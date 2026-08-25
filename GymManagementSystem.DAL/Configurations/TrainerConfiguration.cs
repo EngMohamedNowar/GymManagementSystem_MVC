@@ -13,7 +13,7 @@ namespace GymManagementSystem.DAL.Configurations
         {
             builder.Property(U => U.CreatedAt)
                 .HasColumnName("HireDate")
-                .HasDefaultValueSql("GETDATE()");
+                .HasDefaultValueSql("SYSUTCDATETIME()");
             base.Configure(builder);
         }
     }

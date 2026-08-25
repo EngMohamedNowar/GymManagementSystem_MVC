@@ -1,0 +1,91 @@
+﻿@using GymManagementSystem.BLL.ViewModes.Bookings
+@model IEnumerable<BookingViewModel>
+
+@{
+    ViewData["Title"] = "Bookings";
+
+    var header = new PageHeaderModel
+    {
+        Title = "Bookings",
+        Subtitle = "Manage member session bookings",
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction { Text = "New Booking", Icon = "bi bi-plus-lg", Controller = "Bookings", Action = "Create", CssClass = "btn-fill rounded-pill px-3 py-2" }
+        }
+    };
+
+    var empty = new EmptyStateModel
+    {
+        Icon = "bi bi-journal-check",
+        Title = "No Bookings Available",
+        Message = "Create your first booking to get started.",
+        Action = new EmptyStateAction { Text = "New Booking", Icon = "bi bi-plus-lg", Controller = "Bookings", Action = "Create", CssClass = "btn-fill rounded-pill px-3" }
+    };
+}
+
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+
+    @if (Model is not null && Model.Any())
+    {
+        <div class="app-card">
+            <div class="table-responsive">
+                <table class="table-app">
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Session</th>
+                            <th>Trainer</th>
+                            <th>Date & Time</th>
+                            <th>Status</th>
+                            <th>Attendance</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var booking in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="cell-strong">@booking.MemberName</div>
+                                    <div class="cell-sub">@booking.MemberPhone</div>
+                                </td>
+                                <td>@booking.SessionCategoryName</td>
+                                <td>@booking.TrainerName</td>
+                                <td>
+                                    <div>@booking.DateDisplay</div>
+                                    <div class="cell-sub">@booking.TimeRangeDisplay</div>
+                                </td>
+                                <td>
+                                    <span class="badge-soft @(booking.Status == "Ongoing" ? "badge-ok" : booking.Status == "Upcoming" ? "badge-soft" : "badge-warn")">@booking.Status</span>
+                                </td>
+                                <td>
+                                    <span class="badge-soft @(booking.IsAttended ? "badge-ok" : "badge-warn")">
+                                        @(booking.IsAttended ? "Attended" : "Not Attended")
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    @if (booking.CanCancel)
+                                    {
+                                        <form asp-action="Cancel" asp-route-sessionId="@booking.SessionId" asp-route-memberId="@booking.MemberId" method="post" class="d-inline">
+                                            <button type="submit" class="btn-icon btn-danger-soft" title="Cancel"><i class="bi bi-x-circle"></i></button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        @await Html.PartialAsync("_EmptyState", empty)
+    }
+</div>

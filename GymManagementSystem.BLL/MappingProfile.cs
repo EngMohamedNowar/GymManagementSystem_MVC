@@ -1,6 +1,6 @@
-﻿using AutoMapper;
-using GymManagementSystem.BLL.ViewModes.Members;
-using GymManagementSystem.BLL.ViewModes.Sessions;
+using AutoMapper;
+using GymManagementSystem.BLL.ViewModels.Members;
+using GymManagementSystem.BLL.ViewModels.Sessions;
 using GymManagementSystem.DAL.Models;
 using System;
 using System.Collections.Generic;

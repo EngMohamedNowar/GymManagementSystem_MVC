@@ -35,5 +35,16 @@ namespace GymManagement.PL.Controllers
             ViewBag.SessionId = id;
             return View(result.value);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkAttendance(int memberId, int sessionId, bool isAttended, CancellationToken ct)
+        {
+            var result = await _sessionService.SetAttendanceAsync(sessionId, memberId, isAttended, ct);
+            if (!result.success)
+            {
+                TempData["ErrorMessage"] = result.error;
+            }
+            return RedirectToAction(nameof(Attendees), new { id = sessionId });
+        }
     }
 }

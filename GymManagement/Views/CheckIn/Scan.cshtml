@@ -1,0 +1,46 @@
+@using GymManagementSystem.DAL.Models
+@{
+    ViewData["Title"] = "Check-in Scanner";
+    var scanned = (Member?)ViewBag.ScannedMember;
+
+    var header = new PageHeaderModel
+    {
+        Title = "Member Check-in",
+        Subtitle = "Enter a member ID to mark attendance",
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction { Text = "Today's Check-ins", Icon = "bi bi-list-check", Controller = "CheckIn", Action = "Today", CssClass = "btn-soft rounded-pill px-3" }
+        }
+    };
+}
+
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+
+    <div class="app-card" style="max-width:520px;">
+        <div class="app-card-body">
+            <form asp-action="Scan" method="post" class="form-app">
+                <div class="mb-3">
+                    <label class="form-label">Member ID</label>
+                    <input type="number" name="memberId" class="form-control" placeholder="e.g. 12" value="@(scanned?.Id)" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Note (optional)</label>
+                    <input type="text" name="note" class="form-control" placeholder="e.g. Morning visit" />
+                </div>
+                <button type="submit" class="btn btn-fill rounded-pill px-4 w-100">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Check In
+                </button>
+            </form>
+
+            @if (scanned is not null)
+            {
+                <div class="alert alert-success mt-3">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong>@scanned.Name</strong> checked in.
+                </div>
+            }
+        </div>
+    </div>
+</div>

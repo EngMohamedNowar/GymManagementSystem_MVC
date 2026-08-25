@@ -41,12 +41,12 @@ namespace GymManagementSystem.DAL.Repositories.Classes
 
         public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct)
         {
-            return await _context.Set<TEntity>().AnyAsync(predicate, ct =default);
+            return await _context.Set<TEntity>().AnyAsync(predicate, ct);
         }
 
         public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct)
         {
-            return await _context.Set<TEntity>().FirstOrDefaultAsync(predicate, ct = default);
+            return await _context.Set<TEntity>().FirstOrDefaultAsync(predicate, ct);
 
         }
 

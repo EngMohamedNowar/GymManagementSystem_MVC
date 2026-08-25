@@ -1,0 +1,78 @@
+@model RegisterViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Create Account";
+}
+
+<div class="py-5">
+    <div class="app-card mx-auto" style="max-width:460px;">
+        <div class="app-card-body p-4">
+            <div class="text-center mb-4">
+                <span class="brand-mark mb-2" style="display:inline-flex;">
+                    <i class="bi bi-diamond-fill"></i>
+                </span>
+                <h1 class="h4 mt-3 mb-1">Create Account</h1>
+                <p class="text-muted small mb-0">Join FITGYM and start your fitness journey.</p>
+            </div>
+
+            <form asp-action="Register" asp-controller="Account" method="post" id="registerForm" class="form-app">
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Full Name</label>
+                    <input asp-for="Name" class="form-control" placeholder="John Doe" autocomplete="name" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Email Address</label>
+                    <input asp-for="Email" class="form-control" placeholder="you@example.com" autocomplete="email" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Phone" class="form-label">Phone Number</label>
+                    <input asp-for="Phone" class="form-control" placeholder="01012345678" autocomplete="tel" />
+                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <input asp-for="Password" class="form-control" placeholder="Min. 6 characters" autocomplete="new-password" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Re-enter password" autocomplete="new-password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-fill w-100 rounded-pill py-2 mt-2" id="registerBtn">
+                    <i class="bi bi-person-plus me-2"></i>Create Account
+                </button>
+
+                <div class="text-center mt-3">
+                    <span class="text-muted small">Already have an account?</span>
+                    <a asp-action="Login" class="small text-decoration-none ms-1">Sign in</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            $('#Name').focus();
+            $('#registerForm').on('submit', function () {
+                if ($(this).valid()) {
+                    const btn = document.getElementById('registerBtn');
+                    btn.disabled = true;
+                }
+            });
+        });
+    </script>
+}

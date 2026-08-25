@@ -1,26 +1,48 @@
-﻿using GymManagementSystem.BLL.Services.Classes;
+using GymManagementSystem.BLL.Services.Classes;
 using GymManagementSystem.BLL.Services.Interfaces;
-using GymManagementSystem.BLL.ViewModes.Trainers;
-using GymManagementSystem.DAL.Models;
+using GymManagementSystem.BLL.ViewModels.Common;
+using GymManagementSystem.BLL.ViewModels.Trainers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymManagement.PL.Controllers
 {
     [Authorize(Roles = "SuperAdmin")]
-    public class TrainersController: Controller
+    public class TrainersController : Controller
     {
         private readonly ITrainerService _trainerService;
+        private readonly IAuditService _auditService;
 
-        public TrainersController(ITrainerService trainerService)
+        public TrainersController(ITrainerService trainerService, IAuditService auditService)
         {
             _trainerService = trainerService;
+            _auditService = auditService;
         }
 
-        public async Task<IActionResult> Index(CancellationToken ct)
+        public async Task<IActionResult> Index(string? search, int page = 1, int pageSize = 10, CancellationToken ct = default)
         {
-            var trainers = await _trainerService.GetAllTrainersAsync(ct);
-            return View(trainers);
+            page = page < 1 ? 1 : page;
+            var all = (await _trainerService.GetAllTrainersAsync(ct))?.ToList() ?? new List<TrainerViewModel>();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim().ToLower();
+                all = all.Where(t =>
+                    (t.Name?.ToLower().Contains(s) ?? false) ||
+                    t.Specialization.ToString().ToLower().Contains(s) ||
+                    (t.Email?.ToLower().Contains(s) ?? false)).ToList();
+            }
+
+            var paged = new PaginationViewModel<TrainerViewModel>
+            {
+                Items = all.Skip((page - 1) * pageSize).Take(pageSize),
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = all.Count
+            };
+
+            ViewBag.Search = search;
+            return View(paged);
         }
 
         [HttpGet]
@@ -29,15 +51,16 @@ namespace GymManagement.PL.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateTrainerDTOs model, CancellationToken ct)
         {
-            if (!ModelState.IsValid)   // اتأكد الأول
+            if (!ModelState.IsValid)
             {
-                return View(model);   // لو غلط، ارجع بدون ما تنفذ الإضافة خالص
+                return View(model);
             }
 
-            var result = await _trainerService.CreateTrainerAsync(model, ct); // ينفذ بس لو صح
+            var result = await _trainerService.CreateTrainerAsync(model, ct);
             if (result)
             {
                 TempData["SuccessMessage"] = "Trainer Created Successfully";
+                await _auditService.LogAsync(User.Identity?.Name, "Create Trainer", "Trainer", null, model.Email, ct);
             }
             else
             {
@@ -48,7 +71,7 @@ namespace GymManagement.PL.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id, CancellationToken ct = default)
         {
-            var trainerDetails = await _trainerService.GetTrainerDetalisAsync(id, ct);
+            var trainerDetails = await _trainerService.GetTrainerDetailsAsync(id, ct);
             if (trainerDetails is null)
             {
                 TempData["FailedMessage"] = "Trainer Not Found";
@@ -57,11 +80,11 @@ namespace GymManagement.PL.Controllers
             }
             return View(trainerDetails);
         }
-        
+
         [HttpGet]
         public async Task<IActionResult> Edit(int id, CancellationToken ct)
         {
-            var trainerUpdated = await _trainerService.TrainerToUpdateAsync(id,ct);
+            var trainerUpdated = await _trainerService.TrainerToUpdateAsync(id, ct);
             if (trainerUpdated is null)
             {
                 TempData["FailedMessage"] = "Trainer Not Found";
@@ -94,7 +117,7 @@ namespace GymManagement.PL.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id, CancellationToken ct)
         {
-            var trainer = await _trainerService.GetTrainerDetalisAsync(id, ct);
+            var trainer = await _trainerService.GetTrainerDetailsAsync(id, ct);
             if (trainer is null)
             {
                 TempData["FailedMessage"] = "Trainer Not Found";
@@ -106,11 +129,12 @@ namespace GymManagement.PL.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken ct)
         {
-            var trainer = await _trainerService.DeleteTrainerAsync(id,ct);
+            var trainer = await _trainerService.DeleteTrainerAsync(id, ct);
 
             if (trainer)
             {
                 TempData["SuccessMessage"] = "trainer Deleted Successfully";
+                await _auditService.LogAsync(User.Identity?.Name, "Delete Trainer", "Trainer", id.ToString(), null, ct);
             }
             else
             {
@@ -119,6 +143,5 @@ namespace GymManagement.PL.Controllers
             return RedirectToAction("Index");
 
         }
-
     }
 }

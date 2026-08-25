@@ -1,6 +1,7 @@
 ﻿using GymManagementSystem.DAL.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -14,13 +15,23 @@ namespace GymManagementSystem.DAL.DataSeeding
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             ILogger logger,
+            IConfiguration configuration,
             CancellationToken ct = default
         )
         {
             try
             {
-                var hasUsers = await userManager.Users.AnyAsync();
-                var hasRoles = await roleManager.Roles.AnyAsync();
+                // Secrets are sourced from configuration (e.g. appsettings.json / environment variables)
+                // under the "AdminSeed" section. Provide safe placeholder defaults so the seeder still
+                // works locally without committing real credentials.
+                var adminPassword = configuration["AdminSeed:Password"] ?? "ChangeMe_Str0ngP@ss!";
+                var superAdminEmail = configuration["AdminSeed:SuperAdminEmail"] ?? "superadmin@example.com";
+                var adminEmail = configuration["AdminSeed:AdminEmail"] ?? "admin@example.com";
+                var superAdminPhone = configuration["AdminSeed:SuperAdminPhone"] ?? "01000000001";
+                var adminPhone = configuration["AdminSeed:AdminPhone"] ?? "01000000002";
+
+                var hasUsers = await userManager.Users.AnyAsync(ct);
+                var hasRoles = await roleManager.Roles.AnyAsync(ct);
 
                 if (hasUsers && hasRoles) return;
 
@@ -30,6 +41,7 @@ namespace GymManagementSystem.DAL.DataSeeding
                 {
                     new IdentityRole("SuperAdmin"),
                     new IdentityRole("Admin"),
+                    new IdentityRole("Member"),
                 };
 
                     foreach (var role in roles)
@@ -40,36 +52,48 @@ namespace GymManagementSystem.DAL.DataSeeding
                         }
                     }
                 }
+                else
+                {
+                    // Ensure all required roles exist even if other roles/users are already seeded.
+                    var requiredRoles = new[] { "SuperAdmin", "Admin", "Member" };
+                    foreach (var roleName in requiredRoles)
+                    {
+                        if (!await roleManager.RoleExistsAsync(roleName))
+                        {
+                            await roleManager.CreateAsync(new IdentityRole(roleName));
+                        }
+                    }
+                }
 
                 if (!hasUsers)
                 {
                     var superAdmin = new ApplicationUser()
                     {
-                        FirstName = "Mohamed",
-                        LastName = "Nowar",
-                        UserName = "mohamednowar_",
-                        Email = "mohamednowar2002@gmail.com",
-                        PhoneNumber = "01557722675"
+                        FirstName = "Super",
+                        LastName = "Admin",
+                        UserName = superAdminEmail,
+                        Email = superAdminEmail,
+                        PhoneNumber = superAdminPhone
                     };
 
-                    await userManager.CreateAsync(superAdmin, "sdfg@HJKL123");
+                    await userManager.CreateAsync(superAdmin, adminPassword);
                     await userManager.AddToRoleAsync(superAdmin, "SuperAdmin");
 
                     var admin = new ApplicationUser()
                     {
-                        FirstName = "ahmed",
-                        LastName = "hamed",
-                        UserName = "ahmedhamed",
-                        Email = "ahmedhamed@gmail.com",
-                        PhoneNumber = "01001680106"
+                        FirstName = "App",
+                        LastName = "Admin",
+                        UserName = adminEmail,
+                        Email = adminEmail,
+                        PhoneNumber = adminPhone
                     };
 
-                    await userManager.CreateAsync(admin, "sdfg@HJKL123");
+                    await userManager.CreateAsync(admin, adminPassword);
                     await userManager.AddToRoleAsync(admin, "Admin");
                 }
             }
             catch (Exception ex)
-            {                  
+            {
                 logger.LogError(ex, ex.Message);
             }
         }

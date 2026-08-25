@@ -1,4 +1,4 @@
-﻿using GymManagementSystem.BLL.ViewModes.Plans;
+using GymManagementSystem.BLL.ViewModels.Plans;
 using System.Linq.Expressions;
 
 namespace GymManagementSystem.BLL.Services.Interfaces

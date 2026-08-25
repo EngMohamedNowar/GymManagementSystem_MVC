@@ -13,7 +13,9 @@ namespace GymManagementSystem.DAL.Configurations
         {
             builder.Property(U => U.CreatedAt)
                 .HasColumnName("JoinDate")
-                .HasDefaultValueSql("GETDATE()");
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+
+            builder.HasIndex(U => U.HealthId).IsUnique();
             base.Configure(builder); 
         }
     }

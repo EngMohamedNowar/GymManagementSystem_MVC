@@ -1,6 +1,6 @@
-﻿using GymManagement.Models;
+using GymManagement.Models;
 using GymManagementSystem.BLL.Services.Interfaces;
-using GymManagementSystem.BLL.ViewModes.Plans;
+using GymManagementSystem.BLL.ViewModels.Plans;
 using GymManagementSystem.DAL;
 using GymManagementSystem.DAL.Models;
 using GymManagementSystem.DAL.Repositories.Interfaces;
@@ -63,7 +63,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             if (plan is null)
                 return (false, "Plan not found");
 
-            // لو الخطة شغالة دلوقتي وعايز تعملها Deactivate، تأكد مفيش اشتراكات فعالة عليها
+            // ?? ????? ????? ?????? ????? ?????? Deactivate? ???? ???? ???????? ????? ?????
             if (plan.IsActive)
             {
                 var hasActiveMemberships = await _unitOfWork.GetRepositories<MemberShip>().AnyAsync(m => m.PlanId == id && m.EndDate > DateTime.UtcNow,ct);
@@ -75,7 +75,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             plan.IsActive = !plan.IsActive;
 
             _unitOfWork.GetRepositories<Plan>().Update(plan);
-            var count = await _unitOfWork.SaveChanegesAsync(ct);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
 
             if (count <= 0)
                 return (false, "Failed to update plan status");
@@ -117,7 +117,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             plan.Description = model.Description;
             plan.IsActive = model.IsActive;
             _unitOfWork.GetRepositories<Plan>().Update(plan);
-            var count = await _unitOfWork.SaveChanegesAsync(ct);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
 
             return count > 0;
         }

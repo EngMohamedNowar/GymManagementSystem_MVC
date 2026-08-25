@@ -1,7 +1,7 @@
-﻿using AutoMapper;
+using AutoMapper;
 using GymManagementSystem.BLL.Common;
 using GymManagementSystem.BLL.Services.Interfaces;
-using GymManagementSystem.BLL.ViewModes.Sessions;
+using GymManagementSystem.BLL.ViewModels.Sessions;
 using GymManagementSystem.DAL;
 using GymManagementSystem.DAL.Models;
 using GymManagementSystem.DAL.Models.Enums;
@@ -25,7 +25,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         public async Task<Result> CreateSessionAsync(CreateSessionViewModel model, CancellationToken ct)
         {
             if (model.EndDate <= model.StartDate) return Result.Validation("End date must be greater than start date");
-            if (model.StartDate < DateTime.Now) return Result.Validation("start date must be in the future");
+            if (model.StartDate < DateTime.UtcNow) return Result.Validation("start date must be in the future");
             if (model.Capacity < 1 || model.Capacity > 25) return Result.Validation("capacity must beetween 1 and 25");  
             var trainer =await _unitOfWork.GetRepositories<Trainer>().GetByIdAsync(model.TrainerId, ct);
             if (trainer is null) return Result.NotFound($"Trainer with id {model.TrainerId} not found");
@@ -36,7 +36,7 @@ namespace GymManagementSystem.BLL.Services.Classes
 
             var session = _mapper.Map<Session>(model);
             _unitOfWork.GetRepositories<Session>().Add(session);
-            var count =await _unitOfWork.SaveChanegesAsync(ct);
+            var count =await _unitOfWork.SaveChangesAsync(ct);
             return count > 0 ? Result.Ok() : Result.NotFound("Failed to create session");
         }
 
@@ -67,11 +67,20 @@ namespace GymManagementSystem.BLL.Services.Classes
             //     TrainerName =s.Trainer.Name
             // });
             var sessionsDTOs = _mapper.Map<IEnumerable<SessionViewModel>>(sessions);
+            var bookedCounts = await GetBookedSlotsDictionaryAsync(ct);
             foreach (var session in sessionsDTOs)
             {
-                session.AvailableSlots = session.Capacity - await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(session.Id,ct);
+                session.AvailableSlots = session.Capacity - (bookedCounts.TryGetValue(session.Id, out var count) ? count : 0);
             }
             return sessionsDTOs;
+        }
+
+        private async Task<Dictionary<int, int>> GetBookedSlotsDictionaryAsync(CancellationToken ct)
+        {
+            var bookings = await _unitOfWork.GetRepositories<Booking>().GetAllAsync(ct: ct);
+            return bookings
+                .GroupBy(b => b.SessionId)
+                .ToDictionary(g => g.Key, g => g.Count());
         }
 
         public async Task<IEnumerable<TrainerSelectViewModel>> GetAllTrainersForDropDownAsync(CancellationToken ct)
@@ -104,9 +113,10 @@ namespace GymManagementSystem.BLL.Services.Classes
                 .OrderBy(s => s.StartDate)
                 .ToList();
 
+            var bookedCounts = await GetBookedSlotsDictionaryAsync(ct);
             foreach (var session in sessionsDTOs)
             {
-                session.AvailableSlots = session.Capacity - await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(session.Id, ct);
+                session.AvailableSlots = session.Capacity - (bookedCounts.TryGetValue(session.Id, out var count) ? count : 0);
             }
             return sessionsDTOs;
         }
@@ -119,6 +129,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             var attendees = await _unitOfWork.sessionRepository.GetAttendeesBySessionIdAsync(sessionId, ct);
             var attendeesDTOs = attendees.Select(b => new AttendeeViewModel
             {
+                SessionId = b.SessionId,
                 MemberId = b.MemberId,
                 MemberName = b.Member.Name,
                 Phone = b.Member.Phone,
@@ -128,11 +139,26 @@ namespace GymManagementSystem.BLL.Services.Classes
             return Result<IEnumerable<AttendeeViewModel>>.Ok(attendeesDTOs);
         }
 
+        public async Task<Result> SetAttendanceAsync(int sessionId, int memberId, bool isAttended, CancellationToken ct = default)
+        {
+            var booking = await _unitOfWork.GetRepositories<Booking>().FirstOrDefaultAsync(
+                b => b.SessionId == sessionId && b.MemberId == memberId, ct);
+            if (booking is null) return Result.NotFound($"Booking for session {sessionId} / member {memberId} not found");
+
+            booking.IsAttended = isAttended;
+            booking.UpdatedAt = DateTime.UtcNow;
+
+            _unitOfWork.GetRepositories<Booking>().Update(booking);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
+
+            return count > 0 ? Result.Ok() : Result.Fail("Failed to update attendance");
+        }
+
         public async Task<Result<UpdateSessionViewModel>> GetSessionToUpdateAsync(int sessionId, CancellationToken ct = default)
         {
             var session =await _unitOfWork.GetRepositories<Session>().GetByIdAsync(sessionId, ct);
             if (session is null) return Result<UpdateSessionViewModel>.NotFound();
-            if (session.StartDate <= DateTime.Now) return Result<UpdateSessionViewModel>.Fail("Can Not Update Session That Has Already Started");
+            if (session.StartDate <= DateTime.UtcNow) return Result<UpdateSessionViewModel>.Fail("Can Not Update Session That Has Already Started");
             var bookingCount = await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(sessionId, ct);
             if (bookingCount > 0) return Result<UpdateSessionViewModel>.Fail("Can Not Update Session That Has Already Booking");
 
@@ -145,11 +171,11 @@ namespace GymManagementSystem.BLL.Services.Classes
         {
             var session = await _unitOfWork.GetRepositories<Session>().GetByIdAsync(sessionId, ct);
             if (session is null) return Result.NotFound();
-            if (session.StartDate <= DateTime.Now) return Result.Fail("Can Not Update Session That Has Already Started");
+            if (session.StartDate <= DateTime.UtcNow) return Result.Fail("Can Not Update Session That Has Already Started");
             var bookingCount = await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(sessionId, ct);
             if (bookingCount > 0) return Result.Fail("Can Not Update Session That Has Already Booking");
-            if (model.StartDate >= model.EndDate) return Result.Fail("start date must be greater than end date");
-            if (model.StartDate > DateTime.Now) return Result.Fail("start date must be in future");
+            if (model.StartDate >= model.EndDate) return Result.Fail("end date must be greater than start date");
+            if (model.StartDate <= DateTime.UtcNow) return Result.Fail("start date must be in the future");
 
             var trainer = await _unitOfWork.GetRepositories<Trainer>().GetByIdAsync(model.TrainerId, ct);
             if (trainer is null) return Result.NotFound($"Trainer with id {model.TrainerId} not found");
@@ -163,8 +189,8 @@ namespace GymManagementSystem.BLL.Services.Classes
             session.EndDate = model.EndDate;
             session.Description = model.Description;
             session.TrainerId = model.TrainerId;
-            session.UpdatedAt = DateTime.Now;
-            var count = await _unitOfWork.SaveChanegesAsync(ct);
+            session.UpdatedAt = DateTime.UtcNow;
+            var count = await _unitOfWork.SaveChangesAsync(ct);
             return count > 0 ? Result.Ok() : Result.Fail("Fail To Update");
         }
 

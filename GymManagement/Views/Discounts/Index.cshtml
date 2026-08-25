@@ -1,0 +1,84 @@
+@using GymManagementSystem.BLL.ViewModels.Discounts
+@model IEnumerable<DiscountViewModel>
+
+@{
+    ViewData["Title"] = "Discounts";
+
+    var header = new PageHeaderModel
+    {
+        Title = "Discounts & Promo Codes",
+        Subtitle = "Manage promotional codes applied at membership creation",
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction { Text = "New Discount", Icon = "bi bi-plus-lg", Controller = "Discounts", Action = "Create", CssClass = "btn-fill rounded-pill px-3 py-2" }
+        }
+    };
+
+    var empty = new EmptyStateModel
+    {
+        Icon = "bi bi-percent",
+        Title = "No Discounts",
+        Message = "Create your first promo code.",
+        Action = new EmptyStateAction { Text = "New Discount", Icon = "bi bi-plus-lg", Controller = "Discounts", Action = "Create", CssClass = "btn-fill rounded-pill px-3" }
+    };
+}
+
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+
+    @if (Model is not null && Model.Any())
+    {
+        <div class="app-card">
+            <div class="table-responsive">
+                <table class="table-app">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Type</th>
+                            <th>Value</th>
+                            <th>Active</th>
+                            <th>Validity</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in Model)
+                        {
+                            <tr>
+                                <td><span class="cell-strong">@d.Code</span></td>
+                                <td>@d.Type</td>
+                                <td>@(d.Type == "Fixed" ? d.Value.ToString("C") : d.Value.ToString("0.##") + "%")</td>
+                                <td>
+                                    <span class="badge-soft @(d.IsActive ? "badge-ok" : "badge-bad")">@(d.IsActive ? "Active" : "Inactive")</span>
+                                </td>
+                                <td class="cell-sub">
+                                    @if (d.StartDate is not null || d.EndDate is not null)
+                                    {
+                                        @($"{(d.StartDate?.ToString("yyyy-MM-dd") ?? "∞")} → {(d.EndDate?.ToString("yyyy-MM-dd") ?? "∞")}")
+                                    }
+                                    else
+                                    {
+                                        @:Always
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <form asp-action="ToggleActive" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@d.Id" />
+                                        <button type="submit" class="btn-icon" title="Toggle active">
+                                            <i class="bi @(d.IsActive ? "bi-eye-slash" : "bi-eye")"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        @await Html.PartialAsync("_EmptyState", empty)
+    }
+</div>

@@ -1,0 +1,36 @@
+@using GymManagementSystem.BLL.ViewModels.Members
+@model MemberViewModel
+
+@{
+    ViewData["Title"] = "My QR Code";
+
+    var header = new PageHeaderModel
+    {
+        Title = "My Check-in QR",
+        Subtitle = "Show this code at the front desk to check in"
+    };
+}
+
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+
+    <div class="app-card" style="max-width:420px;margin:auto;">
+        <div class="app-card-body text-center">
+            @if (Model is null)
+            {
+                <p class="text-muted mb-0">No member profile linked to your account.</p>
+            }
+            else
+            {
+                <span class="avatar mb-3" style="width:72px;height:72px;font-size:1.8rem;">@(string.IsNullOrEmpty(Model.Name) ? "?" : Model.Name[0].ToString())</span>
+                <h5>@Model.Name</h5>
+                <p class="text-muted small">Member ID: @Model.Id</p>
+                <div class="d-inline-block p-3 bg-white rounded border">
+                    <img src="@Url.Action("QrImage", "Member")" alt="Check-in QR" style="width:240px;height:240px;" />
+                </div>
+                <p class="text-muted small mt-3">Scan at the front desk or share the code with staff.</p>
+            }
+        </div>
+    </div>
+</div>

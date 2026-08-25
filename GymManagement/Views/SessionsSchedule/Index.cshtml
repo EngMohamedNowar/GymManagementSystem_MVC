@@ -1,59 +1,69 @@
-﻿@model IEnumerable<SessionViewModel>
+﻿@using GymManagementSystem.BLL.ViewModels.Sessions
+@model IEnumerable<SessionViewModel>
+
 @{
     ViewData["Title"] = "Sessions Schedule";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div id="Alert" class="alert alert-danger alert-dismissible fade show">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        @TempData["ErrorMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+    var header = new PageHeaderModel
+    {
+        Title = "Sessions Schedule",
+        Subtitle = "Timetable of all training sessions grouped by day"
+    };
+
+    var empty = new EmptyStateModel
+    {
+        Icon = "bi bi-calendar-x",
+        Title = "No Sessions Available",
+        Message = "There are no training sessions scheduled right now."
+    };
 }
 
 <div class="container">
-    <header class="mt-5 mb-4">
-        <h2 class="text-primary-color mb-0">Sessions Schedule</h2>
-        <p class="text-muted">Timetable of all training sessions grouped by day</p>
-    </header>
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
 
-    @if (Model != null && Model.Any())
+    @if (Model is not null && Model.Any())
     {
         @foreach (var day in Model.GroupBy(s => s.StartDate.Date).OrderBy(g => g.Key))
         {
-            <div class="mb-4">
-                <h5 class="text-primary-color mb-3">
-                    <i class="bi bi-calendar3 me-2"></i>@day.Key.ToString("dddd, MMM dd, yyyy")
-                </h5>
-                <div class="table-responsive" style="overflow: visible;">
-                    <table class="table table-borderless align-middle">
+            <h5 class="section-title"><i class="bi bi-calendar3 me-2"></i>@day.Key.ToString("dddd, MMM dd, yyyy")</h5>
+            <div class="app-card mb-4">
+                <div class="table-responsive">
+                    <table class="table-app">
                         <thead>
                             <tr>
-                                <th><span>Time</span></th>
-                                <th><span>Category</span></th>
-                                <th><span>Trainer</span></th>
-                                <th><span>Capacity</span></th>
-                                <th><span>Status</span></th>
-                                <th><span>Action</span></th>
+                                <th>Time</th>
+                                <th>Category</th>
+                                <th>Trainer</th>
+                                <th>Capacity</th>
+                                <th>Status</th>
+                                <th class="text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var session in day.OrderBy(s => s.StartDate))
                             {
                                 <tr>
-                                    <td><span>@session.TimeRangeDisplay</span></td>
-                                    <td><span>@session.CategoryName</span></td>
-                                    <td><span>@session.TrainerName</span></td>
-                                    <td><span>@session.AvailableSlots/@session.Capacity slots</span></td>
+                                    <td>@session.TimeRangeDisplay</td>
+                                    <td>@session.CategoryName</td>
+                                    <td>@session.TrainerName</td>
+                                    <td>@session.AvailableSlots/@session.Capacity slots</td>
                                     <td>
-                                        <span class="badge @(session.Status == "Ongoing" ? "bg-success" : session.Status == "Upcoming" ? "bg-primary" : "bg-secondary")">@session.Status</span>
+                                        <span class="badge-soft @(session.Status == "Ongoing" ? "badge-ok" : session.Status == "Upcoming" ? "badge-soft" : "badge-warn")">@session.Status</span>
                                     </td>
-                                    <td>
-                                        <a asp-controller="SessionsSchedule" asp-action="Attendees" asp-route-id="@session.Id" class="btn btn-outline btn-sm">
+                                    <td class="text-end">
+                                        <a asp-controller="SessionsSchedule" asp-action="Attendees" asp-route-id="@session.Id" class="btn btn-soft btn-sm rounded-pill">
                                             <i class="bi bi-people me-1"></i>Attendees
                                         </a>
+                                        @if (User.IsInRole("Member") && session.Status == "Upcoming")
+                                        {
+                                            <form asp-controller="Member" asp-action="BookSession" method="post" class="d-inline">
+                                                <input type="hidden" name="sessionId" value="@session.Id" />
+                                                <button type="submit" class="btn btn-fill btn-sm rounded-pill">
+                                                    <i class="bi bi-check2-circle me-1"></i>Book
+                                                </button>
+                                            </form>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -65,22 +75,6 @@
     }
     else
     {
-        <div class="text-center py-5">
-            <i class="bi bi-calendar-x display-1 text-muted"></i>
-            <h4 class="mt-3 text-muted">No Sessions Available</h4>
-        </div>
+        @await Html.PartialAsync("_EmptyState", empty)
     }
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const alertBox = document.getElementById("Alert");
-        if (alertBox) {
-            setTimeout(() => {
-                alertBox.style.transition = "opacity 0.5s ease";
-                alertBox.style.opacity = "0";
-                setTimeout(() => alertBox.remove(), 500);
-            }, 1500);
-        }
-    });
-</script>

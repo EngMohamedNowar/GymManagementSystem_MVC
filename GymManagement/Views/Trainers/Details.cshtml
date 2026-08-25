@@ -1,68 +1,80 @@
 ﻿@model TrainerViewModel
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-primary-color text-white text-center py-5">
-                    <i class="bi bi-person-badge display-4 mb-3"></i>
-                    <h2 class="mb-0">@Model.Name</h2>
-                    <span class="badge bg-light text-primary-color mt-2">@Model.Specialization Trainer</span>
+
+@{
+    ViewData["Title"] = "Trainer Details";
+
+    var header = new PageHeaderModel
+    {
+        Title = Model.Name,
+        Subtitle = $"{Model.Specialization} Trainer",
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction
+            {
+                Text = "Back",
+                Icon = "bi bi-arrow-left",
+                Controller = "Trainers",
+                Action = "Index",
+                CssClass = "btn-outline rounded-pill px-3 py-2"
+            },
+            new PageHeaderAction
+            {
+                Text = "Edit",
+                Icon = "bi bi-pencil",
+                Controller = "Trainers",
+                Action = "Edit",
+                RouteValues = new Dictionary<string, string> { { "id", Model.Id.ToString() } },
+                CssClass = "btn-fill rounded-pill px-3 py-2"
+            },
+            new PageHeaderAction
+            {
+                Text = "Delete",
+                Icon = "bi bi-trash",
+                Controller = "Trainers",
+                Action = "Delete",
+                RouteValues = new Dictionary<string, string> { { "id", Model.Id.ToString() } },
+                CssClass = "btn-danger-soft rounded-pill px-3 py-2"
+            }
+        }
+    };
+}
+
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+
+    <div class="app-card">
+        <div class="app-card-body">
+            <div class="text-center mb-4">
+                <span class="avatar avatar-lg">@(string.IsNullOrEmpty(Model.Name) ? "?" : Model.Name[0].ToString())</span>
+            </div>
+
+            <div class="detail-list">
+                <div class="detail-row">
+                    <span class="detail-key">Email</span>
+                    <span class="detail-val">@Model.Email</span>
                 </div>
-                <div class="card-body p-4">
-                    <div class="plan-details">
-                        <div class="detail-item mb-4">
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="icon-box me-3">
-                                    <i class="bi bi-envelope text-primary-color fs-4"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 text-muted">Email</h6>
-                                    <p class="mb-0 fw-bold">@Model.Email</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="detail-item mb-4">
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="icon-box me-3">
-                                    <i class="bi bi-telephone text-primary-color fs-4"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 text-muted">Phone</h6>
-                                    <p class="mb-0 fw-bold">@Model.Phone</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="detail-item mb-4">
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="icon-box me-3">
-                                    <i class="bi bi-calendar-date text-primary-color fs-4"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 text-muted">Date Of Birth</h6>
-                                    <p class="mb-0 fw-bold">@Model.DateOfBirth</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="detail-item mb-4">
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="icon-box me-3">
-                                    <i class="bi bi-geo-alt text-primary-color fs-4"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 text-muted">Address</h6>
-                                    <p class="mb-0 fw-bold">@Model.Address</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between gap-2 px-3 pb-3">
-                            <a asp-controller="Trainers" asp-action="Index" class="btn btn-fill flex-fill">Back to List</a>
-                        </div>
-                    </div>
+                <div class="detail-row">
+                    <span class="detail-key">Phone</span>
+                    <span class="detail-val">@Model.Phone</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Gender</span>
+                    <span class="detail-val">@Model.Gender</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Date of Birth</span>
+                    <span class="detail-val">@(Model.DateOfBirth != null ? Model.DateOfBirth : "—")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Address</span>
+                    <span class="detail-val">@(Model.Address ?? "—")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Specialization</span>
+                    <span class="detail-val">@Model.Specialization</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
-

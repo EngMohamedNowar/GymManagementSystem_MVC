@@ -1,0 +1,73 @@
+@using GymManagementSystem.BLL.ViewModels.CheckIns
+@model System.Collections.Generic.IEnumerable<CheckInViewModel>
+
+@{
+    ViewData["Title"] = "Today's Check-ins";
+
+    var header = new PageHeaderModel
+    {
+        Title = "Today's Check-ins",
+        Subtitle = @DateTime.UtcNow.ToString("yyyy-MM-dd"),
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction { Text = "New Check-in", Icon = "bi bi-plus-lg", Controller = "CheckIn", Action = "Scan", CssClass = "btn-fill rounded-pill px-3" }
+        }
+    };
+
+    var empty = new EmptyStateModel
+    {
+        Icon = "bi bi-box-arrow-in-right",
+        Title = "No Check-ins Today",
+        Message = "Members who check in will appear here.",
+        Action = new EmptyStateAction { Text = "New Check-in", Icon = "bi bi-plus-lg", Controller = "CheckIn", Action = "Scan", CssClass = "btn-fill rounded-pill px-3" }
+    };
+}
+
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+
+    @if (Model is not null && Model.Any())
+    {
+        <div class="app-card">
+            <div class="table-responsive">
+                <table class="table-app">
+                    <thead>
+                        <tr><th>Time</th><th>Member</th><th>Member ID</th><th>Note</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model)
+                        {
+                            <tr>
+                                <td>@c.CheckInTime.ToString("HH:mm")</td>
+                                <td class="cell-strong">@c.MemberName</td>
+                                <td>@c.MemberId</td>
+                                <td class="cell-sub">@(c.Note ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        @await Html.PartialAsync("_EmptyState", empty)
+
+        <div class="app-card mt-3" style="max-width:520px;">
+            <div class="app-card-body">
+                <form asp-action="Scan" method="post" class="form-app">
+                    <div class="mb-3">
+                        <label class="form-label">Member ID</label>
+                        <input type="number" name="memberId" class="form-control" placeholder="e.g. 12" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Note (optional)</label>
+                        <input type="text" name="note" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-fill rounded-pill px-4 w-100">Check In</button>
+                </form>
+            </div>
+        </div>
+    }
+</div>

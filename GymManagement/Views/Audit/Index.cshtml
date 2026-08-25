@@ -1,0 +1,61 @@
+@using GymManagementSystem.BLL.ViewModels.Audit
+@model IEnumerable<AuditLogViewModel>
+
+@{
+    ViewData["Title"] = "Audit Log";
+
+    var header = new PageHeaderModel
+    {
+        Title = "Audit Log",
+        Subtitle = "Record of administrative actions"
+    };
+
+    var empty = new EmptyStateModel
+    {
+        Icon = "bi bi-shield-check",
+        Title = "No Audit Records",
+        Message = "Actions will appear here as they occur."
+    };
+}
+
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+
+    @if (Model is not null && Model.Any())
+    {
+        <div class="app-card">
+            <div class="table-responsive">
+                <table class="table-app">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>Entity Id</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td>@log.Timestamp.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td class="cell-strong">@log.UserName</td>
+                                <td><span class="badge-soft">@log.Action</span></td>
+                                <td>@log.Entity</td>
+                                <td>@log.EntityId</td>
+                                <td class="cell-sub">@log.Details</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        @await Html.PartialAsync("_EmptyState", empty)
+    }
+</div>
