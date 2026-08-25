@@ -1,7 +1,7 @@
-﻿using AutoMapper;
+using AutoMapper;
 using GymManagementSystem.BLL.Common;
 using GymManagementSystem.BLL.Services.Interfaces;
-using GymManagementSystem.BLL.ViewModes.Sessions;
+using GymManagementSystem.BLL.ViewModels.Sessions;
 using GymManagementSystem.DAL;
 using GymManagementSystem.DAL.Models;
 using GymManagementSystem.DAL.Models.Enums;
@@ -16,7 +16,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public SessionService(IUnitOfWork unitOfWork, IMapper mapper)
+        public SessionService(IUnitOfWork unitOfWork,IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -24,200 +24,174 @@ namespace GymManagementSystem.BLL.Services.Classes
 
         public async Task<Result> CreateSessionAsync(CreateSessionViewModel model, CancellationToken ct)
         {
-            try
-            {
-                if (model.EndDate <= model.StartDate) return Result.Validation("End date must be greater than start date");
-                if (model.StartDate < DateTime.Now) return Result.Validation("start date must be in the future");
-                if (model.Capacity < 1 || model.Capacity > 25) return Result.Validation("capacity must beetween 1 and 25");
-                var trainer = await _unitOfWork.GetRepositories<Trainer>().GetByIdAsync(model.TrainerId, ct);
-                if (trainer is null) return Result.NotFound($"Trainer with id {model.TrainerId} not found");
-                var category = await _unitOfWork.GetRepositories<Category>().GetByIdAsync(model.CategoryId, ct);
-                if (category is null) return Result.NotFound($"Category with id {model.CategoryId} not found");
-                var isValid = Enum.TryParse<Specialization>(category.Name, out var categorySpeciality);
-                if (!isValid || trainer.Spectiality != categorySpeciality) return Result.Validation("Can not create session with diffrent speciality");
+            if (model.EndDate <= model.StartDate) return Result.Validation("End date must be greater than start date");
+            if (model.StartDate < DateTime.UtcNow) return Result.Validation("start date must be in the future");
+            if (model.Capacity < 1 || model.Capacity > 25) return Result.Validation("capacity must beetween 1 and 25");  
+            var trainer =await _unitOfWork.GetRepositories<Trainer>().GetByIdAsync(model.TrainerId, ct);
+            if (trainer is null) return Result.NotFound($"Trainer with id {model.TrainerId} not found");
+            var category = await _unitOfWork.GetRepositories<Category>().GetByIdAsync(model.CategoryId, ct);
+            if (category is null) return Result.NotFound($"Category with id {model.CategoryId} not found");
+            var isValid = Enum.TryParse<Specialization>(category.Name, out var categorySpeciality);
+            if (!isValid || trainer.Spectiality != categorySpeciality) return Result.Validation("Can not create session with diffrent speciality");
 
-                var session = _mapper.Map<Session>(model);
-                _unitOfWork.GetRepositories<Session>().Add(session);
-                var count = await _unitOfWork.SaveChanegesAsync(ct);
-                return count > 0 ? Result.Ok() : Result.Fail("Failed to create session");
-            }
-            catch (Exception ex)
-            {
-                return Result.Fail($"An unexpected error occurred while creating the session: {ex.Message}");
-            }
+            var session = _mapper.Map<Session>(model);
+            _unitOfWork.GetRepositories<Session>().Add(session);
+            var count =await _unitOfWork.SaveChangesAsync(ct);
+            return count > 0 ? Result.Ok() : Result.NotFound("Failed to create session");
         }
 
         public async Task<IEnumerable<CategorySelectViewModel>> GetAllCategoriesForDropDownAsync(CancellationToken ct)
         {
-            try
+            var categories = await _unitOfWork.GetRepositories<Category>().GetAllAsync(ct: ct);
+            if (categories is null) return null;
+            var categoriesDTOs = categories.Select(m => new CategorySelectViewModel()
             {
-                var categories = await _unitOfWork.GetRepositories<Category>().GetAllAsync(ct: ct);
-                if (categories is null) return null;
-                var categoriesDTOs = categories.Select(m => new CategorySelectViewModel()
-                {
-                    Id = m.Id,
-                    Name = m.Name
-                });
-                return categoriesDTOs;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+                Id = m.Id,
+                Name = m.Name
+            });
+            return categoriesDTOs;
         }
 
         public async Task<IEnumerable<SessionViewModel>> GetAllSessionsAsync(CancellationToken ct)
         {
-            try
+           var sessions = await _unitOfWork.sessionRepository.GetAllSessionWithTrainerAndCategoryAsync(ct);
+            if (sessions is null || !sessions.Any()) return null;
+            //var sessionsDTOs = sessions.Select(s => new SessionViewModel()
+            // {
+            //     Id = s.Id,
+            //     CategoryName = s.Category.Name,
+            //     Capacity = s.Capacity,
+            //     Description = s.Description,
+            //     StartDate = s.StartDate,
+            //     EndDate = s.EndDate,
+            //     TrainerName =s.Trainer.Name
+            // });
+            var sessionsDTOs = _mapper.Map<IEnumerable<SessionViewModel>>(sessions);
+            var bookedCounts = await GetBookedSlotsDictionaryAsync(ct);
+            foreach (var session in sessionsDTOs)
             {
-                var sessions = await _unitOfWork.sessionRepository.GetAllSessionWithTrainerAndCategoryAsync(ct);
-                if (sessions is null || !sessions.Any()) return null;
+                session.AvailableSlots = session.Capacity - (bookedCounts.TryGetValue(session.Id, out var count) ? count : 0);
+            }
+            return sessionsDTOs;
+        }
 
-                var sessionsDTOs = _mapper.Map<IEnumerable<SessionViewModel>>(sessions);
-                foreach (var session in sessionsDTOs)
-                {
-                    session.AvailableSlots = session.Capacity - await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(session.Id, ct);
-                }
-                return sessionsDTOs;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+        private async Task<Dictionary<int, int>> GetBookedSlotsDictionaryAsync(CancellationToken ct)
+        {
+            var bookings = await _unitOfWork.GetRepositories<Booking>().GetAllAsync(ct: ct);
+            return bookings
+                .GroupBy(b => b.SessionId)
+                .ToDictionary(g => g.Key, g => g.Count());
         }
 
         public async Task<IEnumerable<TrainerSelectViewModel>> GetAllTrainersForDropDownAsync(CancellationToken ct)
         {
-            try
+            var trainers = await _unitOfWork.GetRepositories<Trainer>().GetAllAsync(ct: ct);
+            if (trainers is null) return null;
+            var trainersDTOs = trainers.Select(m => new TrainerSelectViewModel()
             {
-                var trainers = await _unitOfWork.GetRepositories<Trainer>().GetAllAsync(ct: ct);
-                if (trainers is null) return null;
-                var trainersDTOs = trainers.Select(m => new TrainerSelectViewModel()
-                {
-                    Id = m.Id,
-                    Name = m.Name
-                });
-                return trainersDTOs;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+                Id = m.Id,
+                Name = m.Name
+            });
+            return trainersDTOs;
         }
 
         public async Task<Result<SessionViewModel>> GetSessionDetailsById(int sessionId, CancellationToken ct)
         {
-            try
-            {
-                var session = await _unitOfWork.sessionRepository.GetSessionByIdAsync(sessionId);
-                if (session is null) return Result<SessionViewModel>.NotFound($"this session not found {sessionId}");
-                var sessionDTOs = _mapper.Map<SessionViewModel>(session);
-                sessionDTOs.AvailableSlots = session.Capacity - await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(sessionId, ct);
-                return Result<SessionViewModel>.Ok(sessionDTOs);
-            }
-            catch (Exception ex)
-            {
-                return Result<SessionViewModel>.Fail($"An unexpected error occurred while fetching session details: {ex.Message}");
-            }
+            var session = await _unitOfWork.sessionRepository.GetSessionByIdAsync(sessionId);
+            if (session is null) return Result<SessionViewModel>.NotFound($"this session not found {sessionId}");
+            var sessionDTOs = _mapper.Map<SessionViewModel>(session);
+            sessionDTOs.AvailableSlots = session.Capacity - await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(sessionId, ct);
+            return Result<SessionViewModel>.Ok(sessionDTOs);
         }
 
         public async Task<IEnumerable<SessionViewModel>> GetSessionsScheduleAsync(CancellationToken ct = default)
         {
-            try
-            {
-                var sessions = await _unitOfWork.sessionRepository.GetAllSessionWithTrainerAndCategoryAsync(ct);
-                if (sessions is null || !sessions.Any()) return null;
+            var sessions = await _unitOfWork.sessionRepository.GetAllSessionWithTrainerAndCategoryAsync(ct);
+            if (sessions is null || !sessions.Any()) return null;
 
-                var sessionsDTOs = _mapper.Map<IEnumerable<SessionViewModel>>(sessions)
-                    .OrderBy(s => s.StartDate)
-                    .ToList();
+            var sessionsDTOs = _mapper.Map<IEnumerable<SessionViewModel>>(sessions)
+                .OrderBy(s => s.StartDate)
+                .ToList();
 
-                foreach (var session in sessionsDTOs)
-                {
-                    session.AvailableSlots = session.Capacity - await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(session.Id, ct);
-                }
-                return sessionsDTOs;
-            }
-            catch (Exception)
+            var bookedCounts = await GetBookedSlotsDictionaryAsync(ct);
+            foreach (var session in sessionsDTOs)
             {
-                return null;
+                session.AvailableSlots = session.Capacity - (bookedCounts.TryGetValue(session.Id, out var count) ? count : 0);
             }
+            return sessionsDTOs;
         }
 
         public async Task<Result<IEnumerable<AttendeeViewModel>>> GetSessionAttendeesAsync(int sessionId, CancellationToken ct = default)
         {
-            try
-            {
-                var session = await _unitOfWork.sessionRepository.GetSessionByIdAsync(sessionId, ct);
-                if (session is null) return Result<IEnumerable<AttendeeViewModel>>.NotFound($"Session with id {sessionId} not found");
+            var session = await _unitOfWork.sessionRepository.GetSessionByIdAsync(sessionId, ct);
+            if (session is null) return Result<IEnumerable<AttendeeViewModel>>.NotFound($"Session with id {sessionId} not found");
 
-                var attendees = await _unitOfWork.sessionRepository.GetAttendeesBySessionIdAsync(sessionId, ct);
-                var attendeesDTOs = attendees.Select(b => new AttendeeViewModel
-                {
-                    MemberId = b.MemberId,
-                    MemberName = b.Member.Name,
-                    Phone = b.Member.Phone,
-                    IsAttended = b.IsAttended
-                }).ToList();
-
-                return Result<IEnumerable<AttendeeViewModel>>.Ok(attendeesDTOs);
-            }
-            catch (Exception ex)
+            var attendees = await _unitOfWork.sessionRepository.GetAttendeesBySessionIdAsync(sessionId, ct);
+            var attendeesDTOs = attendees.Select(b => new AttendeeViewModel
             {
-                return Result<IEnumerable<AttendeeViewModel>>.Fail($"An unexpected error occurred while fetching attendees: {ex.Message}");
-            }
+                SessionId = b.SessionId,
+                MemberId = b.MemberId,
+                MemberName = b.Member.Name,
+                Phone = b.Member.Phone,
+                IsAttended = b.IsAttended
+            }).ToList();
+
+            return Result<IEnumerable<AttendeeViewModel>>.Ok(attendeesDTOs);
+        }
+
+        public async Task<Result> SetAttendanceAsync(int sessionId, int memberId, bool isAttended, CancellationToken ct = default)
+        {
+            var booking = await _unitOfWork.GetRepositories<Booking>().FirstOrDefaultAsync(
+                b => b.SessionId == sessionId && b.MemberId == memberId, ct);
+            if (booking is null) return Result.NotFound($"Booking for session {sessionId} / member {memberId} not found");
+
+            booking.IsAttended = isAttended;
+            booking.UpdatedAt = DateTime.UtcNow;
+
+            _unitOfWork.GetRepositories<Booking>().Update(booking);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
+
+            return count > 0 ? Result.Ok() : Result.Fail("Failed to update attendance");
         }
 
         public async Task<Result<UpdateSessionViewModel>> GetSessionToUpdateAsync(int sessionId, CancellationToken ct = default)
         {
-            try
-            {
-                var session = await _unitOfWork.GetRepositories<Session>().GetByIdAsync(sessionId, ct);
-                if (session is null) return Result<UpdateSessionViewModel>.NotFound();
-                if (session.StartDate <= DateTime.Now) return Result<UpdateSessionViewModel>.Fail("Can Not Update Session That Has Already Started");
-                var bookingCount = await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(sessionId, ct);
-                if (bookingCount > 0) return Result<UpdateSessionViewModel>.Fail("Can Not Update Session That Has Already Booking");
+            var session =await _unitOfWork.GetRepositories<Session>().GetByIdAsync(sessionId, ct);
+            if (session is null) return Result<UpdateSessionViewModel>.NotFound();
+            if (session.StartDate <= DateTime.UtcNow) return Result<UpdateSessionViewModel>.Fail("Can Not Update Session That Has Already Started");
+            var bookingCount = await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(sessionId, ct);
+            if (bookingCount > 0) return Result<UpdateSessionViewModel>.Fail("Can Not Update Session That Has Already Booking");
 
-                var sessionDTOs = _mapper.Map<UpdateSessionViewModel>(session);
-                return Result<UpdateSessionViewModel>.Ok(sessionDTOs);
-            }
-            catch (Exception ex)
-            {
-                return Result<UpdateSessionViewModel>.Fail($"An unexpected error occurred while loading the session for update: {ex.Message}");
-            }
+
+            var sessionDTOs = _mapper.Map<UpdateSessionViewModel>(session);
+            return Result<UpdateSessionViewModel>.Ok(sessionDTOs);
         }
 
         public async Task<Result> UpdateSessionAsync(int sessionId, UpdateSessionViewModel model, CancellationToken ct)
         {
-            try
-            {
-                var session = await _unitOfWork.GetRepositories<Session>().GetByIdAsync(sessionId, ct);
-                if (session is null) return Result.NotFound();
-                if (session.StartDate <= DateTime.Now) return Result.Fail("Can Not Update Session That Has Already Started");
-                var bookingCount = await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(sessionId, ct);
-                if (bookingCount > 0) return Result.Fail("Can Not Update Session That Has Already Booking");
-                if (model.EndDate <= model.StartDate) return Result.Fail("End date must be greater than start date");
-                if (model.StartDate < DateTime.Now) return Result.Fail("Start date must be in the future");
+            var session = await _unitOfWork.GetRepositories<Session>().GetByIdAsync(sessionId, ct);
+            if (session is null) return Result.NotFound();
+            if (session.StartDate <= DateTime.UtcNow) return Result.Fail("Can Not Update Session That Has Already Started");
+            var bookingCount = await _unitOfWork.sessionRepository.GetCountOfBookedSlotsAsync(sessionId, ct);
+            if (bookingCount > 0) return Result.Fail("Can Not Update Session That Has Already Booking");
+            if (model.StartDate >= model.EndDate) return Result.Fail("end date must be greater than start date");
+            if (model.StartDate <= DateTime.UtcNow) return Result.Fail("start date must be in the future");
 
-                var trainer = await _unitOfWork.GetRepositories<Trainer>().GetByIdAsync(model.TrainerId, ct);
-                if (trainer is null) return Result.NotFound($"Trainer with id {model.TrainerId} not found");
-                var category = await _unitOfWork.GetRepositories<Category>().GetByIdAsync(session.CategoryId, ct);
-                if (category is null) return Result.NotFound($"Category with id {session.CategoryId} not found");
-                var isValid = Enum.TryParse<Specialization>(category.Name, out var categorySpeciality);
-                if (!isValid || trainer.Spectiality != categorySpeciality) return Result.Validation("Can not create session with diffrent speciality");
+            var trainer = await _unitOfWork.GetRepositories<Trainer>().GetByIdAsync(model.TrainerId, ct);
+            if (trainer is null) return Result.NotFound($"Trainer with id {model.TrainerId} not found");
+            var category = await _unitOfWork.GetRepositories<Category>().GetByIdAsync(session.CategoryId, ct);
+            if (category is null) return Result.NotFound($"Category with id {session.CategoryId} not found");
+            var isValid = Enum.TryParse<Specialization>(category.Name, out var categorySpeciality);
+            if (!isValid || trainer.Spectiality != categorySpeciality) return Result.Validation("Can not create session with diffrent speciality");
 
-                session.StartDate = model.StartDate;
-                session.EndDate = model.EndDate;
-                session.Description = model.Description;
-                session.TrainerId = model.TrainerId;
-                session.UpdatedAt = DateTime.Now;
-                var count = await _unitOfWork.SaveChanegesAsync(ct);
-                return count > 0 ? Result.Ok() : Result.Fail("Fail To Update");
-            }
-            catch (Exception ex)
-            {
-                return Result.Fail($"An unexpected error occurred while updating the session: {ex.Message}");
-            }
+
+            session.StartDate = model.StartDate;
+            session.EndDate = model.EndDate;
+            session.Description = model.Description;
+            session.TrainerId = model.TrainerId;
+            session.UpdatedAt = DateTime.UtcNow;
+            var count = await _unitOfWork.SaveChangesAsync(ct);
+            return count > 0 ? Result.Ok() : Result.Fail("Fail To Update");
         }
 
     }

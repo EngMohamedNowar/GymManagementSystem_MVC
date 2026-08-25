@@ -1,0 +1,74 @@
+@using GymManagementSystem.BLL.ViewModels.Members
+@model MemberProfileEditViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+
+    var header = new PageHeaderModel
+    {
+        Title = "My Profile",
+        Subtitle = "Update your contact details"
+    };
+
+    var submitAction = new FormAction
+    {
+        Text = "Save Changes",
+        Icon = "bi bi-check-lg",
+        CssClass = "btn-fill rounded-pill px-4"
+    };
+}
+
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+
+    <div class="app-card" style="max-width:640px;">
+        <div class="app-card-body">
+            <form asp-action="MyProfile" method="post" class="form-app">
+                <div asp-validation-summary="All" class="text-danger small"></div>
+
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label asp-for="Phone" class="form-label"><i class="bi bi-telephone me-2"></i>Phone</label>
+                    <input asp-for="Phone" class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                </div>
+
+                <h6 class="text-muted mt-3">Address</h6>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label asp-for="BuildingNumber" class="form-label"><i class="bi bi-hash me-2"></i>Building #</label>
+                        <input asp-for="BuildingNumber" class="form-control" />
+                        <span asp-validation-for="BuildingNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Street" class="form-label"><i class="bi bi-geo-alt me-2"></i>Street</label>
+                        <input asp-for="Street" class="form-control" />
+                        <span asp-validation-for="Street" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="City" class="form-label"><i class="bi bi-building me-2"></i>City</label>
+                        <input asp-for="City" class="form-control" />
+                        <span asp-validation-for="City" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 mt-3">
+                    <label asp-for="HealthNote" class="form-label"><i class="bi bi-heart-pulse me-2"></i>Health Note</label>
+                    <textarea asp-for="HealthNote" class="form-control" rows="3"></textarea>
+                </div>
+
+                @await Html.PartialAsync("_FormActions", new FormActionsModel
+                {
+                    BackAction = null,
+                    SubmitAction = submitAction
+                })
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,86 +1,103 @@
 ﻿@model UpdateSessionViewModel
+
 @{
     ViewData["Title"] = "Edit Session";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var header = new PageHeaderModel
+    {
+        Title = "Edit Session",
+        Subtitle = "Update session information",
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction
+            {
+                Text = "Back",
+                Icon = "bi bi-arrow-left",
+                Controller = "Sessions",
+                Action = "Index",
+                CssClass = "btn-soft rounded-pill px-3 py-2"
+            }
+        }
+    };
+
+    var backAction = new FormAction
+    {
+        Text = "Cancel",
+        Icon = "bi bi-arrow-left",
+        Controller = "Sessions",
+        Action = "Index",
+        CssClass = "btn-soft rounded-pill px-3"
+    };
+
+    var submitAction = new FormAction
+    {
+        Text = "Update Session",
+        Icon = "bi bi-check-lg",
+        CssClass = "btn-fill rounded-pill px-3"
+    };
 }
 
-<div class="container mt-4">
-    <header class="mb-4">
-        <h3 class="text-primary-color">Edit Session</h3>
-        <p class="text-muted">Update session information</p>
-    </header>
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
 
-    <form asp-action="Edit" method="post">
-        <input type="hidden" asp-for="Id" />
+    <div class="app-card">
+        <div class="app-card-body">
+            <form asp-action="Edit" method="post" class="form-app">
+                <input type="hidden" asp-for="Id" />
 
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body p-4">
-
-                        <!-- Session Information -->
-                        <div class="section-header mb-3">
-                            <h5 class="text-primary fw-bold">Session Information</h5>
-                            <hr class="mt-2">
+                <div class="mb-4">
+                    <div class="section-title">Session Information</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="TrainerId" class="form-label">
+                                <i class="bi bi-person-workspace me-2"></i>Trainer <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="TrainerId" asp-items="ViewBag.Trainers" class="form-select">
+                                <option value="">Select Trainer</option>
+                            </select>
+                            <span asp-validation-for="TrainerId" class="text-danger small"></span>
                         </div>
 
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label asp-for="TrainerId" class="form-label fw-semibold">
-                                    Trainer <span class="text-danger">*</span>
-                                </label>
-                                <select asp-for="TrainerId" asp-items="ViewBag.Trainers" class="form-select">
-                                    <option value="">Select Trainer</option>
-                                </select>
-                                <span asp-validation-for="TrainerId" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-12">
-                                <label asp-for="Description" class="form-label fw-semibold">
-                                    Description <span class="text-danger">*</span>
-                                </label>
-                                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                                <span asp-validation-for="Description" class="text-danger"></span>
-                            </div>
-                        </div>
-
-                        <!-- Date & Time -->
-                        <div class="section-header mb-3">
-                            <h5 class="text-primary fw-bold">Date & Time</h5>
-                            <hr class="mt-2">
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label asp-for="StartDate" class="form-label fw-semibold">
-                                    Start Date & Time <span class="text-danger">*</span>
-                                </label>
-                                <input asp-for="StartDate" type="datetime-local" class="form-control" />
-                                <span asp-validation-for="StartDate" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="EndDate" class="form-label fw-semibold">
-                                    End Date & Time <span class="text-danger">*</span>
-                                </label>
-                                <input asp-for="EndDate" type="datetime-local" class="form-control" />
-                                <span asp-validation-for="EndDate" class="text-danger"></span>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
-                            <a asp-action="Index" class="btn btn-outline">
-                                <i class="bi bi-arrow-left me-1"></i>Cancel
-                            </a>
-                            <button type="submit" class="btn btn-fill">
-                                <i class="bi bi-check-lg me-1"></i>Update Session
-                            </button>
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label">
+                                <i class="bi bi-card-text me-2"></i>Description <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <div class="mb-4">
+                    <div class="section-title">Date & Time</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="StartDate" class="form-label">
+                                <i class="bi bi-calendar-event me-2"></i>Start Date & Time <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="StartDate" type="datetime-local" class="form-control" />
+                            <span asp-validation-for="StartDate" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="EndDate" class="form-label">
+                                <i class="bi bi-calendar-event me-2"></i>End Date & Time <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="EndDate" type="datetime-local" class="form-control" />
+                            <span asp-validation-for="EndDate" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                @await Html.PartialAsync("_FormActions", new FormActionsModel
+                {
+                    BackAction = backAction,
+                    SubmitAction = submitAction
+                })
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 
 @section Scripts {

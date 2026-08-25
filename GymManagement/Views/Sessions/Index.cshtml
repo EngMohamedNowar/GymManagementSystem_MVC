@@ -1,106 +1,110 @@
-﻿@model IEnumerable<SessionViewModel>
+﻿@using GymManagementSystem.BLL.ViewModels.Common
+@model PaginationViewModel<SessionViewModel>
 
 @{
     ViewData["Title"] = "Sessions";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div id="Alert" class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle-fill me-2"></i>
-        @TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
-else if (TempData["ErrorMessage"] != null)
-{
-    <div id="Alert" class="alert alert-danger alert-dismissible fade show">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        @TempData["ErrorMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+    var header = new PageHeaderModel
+    {
+        Title = "Training Sessions",
+        Subtitle = "Manage gym training sessions and classes",
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction
+            {
+                Text = "Add Session",
+                Icon = "bi bi-plus-lg",
+                Controller = "Sessions",
+                Action = "Create",
+                CssClass = "btn-fill rounded-pill px-3 py-2"
+            }
+        }
+    };
+
+    var search = new SearchFormModel
+    {
+        Controller = "Sessions",
+        Action = "Index",
+        SearchLabel = "Search",
+        SearchPlaceholder = "Title, trainer or category",
+        SearchValue = ViewBag.Search?.ToString() ?? ""
+    };
+
+    var empty = new EmptyStateModel
+    {
+        Icon = "bi bi-calendar-x",
+        Title = "No Sessions Available",
+        Message = "Create your first training session to get started.",
+        Action = new EmptyStateAction
+        {
+            Text = "Add Session",
+            Icon = "bi bi-plus-lg",
+            Controller = "Sessions",
+            Action = "Create",
+            CssClass = "btn-fill rounded-pill px-3"
+        }
+    };
 }
 
 <div class="container">
-    <header class="d-flex justify-content-between mt-5 mb-4 align-items-center">
-        <div>
-            <h2 class="text-primary-color mb-0">Training Sessions</h2>
-            <p class="text-muted">Manage gym training sessions and classes</p>
-        </div>
-        <a asp-controller="Sessions" asp-action="Create" class="btn btn-fill fw-medium rounded-pill px-4 py-3">
-            <i class="bi bi-plus-lg me-2"></i>Add Session
-        </a>
-    </header>
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+    @await Html.PartialAsync("_SearchForm", search)
 
-    @if (Model != null && Model.Any())
+    @if (Model is not null && Model.Items.Any())
     {
-        <div class="row g-4">
-            @foreach (var session in Model)
-            {
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0 session-card">
-                        <div class="card-header text-white py-3 @(session.Status == "Ongoing" ? "bg-success" : session.Status == "Upcoming" ? "bg-primary" : "bg-secondary") ">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">
-                                    <i class="bi bi-calendar-event me-2"></i>@session.CategoryName
-                                </h5>
-                                <span class="badge bg-light text-dark">@session.Status</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-muted mb-3">@session.Description</p>
-
-                            <div class="session-info mb-3">
-                                <div class="info-item mb-2">
-                                    <i class="bi bi-person-circle text-primary-color me-2"></i>
-                                    <strong>Trainer:</strong> @session.TrainerName
-                                </div>
-                                <div class="info-item mb-2">
-                                    <i class="bi bi-calendar3 text-primary-color me-2"></i>
-                                    <strong>Date:</strong> @session.DateDisplay
-                                </div>
-                                <div class="info-item mb-2">
-                                    <i class="bi bi-clock text-primary-color me-2"></i>
-                                    <strong>Time:</strong> @session.TimeRangeDisplay
-                                </div>
-                                <div class="info-item mb-2">
-                                    <i class="bi bi-hourglass-split text-primary-color me-2"></i>
-                                    <strong>Duration:</strong> @session.Duration
-                                </div>
-                                <div class="info-item">
-                                    <i class="bi bi-people text-primary-color me-2"></i>
-                                    <strong>Capacity:</strong> @session.AvailableSlots/@session.Capacity slots
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-white border-0">
-                            <div class="d-grid gap-2">
-                                <a asp-action="Details" asp-route-id="@session.Id" class="btn btn-outline btn-sm">
-                                    <i class="bi bi-eye me-1"></i>View Details
-                                </a>
-                                <div class="d-flex gap-2">
-                                    <a asp-action="Edit" asp-route-id="@session.Id" class="btn btn-outline btn-sm flex-fill">
-                                        <i class="bi bi-pencil me-1"></i>Edit
-                                    </a>
-                                    <a asp-action="Delete" asp-route-id="@session.Id" class="btn btn-outline text-danger btn-sm flex-fill">
-                                        <i class="bi bi-trash me-1"></i>Delete
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
+        <div class="app-card">
+            <div class="table-responsive">
+                <table class="table-app">
+                    <thead>
+                        <tr>
+                            <th>Session</th>
+                            <th>Trainer</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Capacity</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var session in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="cell-strong">@session.CategoryName</div>
+                                    <div class="cell-sub">@session.Description</div>
+                                </td>
+                                <td>@session.TrainerName</td>
+                                <td>@session.DateDisplay</td>
+                                <td>@session.TimeRangeDisplay</td>
+                                <td>@session.AvailableSlots / @session.Capacity</td>
+                                <td>
+                                    <span class="badge-soft @(session.Status == "Ongoing" ? "badge-ok" : session.Status == "Upcoming" ? "" : "badge-warn")">@session.Status</span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <a class="btn-icon" title="Details" asp-action="Details" asp-route-id="@session.Id">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a class="btn-icon" title="Edit" asp-action="Edit" asp-route-id="@session.Id">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a class="btn-icon btn-danger-soft" title="Delete" asp-action="Delete" asp-route-id="@session.Id">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
+        @await Html.PartialAsync("_Pagination", Model)
     }
     else
     {
-        <div class="text-center py-5">
-            <i class="bi bi-calendar-x display-1 text-muted"></i>
-            <h4 class="mt-3 text-muted">No Sessions Available</h4>
-            <p class="text-muted">Create your first training session to get started</p>
-        </div>
+        @await Html.PartialAsync("_EmptyState", empty)
     }
 </div>
-

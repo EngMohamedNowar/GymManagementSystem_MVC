@@ -9,12 +9,10 @@ namespace GymManagement.PL.Controllers
     public class SessionsScheduleController : Controller
     {
         private readonly ISessionService _sessionService;
-        private readonly IBookingService _bookingService;
 
-        public SessionsScheduleController(ISessionService sessionService, IBookingService bookingService)
+        public SessionsScheduleController(ISessionService sessionService)
         {
             _sessionService = sessionService;
-            _bookingService = bookingService;
         }
 
         [HttpGet]
@@ -39,9 +37,9 @@ namespace GymManagement.PL.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ToggleAttendance(int sessionId, int memberId, CancellationToken ct)
+        public async Task<IActionResult> MarkAttendance(int memberId, int sessionId, bool isAttended, CancellationToken ct)
         {
-            var result = await _bookingService.ToggleAttendanceAsync(sessionId, memberId, ct);
+            var result = await _sessionService.SetAttendanceAsync(sessionId, memberId, isAttended, ct);
             if (!result.success)
             {
                 TempData["ErrorMessage"] = result.error;

@@ -1,5 +1,5 @@
-﻿using GymManagementSystem.BLL.Services.Interfaces;
-using GymManagementSystem.BLL.ViewModes.Trainers;
+using GymManagementSystem.BLL.Services.Interfaces;
+using GymManagementSystem.BLL.ViewModels.Trainers;
 using GymManagementSystem.DAL;
 using GymManagementSystem.DAL.Models;
 using GymManagementSystem.DAL.Models.Enums;
@@ -30,6 +30,7 @@ namespace GymManagementSystem.BLL.Services.Classes
                 Name = trainer.Name,
                 Email = trainer.Email,
                 Phone = trainer.Phone,
+                Gender = trainer.Gender.ToString(),
                 Specialization = trainer.Spectiality
                 //Address = $"Building Number: {trainer.Address.BuildingNumber} ,Street:{trainer.Address.Street}, City:{trainer.Address.City}",
             });
@@ -58,11 +59,11 @@ namespace GymManagementSystem.BLL.Services.Classes
                 }
             };
             _unitOfWork.GetRepositories<Trainer>().Add(trainerDTOs);
-            var count = await _unitOfWork.SaveChanegesAsync(ct);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
             return count > 0;
         }
 
-        public async Task<TrainerViewModel?> GetTrainerDetalisAsync(int memberId, CancellationToken ct = default)
+        public async Task<TrainerViewModel?> GetTrainerDetailsAsync(int memberId, CancellationToken ct = default)
         {
             var trainer = await _unitOfWork.GetRepositories<Trainer>().GetByIdAsync(memberId, ct);
             if (trainer is null) return null;
@@ -74,6 +75,7 @@ namespace GymManagementSystem.BLL.Services.Classes
                 Specialization = trainer.Spectiality,
                 Email = trainer.Email,
                 Phone = trainer.Phone,
+                Gender = trainer.Gender.ToString(),
                 DateOfBirth = trainer.DateOfBirth.ToString(),
                 Address = $"Building Number: {trainer.Address.BuildingNumber} ,Street:{trainer.Address.Street}, City:{trainer.Address.City}"
             };
@@ -81,9 +83,9 @@ namespace GymManagementSystem.BLL.Services.Classes
             return trainerDTOs;
         }
 
-        public async Task<UpdateTrainerDTOs> TrainerToUpdateAsync(int meberId, CancellationToken ct = default)
+        public async Task<UpdateTrainerDTOs> TrainerToUpdateAsync(int memberId, CancellationToken ct = default)
         {
-            var trainer = await _unitOfWork.GetRepositories<Trainer>().GetByIdAsync(meberId, ct);
+            var trainer = await _unitOfWork.GetRepositories<Trainer>().GetByIdAsync(memberId, ct);
             if (trainer is null) return null;
 
             var trainerDTOs = new UpdateTrainerDTOs()
@@ -109,7 +111,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             var phoneExist = await _unitOfWork.GetRepositories<Trainer>().AnyAsync(m => m.Phone == model.Phone && m.Id != memberId, ct);
             if (emailExist || phoneExist) return false;
 
-            // من الـ model (القيم الجديدة الجاية من الفورم) إلى trainer (الـ Entity المحفوظ)
+            // ?? ??? model (????? ??????? ?????? ?? ??????) ??? trainer (??? Entity ???????)
             trainer.Email = model.Email;
             trainer.Phone = model.Phone;
             trainer.Address.BuildingNumber = model.BuildingNumber;
@@ -118,7 +120,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             trainer.Spectiality = model.Specialization;
 
             _unitOfWork.GetRepositories<Trainer>().Update(trainer);
-            var count = await _unitOfWork.SaveChanegesAsync(ct);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
             return count > 0;
         }
 
@@ -132,7 +134,7 @@ namespace GymManagementSystem.BLL.Services.Classes
                 return false;
 
             _unitOfWork.GetRepositories<Trainer>().Delete(trainer);
-            var count = await _unitOfWork.SaveChanegesAsync(ct);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
             return count > 0;
         }
     }

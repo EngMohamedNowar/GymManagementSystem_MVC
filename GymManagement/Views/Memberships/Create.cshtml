@@ -1,59 +1,88 @@
 ﻿@model CreateMembershipViewModel
+
 @{
     ViewData["Title"] = "Add Membership";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var header = new PageHeaderModel
+    {
+        Title = "Add New Membership",
+        Subtitle = "Subscribe a member to a plan",
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction
+            {
+                Text = "Back",
+                Icon = "bi bi-arrow-left",
+                Controller = "Memberships",
+                Action = "Index",
+                CssClass = "btn-soft rounded-pill px-3 py-2"
+            }
+        }
+    };
+
+    var backAction = new FormAction
+    {
+        Text = "Cancel",
+        Icon = "bi bi-arrow-left",
+        Controller = "Memberships",
+        Action = "Index",
+        CssClass = "btn-soft rounded-pill px-3"
+    };
+
+    var submitAction = new FormAction
+    {
+        Text = "Create Membership",
+        Icon = "bi bi-check-lg",
+        CssClass = "btn-fill rounded-pill px-3"
+    };
 }
 
-<div class="container mt-4">
-    <header class="mb-4">
-        <h3 class="text-primary-color">Add New Membership</h3>
-        <p class="text-muted">Subscribe a member to a plan</p>
-    </header>
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
 
-    <form asp-action="Create" method="post">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body p-4">
+    <div class="app-card">
+        <div class="app-card-body">
+            <form asp-action="Create" method="post" class="form-app">
+                <div class="section-title">Membership Information</div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="MemberId" class="form-label">
+                            <i class="bi bi-person me-2"></i>Member <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="MemberId" asp-items="ViewBag.Members" class="form-select">
+                            <option value="">Select Member</option>
+                        </select>
+                        <span asp-validation-for="MemberId" class="text-danger small"></span>
+                    </div>
 
-                        <div class="section-header mb-3">
-                            <h5 class="text-primary fw-bold">Membership Information</h5>
-                            <hr class="mt-2">
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label asp-for="MemberId" class="form-label fw-semibold">
-                                    Member <span class="text-danger">*</span>
-                                </label>
-                                <select asp-for="MemberId" asp-items="ViewBag.Members" class="form-select">
-                                    <option value="">Select Member</option>
-                                </select>
-                                <span asp-validation-for="MemberId" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="PlanId" class="form-label fw-semibold">
-                                    Plan <span class="text-danger">*</span>
-                                </label>
-                                <select asp-for="PlanId" asp-items="ViewBag.Plans" class="form-select">
-                                    <option value="">Select Plan</option>
-                                </select>
-                                <span asp-validation-for="PlanId" class="text-danger"></span>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
-                            <a asp-action="Index" class="btn btn-outline">
-                                <i class="bi bi-arrow-left me-1"></i>Cancel
-                            </a>
-                            <button type="submit" class="btn btn-fill">
-                                <i class="bi bi-check-lg me-1"></i>Create Membership
-                            </button>
-                        </div>
+                    <div class="col-md-6">
+                        <label asp-for="PlanId" class="form-label">
+                            <i class="bi bi-tag me-2"></i>Plan <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="PlanId" asp-items="ViewBag.Plans" class="form-select">
+                            <option value="">Select Plan</option>
+                        </select>
+                        <span asp-validation-for="PlanId" class="text-danger small"></span>
                     </div>
                 </div>
-            </div>
+
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                        <label asp-for="DiscountCode" class="form-label">
+                            <i class="bi bi-percent me-1"></i> Discount Code (optional)
+                        </label>
+                        <input asp-for="DiscountCode" class="form-control" placeholder="e.g. SUMMER25" />
+                        <span asp-validation-for="DiscountCode" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                @await Html.PartialAsync("_FormActions", new FormActionsModel
+                {
+                    BackAction = backAction,
+                    SubmitAction = submitAction
+                })
+            </form>
         </div>
-    </form>
+    </div>
 </div>

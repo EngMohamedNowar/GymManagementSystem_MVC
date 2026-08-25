@@ -1,0 +1,28 @@
+@*
+    Unified Empty State Partial
+    Usage: @await Html.PartialAsync("_EmptyState", new EmptyStateModel { ... })
+*@
+@model GymManagement.PL.Models.EmptyStateModel
+
+<div class="app-card">
+    <div class="empty-state">
+        <div class="es-icon"><i class="@Model.Icon"></i></div>
+        <h4>@Model.Title</h4>
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            <p>@Model.Message</p>
+        }
+        @if (Model.Action is not null)
+        {
+            <a asp-controller="@Model.Action.Controller" asp-action="@Model.Action.Action"
+               asp-all-route-data="@Model.Action.RouteValues"
+               class="btn @Model.Action.CssClass">
+                @if (!string.IsNullOrEmpty(Model.Action.Icon))
+                {
+                    <i class="@Model.Action.Icon me-1"></i>
+                }
+                @Model.Action.Text
+            </a>
+        }
+    </div>
+</div>

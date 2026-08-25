@@ -1,0 +1,72 @@
+@using GymManagementSystem.BLL.ViewModels.Notifications
+@model IEnumerable<NotificationViewModel>
+
+@{
+    ViewData["Title"] = "Notifications";
+
+    var header = new PageHeaderModel
+    {
+        Title = "Notifications",
+        Subtitle = "Your in-app alerts and reminders"
+    };
+
+    var empty = new EmptyStateModel
+    {
+        Icon = "bi bi-bell",
+        Title = "No Notifications",
+        Message = "You're all caught up."
+    };
+}
+
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+
+    @if (Model is not null && Model.Any())
+    {
+        <div class="app-card">
+            <div class="table-responsive">
+                <table class="table-app">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Title</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var n in Model)
+                        {
+                            <tr class="@(n.IsRead ? "" : "fw-semibold")">
+                                <td><span class="badge-soft">@n.Type</span></td>
+                                <td>@n.Title</td>
+                                <td>@n.Message</td>
+                                <td>@n.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td class="text-end">
+                                    @if (!n.IsRead)
+                                    {
+                                        <form asp-action="MarkRead" asp-route-id="@n.Id" method="post" class="d-inline">
+                                            <button type="submit" class="btn-icon" title="Mark as read">
+                                                <i class="bi bi-check2"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-soft badge-ok">Read</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        @await Html.PartialAsync("_EmptyState", empty)
+    }
+</div>

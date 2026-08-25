@@ -1,162 +1,141 @@
-﻿@using GymManagementSystem.BLL.ViewModes.Members
-@model IEnumerable<MemberViewModel>
+@using GymManagementSystem.BLL.ViewModels.Members
+@using GymManagementSystem.BLL.ViewModels.Common
+@model PaginationViewModel<MemberViewModel>
 
 @{
     ViewData["Title"] = "Members";
+
+    var header = new PageHeaderModel
+    {
+        Title = "Members",
+        Subtitle = "Manage gym members and their subscriptions",
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction
+            {
+                Text = "Export CSV",
+                Icon = "bi bi-download",
+                Controller = "Members",
+                Action = "ExportCsv",
+                CssClass = "btn-soft rounded-pill px-3 py-2"
+            },
+            new PageHeaderAction
+            {
+                Text = "Add Member",
+                Icon = "bi bi-person-plus",
+                Controller = "Members",
+                Action = "Create",
+                CssClass = "btn-fill rounded-pill px-3 py-2"
+            }
+        }
+    };
+
+    var search = new SearchFormModel
+    {
+        Controller = "Members",
+        Action = "Index",
+        SearchLabel = "Search",
+        SearchPlaceholder = "Name, email or phone",
+        SearchValue = ViewBag.Search?.ToString() ?? "",
+        Filters = new List<SearchFilter>
+        {
+            new SearchFilter
+            {
+                Name = "gender",
+                Label = "Gender",
+                Value = ViewBag.Gender?.ToString() ?? "",
+                Options = new List<SelectOption>
+                {
+                    new SelectOption { Value = "Male", Text = "Male" },
+                    new SelectOption { Value = "Female", Text = "Female" }
+                }
+            }
+        }
+    };
+
+    var empty = new EmptyStateModel
+    {
+        Icon = "bi bi-people",
+        Title = "No Members Yet",
+        Message = "Add your first member to get started.",
+        Action = new EmptyStateAction
+        {
+            Text = "Add Member",
+            Icon = "bi bi-person-plus",
+            Controller = "Members",
+            Action = "Create",
+            CssClass = "btn-fill rounded-pill px-3"
+        }
+    };
 }
 
 <div class="container">
-    <main role="main" class="pb-3">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+    @await Html.PartialAsync("_SearchForm", search)
 
-        @* Alert Messages *@
-        @* Show Success Message if Member is Created Successfully *@
-        @if (TempData["SuccessMessage"] is not null)
-        {
-            <div id="Alert" class="alert alert-success alert-dismissible fade show">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                @TempData["SuccessMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-        @* Show Error Message if Member Failed To Create *@
-        else if (TempData["FailedMessage"] is not null)
-        {
-            <div id="Alert" class="alert alert-danger alert-dismissible fade show">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                @TempData["FailedMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-
-
-        <div class="container">
-            <header class="d-flex justify-content-end mt-5 mb-4 align-items-center">
-                <a asp-controller="Members" asp-action="Create" class="btn btn-fill fw-medium rounded-pill px-3 py-3"> + Add Member </a>
-            </header>
-
-            @* Page Content*@
-            @* Show Member List if Members Exist *@
-            @if (Model is not null && Model.Any())
-            {
-                <div class="table-responsive " style="overflow: visible;">
-                    <table class="table table-borderless">
-                        <thead>
+    @if (Model is not null && Model.Items.Any())
+    {
+        <div class="app-card">
+            <div class="table-responsive">
+                <table class="table-app">
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Email</th>
+                            <th>Gender</th>
+                            <th>Phone</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var member in Model.Items)
+                        {
                             <tr>
-                                <th><span>Photo</span></th>
-                                <th><span>Name</span></th>
-                                <th><span>Email</span></th>
-                                <th><span>Gender</span></th>
-                                <th><span>Phone</span></th>
-                                <th><span>Action</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @* loop through members and display their data *@
-                            @foreach (var member in Model)
-                            {
-                                <tr>
-                                    <td>
-                                        <span class="avatar">
-                                            @if (member.Photo is null)
-                                            {
-                                                <img src="~/images/Ellipse 7.jpg"
-                                                     alt="Default Avatar"
-                                                     class="rounded-circle"
-                                                     style="width: 40px; height: 40px;" />
-                                            }
-                                            else
-                                            {
-                                                <img src="@Url.Action("Picture", "Members", new { id = member.Id })"
-                                                     alt="Default Avatar"
-                                                     class="rounded-circle"
-                                                     style="width: 40px; height: 40px;" />
-                                            }
-                                        </span>
-                                    </td>
-                                    <td><span>@member.Name</span></td>
-                                    <td><span>@member.Email</span></td>
-                                    <td><span>@member.Gender</span></td>
-                                    <td><span>@member.Phone</span></td>
-                                    <td class="action position-relative">
-                                        <div class="dropdown">
-                                            <button class="btn btn-link p-0 border-0" type="button"
-                                                    id="dropdownMenuButton-@member.Id" data-bs-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                <img src="~/images/action dots.jpg" alt="action icon" />
-                                            </button>
-
-                                            <ul class="dropdown-menu dropdown-menu-start"
-                                                aria-labelledby="dropdownMenuButton-@member.Id">
-                                                <li>
-                                                    <a asp-controller="Members" asp-action="MemberDetails" asp-route-id="@member.Id"
-                                                       class="dropdown-item d-flex align-items-center gap-3">
-                                                        <img src="~/images/info 1.jpg" alt="info icon"
-                                                             style="width: 20px; height: 20px;" />
-                                                        <span>View Member Data</span>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a asp-controller="Members" asp-action="HealthRecordDetails" asp-route-id="@member.Id"
-                                                       class="dropdown-item d-flex align-items-center gap-3">
-                                                        <img src="~/images/info 1.jpg" alt="info icon"
-                                                             style="width: 20px; height: 20px;" />
-                                                        <span>View Health Record Data</span>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <hr class="dropdown-divider">
-                                                </li>
-                                                <li>
-                                                    <a asp-controller="Members" asp-action="EditMember" asp-route-id="@member.Id"
-                                                       class="dropdown-item d-flex align-items-center gap-3">
-                                                        <img src="~/images/edit.jpg" alt="edit icon"
-                                                             style="width: 20px; height: 20px;" />
-                                                        <span>Edit Member Data</span>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <hr class="dropdown-divider">
-                                                </li>
-                                                <li>
-                                                    <a asp-controller="Members" asp-action="Delete" asp-route-id="@member.Id"
-                                                       class="dropdown-item d-flex align-items-center gap-3 text-danger">
-                                                        <img src="~/images/x-circle 1.jpg" alt="delete icon"
-                                                             style="width: 20px; height: 20px;" />
-                                                        <span>Delete</span>
-                                                    </a>
-                                                </li>
-                                            </ul>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (member.Photo is null)
+                                        {
+                                            <span class="avatar">@(string.IsNullOrEmpty(member.Name) ? "?" : member.Name[0].ToString())</span>
+                                        }
+                                        else
+                                        {
+                                            <img class="avatar" src="@Url.Action("Picture", "Members", new { id = member.Id })" alt="@member.Name" />
+                                        }
+                                        <div>
+                                            <div class="cell-strong">@member.Name</div>
                                         </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="text-center py-5">
-                    <i class="bi bi-person-workspace display-1 text-muted"></i>
-                    <h4 class="mt-3 text-muted">No Members Available</h4>
-                    <p class="text-muted">Add your first Member to get started</p>
-                </div>
-            }
-
-            @* Show Message if No Members Available *@
+                                    </div>
+                                </td>
+                                <td>@member.Email</td>
+                                <td>@member.Gender</td>
+                                <td>@member.Phone</td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <a class="btn-icon" title="Details" asp-controller="Members" asp-action="MemberDetails" asp-route-id="@member.Id">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a class="btn-icon" title="Health Record" asp-controller="Members" asp-action="HealthRecordDetails" asp-route-id="@member.Id">
+                                            <i class="bi bi-heart-pulse"></i>
+                                        </a>
+                                        <a class="btn-icon" title="Edit" asp-controller="Members" asp-action="EditMember" asp-route-id="@member.Id">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a class="btn-icon btn-danger-soft" title="Delete" asp-controller="Members" asp-action="Delete" asp-route-id="@member.Id">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </main>
+        @await Html.PartialAsync("_Pagination", Model)
+    }
+    else
+    {
+        @await Html.PartialAsync("_EmptyState", empty)
+    }
 </div>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const alertBox = document.getElementById("Alert");
-        if (alertBox) {
-            setTimeout(() => {
-                alertBox.style.transition = "opacity 0.5s ease";
-                alertBox.style.opacity = "0";
-                setTimeout(() => alertBox.remove(), 500);
-            }, 1500);
-        }
-    });
-</script>
-<script src="../js/bootstrap.bundle.min.js"></script>

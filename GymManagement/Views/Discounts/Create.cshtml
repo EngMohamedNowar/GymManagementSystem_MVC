@@ -1,0 +1,88 @@
+@using GymManagementSystem.BLL.ViewModels.Discounts
+@model CreateDiscountViewModel
+
+@{
+    ViewData["Title"] = "New Discount";
+
+    var header = new PageHeaderModel
+    {
+        Title = "New Discount",
+        Subtitle = "Create a promo code"
+    };
+
+    var backAction = new FormAction
+    {
+        Text = "Cancel",
+        Icon = "bi bi-arrow-left",
+        Controller = "Discounts",
+        Action = "Index",
+        CssClass = "btn-soft rounded-pill px-4"
+    };
+
+    var submitAction = new FormAction
+    {
+        Text = "Create",
+        Icon = "bi bi-check-lg",
+        CssClass = "btn-fill rounded-pill px-4"
+    };
+}
+
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+
+    <div class="app-card" style="max-width:640px;">
+        <div class="app-card-body">
+            <form asp-action="Create" method="post" class="form-app">
+                <div asp-validation-summary="All" class="text-danger small"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Code" class="form-label"><i class="bi bi-tag me-2"></i>Code</label>
+                    <input asp-for="Code" class="form-control" placeholder="SUMMER25" />
+                    <span asp-validation-for="Code" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Type" class="form-label"><i class="bi bi-tag me-2"></i>Type</label>
+                    <select asp-for="Type" class="form-select">
+                        <option value="Percent">Percent (%)</option>
+                        <option value="Fixed">Fixed amount</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Value" class="form-label"><i class="bi bi-percent me-2"></i>Value</label>
+                    <input asp-for="Value" class="form-control" />
+                    <span asp-validation-for="Value" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"><i class="bi bi-card-text me-2"></i>Description</label>
+                    <input asp-for="Description" class="form-control" />
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label asp-for="StartDate" class="form-label"><i class="bi bi-calendar me-2"></i>Start Date</label>
+                        <input asp-for="StartDate" class="form-control" type="date" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="EndDate" class="form-label"><i class="bi bi-calendar-x me-2"></i>End Date</label>
+                        <input asp-for="EndDate" class="form-control" type="date" />
+                    </div>
+                </div>
+
+                <div class="form-check mt-3">
+                    <input asp-for="IsActive" class="form-check-input" type="checkbox" id="isActive" />
+                    <label class="form-check-label" for="isActive"><i class="bi bi-check-circle me-1"></i>Active</label>
+                </div>
+
+                @await Html.PartialAsync("_FormActions", new FormActionsModel
+                {
+                    BackAction = backAction,
+                    SubmitAction = submitAction
+                })
+            </form>
+        </div>
+    </div>
+</div>

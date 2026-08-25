@@ -1,0 +1,159 @@
+@model AnalyticsViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    <div class="page-header">
+        <div class="ph-text">
+            <h1>Dashboard</h1>
+            <p>Gym performance at a glance</p>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-people"></i></div>
+                <div>
+                    <div class="stat-value">@Model.TotalMembers</div>
+                    <div class="stat-label">Members</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-person-check"></i></div>
+                <div>
+                    <div class="stat-value">@Model.ActiveMembers</div>
+                    <div class="stat-label">Active Memberships</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-cash-stack"></i></div>
+                <div>
+                    <div class="stat-value">@Model.TotalRevenue.ToString("N0")</div>
+                    <div class="stat-label">Revenue (EGP)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-credit-card-2-front"></i></div>
+                <div>
+                    <div class="stat-value">@Model.TotalMemberships</div>
+                    <div class="stat-label">Memberships</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="app-card h-100">
+                <div class="app-card-header">
+                    <h6 class="section-title mb-0"><i class="bi bi-pie-chart me-2"></i>Plan Distribution</h6>
+                </div>
+                <div class="app-card-body">
+                    <canvas id="planChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="app-card h-100">
+                <div class="app-card-header">
+                    <h6 class="section-title mb-0"><i class="bi bi-calendar-event me-2"></i>Sessions Overview</h6>
+                </div>
+                <div class="app-card-body">
+                    <canvas id="sessionChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="app-card h-100">
+                <div class="app-card-header">
+                    <h6 class="section-title mb-0"><i class="bi bi-bar-chart me-2"></i>Membership Status</h6>
+                </div>
+                <div class="app-card-body">
+                    <canvas id="statusChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="app-card h-100">
+                <div class="app-card-header">
+                    <h6 class="section-title mb-0"><i class="bi bi-graph-up me-2"></i>Revenue &amp; Payments</h6>
+                </div>
+                <div class="app-card-body">
+                    <canvas id="revenueChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            Chart.defaults.color = '#98a0b3';
+            Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+
+            var planLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PlanDistribution.Select(p => p.PlanName)));
+            var planData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PlanDistribution.Select(p => p.Count)));
+
+            var ctxPlan = document.getElementById('planChart').getContext('2d');
+            new Chart(ctxPlan, {
+                type: 'doughnut',
+                data: {
+                    labels: planLabels,
+                    datasets: [{ data: planData, backgroundColor: ['#6366f1','#4f46e5','#22c55e','#f59e0b','#ef4444','#0ea5e9'] }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            var ctxSession = document.getElementById('sessionChart').getContext('2d');
+            new Chart(ctxSession, {
+                type: 'bar',
+                data: {
+                    labels: ['Upcoming', 'Ongoing', 'Completed'],
+                    datasets: [{
+                        label: 'Sessions',
+                        data: [@Model.UpcomingSessions, @Model.OngoingSessions, @Model.CompletedSessions],
+                        backgroundColor: ['#4f46e5', '#22c55e', '#94a3b8']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+
+            var ctxStatus = document.getElementById('statusChart').getContext('2d');
+            new Chart(ctxStatus, {
+                type: 'pie',
+                data: {
+                    labels: ['Active', 'Expired', 'Cancelled'],
+                    datasets: [{
+                        data: [@Model.ActiveMembers, @Model.ExpiredMemberships, (@Model.TotalMemberships - @Model.ActiveMembers - @Model.ExpiredMemberships)],
+                        backgroundColor: ['#22c55e', '#ef4444', '#94a3b8']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            var ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctxRevenue, {
+                type: 'bar',
+                data: {
+                    labels: ['Revenue (EGP)', 'Payments Count'],
+                    datasets: [{
+                        label: 'Value',
+                        data: [@Model.TotalRevenue, @Model.PaymentsCount],
+                        backgroundColor: ['#6366f1', '#f59e0b']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+        })();
+    </script>
+}

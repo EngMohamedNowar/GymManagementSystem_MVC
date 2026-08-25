@@ -1,6 +1,8 @@
 ﻿using GymManagement.DbContexts;
 using GymManagement.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using System.Text.Json;
 
 namespace GymManagementSystem.DAL.DataSeeding
@@ -15,9 +17,9 @@ namespace GymManagementSystem.DAL.DataSeeding
         {
             try
             {
-                if (!context.Plans.Any())
+                if (!await ((IQueryable<Plan>)context.Plans).AnyAsync(ct))
                 {
-                    var plans = LoadDataFromJsonFile<Plan>(seedFolderPath, "plans.json");
+                    var plans = await LoadDataFromJsonFile<Plan>(seedFolderPath, "plans.json", ct);
 
                     await context.Plans.AddRangeAsync(plans, ct);
                     await context.SaveChangesAsync(ct);
@@ -32,14 +34,14 @@ namespace GymManagementSystem.DAL.DataSeeding
             }
         }
 
-        public static List<T> LoadDataFromJsonFile<T>(string folderPath, string fileName)
+        public static async Task<List<T>> LoadDataFromJsonFile<T>(string folderPath, string fileName, CancellationToken ct = default)
         {
             var filePath = Path.Combine(folderPath, fileName);
 
             if (!File.Exists(filePath))
                 throw new FileNotFoundException($"Seed data file not found: {filePath}");
 
-            var json = File.ReadAllText(filePath);
+            var json = await File.ReadAllTextAsync(filePath, ct);
 
             var options = new JsonSerializerOptions
             {

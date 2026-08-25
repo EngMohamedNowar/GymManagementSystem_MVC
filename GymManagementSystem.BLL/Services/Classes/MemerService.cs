@@ -1,6 +1,7 @@
-﻿using AutoMapper;
+using AutoMapper;
+using GymManagement.Models;
 using GymManagementSystem.BLL.Services.Interfaces;
-using GymManagementSystem.BLL.ViewModes.Members;
+using GymManagementSystem.BLL.ViewModels.Members;
 using GymManagementSystem.DAL;
 using GymManagementSystem.DAL.Models;
 using GymManagementSystem.DAL.Repositories.Interfaces;
@@ -23,7 +24,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             _mapper = mapper;
             _attachmentService = attachmentService;
         }
-        public async Task<bool> CreateMemberAsync(CreateMemberDTOs model, CancellationToken ct = default)
+        public async Task<int> CreateMemberAsync(CreateMemberDTOs model, CancellationToken ct = default)
         {
             if (model.Photo == null)
             {
@@ -43,10 +44,10 @@ namespace GymManagementSystem.BLL.Services.Classes
                     .AnyAsync(m => m.Phone == model.Phone, ct);
 
                 if (emailExist || phoneExist)
-                    return false;
+                    return 0;
 
 
-                // رفع الصورة
+                // ??? ??????
                 using (var stream = model.Photo.OpenReadStream())
                 {
                     fileName = await _attachmentService.UploadAsync(
@@ -59,7 +60,7 @@ namespace GymManagementSystem.BLL.Services.Classes
 
 
                 if (string.IsNullOrWhiteSpace(fileName))
-                    return false;
+                    return 0;
 
 
                 var member = _mapper.Map<Member>(model);
@@ -69,20 +70,20 @@ namespace GymManagementSystem.BLL.Services.Classes
 
                 _unitOfWork.GetRepositories<Member>().Add(member);
 
-                var count = await _unitOfWork.SaveChanegesAsync(ct);
+                var count = await _unitOfWork.SaveChangesAsync(ct);
 
                 if (count <= 0)
                 {
-                    // لو فشل الحفظ نحذف الصورة التي تم رفعها
+                    // ?? ??? ????? ???? ?????? ???? ?? ????? ????????
                     _attachmentService.Delete("MembersPicture", fileName);
-                    return false;
+                    return 0;
                 }
 
-                return true;
+                return member.Id;
             }
             catch (Exception ex)
             {
-                // لو حصل Exception بعد رفع الصورة
+                // ?? ??? Exception ??? ??? ??????
                 if (!string.IsNullOrWhiteSpace(fileName))
                 {
                     _attachmentService.Delete("MembersPicture", fileName);
@@ -97,36 +98,31 @@ namespace GymManagementSystem.BLL.Services.Classes
         public async Task<bool> DeleteMemberAsync(int memberId, CancellationToken ct = default)
         {
             var member = await _unitOfWork.GetRepositories<Member>()
-                .GetByIdAsync(memberId);
+                .GetByIdAsync(memberId, ct);
 
             if (member == null)
                 return false;
 
             var hasFutureSession = await _unitOfWork.GetRepositories<Booking>()
-                .AnyAsync(m => m.MemberId == memberId && m.Session.StartDate > DateTime.Now, ct);
+                .AnyAsync(m => m.MemberId == memberId && m.Session.StartDate > DateTime.UtcNow, ct);
 
             if (hasFutureSession)
                 return false;
 
-
-            // حذف صورة العضو من الملفات
-            if (!string.IsNullOrWhiteSpace(member.Photo))
-            {
-                var deleted = _attachmentService.Delete("MemberPicture", member.Photo);
-
-                if (!deleted)
-                {
-                    // اختياري: لو عايز توقف الحذف لو الصورة فشلت
-                    // return false;
-                }
-            }
-
-
             _unitOfWork.GetRepositories<Member>().Delete(member);
 
-            var count = await _unitOfWork.SaveChanegesAsync(ct);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
 
-            return count > 0;
+            if (count <= 0)
+                return false;
+
+            // ??? ???? ????? ?? ??????? ??? ???? ????? ?? ????? ????????
+            if (!string.IsNullOrWhiteSpace(member.Photo))
+            {
+                _attachmentService.Delete("MembersPicture", member.Photo);
+            }
+
+            return true;
         }
 
         public async Task<IEnumerable<MemberViewModel>> GetAllMembersAsync(CancellationToken ct = default)
@@ -148,7 +144,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             return membersDTOs;
         }
 
-        public async Task<MemberViewModel?> GetMemberDetalisAsync(int memberId, CancellationToken ct = default)
+        public async Task<MemberViewModel?> GetMemberDetailsAsync(int memberId, CancellationToken ct = default)
         {
             var member = await _unitOfWork.GetRepositories<Member>().GetByIdAsync(memberId, ct); // Member Entity
             if (member is null) return null;
@@ -165,20 +161,42 @@ namespace GymManagementSystem.BLL.Services.Classes
             //};
             var memberDTOs = _mapper.Map<MemberViewModel>(member);
             var activePlans = await _unitOfWork.GetRepositories<MemberShip>().FirstOrDefaultAsync(
-              m => m.Id == member.Id && m.EndDate > DateTime.Now, ct);
+              m => m.MemberId == member.Id && m.EndDate > DateTime.UtcNow, ct);
 
             if(activePlans is not null)
             {
-                memberDTOs.PlanName = activePlans.Plan.Name;
+                var plan = await _unitOfWork.GetRepositories<Plan>().FirstOrDefaultAsync(p => p.Id == activePlans.PlanId, ct);
+                memberDTOs.PlanName = plan?.Name;
                 memberDTOs.MemberShipEndDate = activePlans.EndDate.ToString();
                 memberDTOs.MemberShipStartDate = activePlans.CreatedAt.ToString();    
             }
             return memberDTOs;
         }
 
-        public async Task<HealthRecordViewModel?> GetMemberHelthRecordAsync(int memberId, CancellationToken ct = default)
+        public async Task<MemberViewModel?> GetMemberByEmailAsync(string email, CancellationToken ct = default)
         {
-            var memberHealthRecord = await _unitOfWork.GetRepositories<HealthRecord>().FirstOrDefaultAsync(m => m.Id == memberId,ct);
+            if (string.IsNullOrWhiteSpace(email)) return null;
+            var member = await _unitOfWork.GetRepositories<Member>().FirstOrDefaultAsync(m => m.Email == email, ct);
+            if (member is null) return null;
+            var memberDTOs = _mapper.Map<MemberViewModel>(member);
+            var activePlans = await _unitOfWork.GetRepositories<MemberShip>().FirstOrDefaultAsync(
+              m => m.MemberId == member.Id && m.EndDate > DateTime.UtcNow, ct);
+            if(activePlans is not null)
+            {
+                var plan = await _unitOfWork.GetRepositories<Plan>().FirstOrDefaultAsync(p => p.Id == activePlans.PlanId, ct);
+                memberDTOs.PlanName = plan?.Name;
+                memberDTOs.MemberShipEndDate = activePlans.EndDate.ToString();
+                memberDTOs.MemberShipStartDate = activePlans.CreatedAt.ToString();    
+            }
+            return memberDTOs;
+        }
+
+        public async Task<HealthRecordViewModel?> GetMemberHealthRecordAsync(int memberId, CancellationToken ct = default)
+        {
+            var member = await _unitOfWork.GetRepositories<Member>().GetByIdAsync(memberId, ct);
+            if (member is null) return null;
+
+            var memberHealthRecord = await _unitOfWork.GetRepositories<HealthRecord>().FirstOrDefaultAsync(m => m.Id == member.HealthId,ct);
             if (memberHealthRecord is null) return null;
             //var healthRecord = new HealthRecordViewModel()
             //{
@@ -191,9 +209,9 @@ namespace GymManagementSystem.BLL.Services.Classes
             return healthRecord;
         }
 
-        public async Task<UpdateMemberDTOs> MemberToUpdateAsync(int meberId, CancellationToken ct = default)
+        public async Task<UpdateMemberDTOs> MemberToUpdateAsync(int memberId, CancellationToken ct = default)
         {
-            var member = await _unitOfWork.GetRepositories<Member>().GetByIdAsync(meberId, ct);
+            var member = await _unitOfWork.GetRepositories<Member>().GetByIdAsync(memberId, ct);
             if (member is null) return null;
             //var memberUpdated = new UpdateMemberDTOs()
             //{
@@ -220,13 +238,57 @@ namespace GymManagementSystem.BLL.Services.Classes
 
             if (emailExist || phoneExist) return false;
 
+            member.Name = model.Name;
             member.Email = model.Email;
             member.Phone = model.Phone;
             member.Address.BuildingNumber = model.BuildingNumber;
             member.Address.City = model.City;
             member.Address.Street = model.Street;
             _unitOfWork.GetRepositories<Member>().Update(member);
-            var count = await _unitOfWork.SaveChanegesAsync(ct);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
+            return count > 0;
+        }
+
+        public async Task<MemberProfileEditViewModel?> GetMemberProfileAsync(int memberId, CancellationToken ct = default)
+        {
+            var member = await _unitOfWork.GetRepositories<Member>().GetByIdAsync(memberId, ct);
+            if (member is null) return null;
+
+            var health = await _unitOfWork.GetRepositories<HealthRecord>().FirstOrDefaultAsync(h => h.Id == member.HealthId, ct);
+
+            return new MemberProfileEditViewModel
+            {
+                Id = member.Id,
+                Phone = member.Phone,
+                BuildingNumber = member.Address.BuildingNumber,
+                City = member.Address.City,
+                Street = member.Address.Street,
+                HealthNote = health?.Note
+            };
+        }
+
+        public async Task<bool> UpdateMemberProfileAsync(int memberId, MemberProfileEditViewModel model, CancellationToken ct = default)
+        {
+            var member = await _unitOfWork.GetRepositories<Member>().GetByIdAsync(memberId, ct);
+            if (member is null) return false;
+
+            member.Phone = model.Phone;
+            member.Address.BuildingNumber = model.BuildingNumber;
+            member.Address.City = model.City;
+            member.Address.Street = model.Street;
+            _unitOfWork.GetRepositories<Member>().Update(member);
+
+            if (!string.IsNullOrWhiteSpace(member.HealthId.ToString()) || member.HealthId > 0)
+            {
+                var health = await _unitOfWork.GetRepositories<HealthRecord>().FirstOrDefaultAsync(h => h.Id == member.HealthId, ct);
+                if (health is not null)
+                {
+                    health.Note = model.HealthNote;
+                    _unitOfWork.GetRepositories<HealthRecord>().Update(health);
+                }
+            }
+
+            var count = await _unitOfWork.SaveChangesAsync(ct);
             return count > 0;
         }
     }

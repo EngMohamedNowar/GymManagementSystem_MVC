@@ -1,0 +1,34 @@
+@*
+    Unified Page Header Partial
+    Usage: @await Html.PartialAsync("_PageHeader", new PageHeaderModel { Title = "Title", Subtitle = "Subtitle", Actions = ... })
+    Or: @{ var header = new PageHeaderModel { ... }; await Html.PartialAsync("_PageHeader", header); }
+*@
+@model GymManagement.PL.Models.PageHeaderModel
+
+<div class="page-header">
+    <div class="ph-text">
+        <h1>@Model.Title</h1>
+        @if (!string.IsNullOrEmpty(Model.Subtitle))
+        {
+            <p>@Model.Subtitle</p>
+        }
+    </div>
+    @if (Model.Actions is not null && Model.Actions.Any())
+    {
+        <div class="d-flex flex-wrap gap-2">
+            @foreach (var action in Model.Actions)
+            {
+                <a asp-controller="@action.Controller" asp-action="@action.Action"
+                   asp-all-route-data="@action.RouteValues"
+                   class="btn @action.CssClass"
+                   title="@action.Title">
+                    @if (!string.IsNullOrEmpty(action.Icon))
+                    {
+                        <i class="@action.Icon me-1"></i>
+                    }
+                    @action.Text
+                </a>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,18 @@
+@*
+    Unified Detail List Partial
+    Usage: @await Html.PartialAsync("_DetailList", new DetailListModel { ... })
+*@
+@model GymManagement.PL.Models.DetailListModel
+
+@if (Model.Items is not null && Model.Items.Any())
+{
+    <div class="detail-list">
+        @foreach (var item in Model.Items)
+        {
+            <div class="detail-row">
+                <span class="detail-key">@item.Key</span>
+                <span class="detail-val">@item.Value</span>
+            </div>
+        }
+    </div>
+}

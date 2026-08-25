@@ -103,7 +103,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             };
 
             _unitOfWork.bookingRepository.Add(booking);
-            var count = await _unitOfWork.SaveChanegesAsync(ct);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
 
             return count > 0 ? Result.Ok() : Result.Fail("Failed to create booking");
         }
@@ -118,7 +118,7 @@ namespace GymManagementSystem.BLL.Services.Classes
                 return Result.Fail("Cannot cancel a booking for a session that has already started");
 
             _unitOfWork.bookingRepository.Delete(booking);
-            var count = await _unitOfWork.SaveChanegesAsync(ct);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
 
             return count > 0 ? Result.Ok() : Result.Fail("Failed to cancel booking");
         }
@@ -137,7 +137,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             booking.UpdatedAt = DateTime.Now;
 
             _unitOfWork.bookingRepository.Update(booking);
-            var count = await _unitOfWork.SaveChanegesAsync(ct);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
 
             return count > 0 ? Result.Ok() : Result.Fail("Failed to update attendance");
         }

@@ -1,0 +1,52 @@
+@*
+    Unified Table Wrapper Partial
+    Usage: @await Html.PartialAsync("_TableWrapper", new TableWrapperModel { ... })
+    Renders a table with thead/tbody and optional pagination
+*@
+@model GymManagement.PL.Models.TableWrapperModel
+
+@if (Model.Items is not null && Model.Items.Any())
+{
+    <div class="app-card">
+        <div class="table-responsive">
+            <table class="table-app">
+                <thead>
+                    <tr>
+                        @foreach (var col in Model.Columns)
+                        {
+                            <th class="@col.HeaderCssClass" scope="col">@col.Title</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            @foreach (var col in Model.Columns)
+                            {
+                                <td class="@col.CellCssClass">
+                                    @if (col.Template is not null)
+                                    {
+                                        @col.Template(item)
+                                    }
+                                    else
+                                    {
+                                        @col.GetValue(item)
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (Model.ShowPagination && Model.Pagination is not null)
+    {
+        @await Html.PartialAsync("_Pagination", Model.Pagination)
+    }
+}
+else
+{
+    @await Html.PartialAsync("_EmptyState", Model.EmptyState)
+}

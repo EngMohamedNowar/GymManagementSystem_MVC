@@ -28,5 +28,11 @@ namespace GymManagement.DbContexts
         public DbSet<MemberShip> MemberShips { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Trainer> Trainers { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<Discount> Discounts { get; set; }
+        public DbSet<BodyMeasurement> BodyMeasurements { get; set; }
+        public DbSet<CheckIn> CheckIns { get; set; }
     }
 }

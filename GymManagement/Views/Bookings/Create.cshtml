@@ -1,60 +1,79 @@
 ﻿@model CreateBookingViewModel
+
 @{
     ViewData["Title"] = "New Booking";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var header = new PageHeaderModel
+    {
+        Title = "New Booking",
+        Subtitle = "Book a member into an upcoming session",
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction
+            {
+                Text = "Back",
+                Icon = "bi bi-arrow-left",
+                Controller = "Bookings",
+                Action = "Index",
+                CssClass = "btn-soft rounded-pill px-3 py-2"
+            }
+        }
+    };
+
+    var backAction = new FormAction
+    {
+        Text = "Cancel",
+        Icon = "bi bi-arrow-left",
+        Controller = "Bookings",
+        Action = "Index",
+        CssClass = "btn-outline rounded-pill px-4"
+    };
+
+    var submitAction = new FormAction
+    {
+        Text = "Create Booking",
+        Icon = "bi bi-check-lg",
+        CssClass = "btn-fill rounded-pill px-4"
+    };
 }
 
-<div class="container mt-4">
-    <header class="mb-4">
-        <h3 class="text-primary-color">New Booking</h3>
-        <p class="text-muted">Book a member into an upcoming session</p>
-    </header>
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
 
-    <form asp-action="Create" method="post">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm border-0 detail-box">
-                    <div class="card-body p-4">
+    <div class="app-card" style="max-width:720px;">
+        <div class="app-card-body">
+            <form asp-action="Create" method="post" class="form-app">
+                <div class="section-title">Booking Information</div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="MemberId" class="form-label">
+                            <i class="bi bi-person me-2"></i>Member <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="MemberId" asp-items="ViewBag.Members" class="form-select">
+                            <option value="">Select Member</option>
+                        </select>
+                        <span asp-validation-for="MemberId" class="text-danger small"></span>
+                    </div>
 
-                        <div class="section-header mb-3">
-                            <h5 class="text-primary fw-bold">Booking Information</h5>
-                            <hr class="mt-2">
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label asp-for="MemberId" class="form-label fw-semibold">
-                                    Member <span class="text-danger">*</span>
-                                </label>
-                                <select asp-for="MemberId" asp-items="ViewBag.Members" class="form-select">
-                                    <option value="">Select Member</option>
-                                </select>
-                                <span asp-validation-for="MemberId" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="SessionId" class="form-label fw-semibold">
-                                    Session <span class="text-danger">*</span>
-                                </label>
-                                <select asp-for="SessionId" asp-items="ViewBag.Sessions" class="form-select">
-                                    <option value="">Select Session</option>
-                                </select>
-                                <span asp-validation-for="SessionId" class="text-danger"></span>
-                                <div class="form-text">Only upcoming sessions with open slots are listed.</div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
-                            <a asp-action="Index" class="btn btn-outline">
-                                <i class="bi bi-arrow-left me-1"></i>Cancel
-                            </a>
-                            <button type="submit" class="btn btn-fill">
-                                <i class="bi bi-check-lg me-1"></i>Create Booking
-                            </button>
-                        </div>
+                    <div class="col-md-6">
+                        <label asp-for="SessionId" class="form-label">
+                            <i class="bi bi-calendar-event me-2"></i>Session <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="SessionId" asp-items="ViewBag.Sessions" class="form-select">
+                            <option value="">Select Session</option>
+                        </select>
+                        <span asp-validation-for="SessionId" class="text-danger small"></span>
+                        <div class="form-text">Only upcoming sessions with open slots are listed.</div>
                     </div>
                 </div>
-            </div>
+
+                @await Html.PartialAsync("_FormActions", new FormActionsModel
+                {
+                    BackAction = backAction,
+                    SubmitAction = submitAction
+                })
+            </form>
         </div>
-    </form>
+    </div>
 </div>

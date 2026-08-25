@@ -1,0 +1,44 @@
+@*
+    Unified Search/Filter Form Partial
+    Usage: @await Html.PartialAsync("_SearchForm", new SearchFormModel { ... })
+*@
+@model GymManagement.PL.Models.SearchFormModel
+
+<form asp-controller="@Model.Controller" asp-action="@Model.Action" method="get" class="form-app mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-12 col-md-6 col-lg-5">
+            <label class="form-label">@Model.SearchLabel</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" name="search" class="form-control"
+                       placeholder="@Model.SearchPlaceholder"
+                       value="@Model.SearchValue" />
+            </div>
+        </div>
+
+        @foreach (var filter in Model.Filters)
+        {
+            <div class="col-12 col-md-4 col-lg-3">
+                <label class="form-label">@filter.Label</label>
+                <select name="@filter.Name" class="form-select">
+                    <option value="" selected="@(string.IsNullOrEmpty(filter.Value))">All</option>
+                    @foreach (var opt in filter.Options)
+                    {
+                        <option value="@opt.Value" selected="@(filter.Value == opt.Value)">@opt.Text</option>
+                    }
+                </select>
+            </div>
+        }
+
+        <div class="col-12 col-auto">
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-fill px-3">
+                    <i class="bi bi-search me-1"></i>@Model.SubmitText
+                </button>
+                <a asp-controller="@Model.Controller" asp-action="@Model.Action" class="btn btn-soft px-3">
+                    @Model.ClearText
+                </a>
+            </div>
+        </div>
+    </div>
+</form>

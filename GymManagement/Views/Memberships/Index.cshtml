@@ -1,113 +1,124 @@
-﻿@model IEnumerable<MembershipViewModel>
+﻿@using GymManagementSystem.BLL.ViewModels.Common
+@model PaginationViewModel<MembershipViewModel>
 
 @{
     ViewData["Title"] = "Memberships";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div id="Alert" class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle-fill me-2"></i>
-        @TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
-else if (TempData["FailedMessage"] != null)
-{
-    <div id="Alert" class="alert alert-danger alert-dismissible fade show">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        @TempData["FailedMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
-else if (TempData["FlashMessage"] != null)
-{
-    <div id="Alert" class="alert alert-@(TempData["FlashSuccess"] as bool? == true ? "success" : "danger") alert-dismissible fade show">
-        <i class="bi bi-info-circle-fill me-2"></i>
-        @TempData["FlashMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+    var header = new PageHeaderModel
+    {
+        Title = "Memberships",
+        Subtitle = "Manage member subscriptions to plans",
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction
+            {
+                Text = "Add Membership",
+                Icon = "bi bi-plus-lg",
+                Controller = "Memberships",
+                Action = "Create",
+                CssClass = "btn-fill rounded-pill px-3 py-2"
+            }
+        }
+    };
+
+    var search = new SearchFormModel
+    {
+        Controller = "Memberships",
+        Action = "Index",
+        SearchLabel = "Search",
+        SearchPlaceholder = "Member or plan",
+        SearchValue = ViewBag.Search?.ToString() ?? "",
+        Filters = new List<SearchFilter>
+        {
+            new SearchFilter
+            {
+                Name = "status",
+                Label = "Status",
+                Value = ViewBag.Status?.ToString() ?? "",
+                Options = new List<SelectOption>
+                {
+                    new SelectOption { Value = "Active", Text = "Active" },
+                    new SelectOption { Value = "Expired", Text = "Expired" },
+                    new SelectOption { Value = "Cancelled", Text = "Cancelled" }
+                }
+            }
+        }
+    };
+
+    var empty = new EmptyStateModel
+    {
+        Icon = "bi bi-card-checklist",
+        Title = "No Memberships Available",
+        Message = "Add your first membership to get started.",
+        Action = new EmptyStateAction
+        {
+            Text = "Add Membership",
+            Icon = "bi bi-plus-lg",
+            Controller = "Memberships",
+            Action = "Create",
+            CssClass = "btn-fill rounded-pill px-3"
+        }
+    };
 }
 
 <div class="container">
-    <header class="d-flex justify-content-between mt-5 mb-4 align-items-center">
-        <div>
-            <h2 class="text-primary-color mb-0">Memberships</h2>
-            <p class="text-muted">Manage member subscriptions to plans</p>
-        </div>
-        <a asp-controller="Memberships" asp-action="Create" class="btn btn-fill fw-medium rounded-pill px-4 py-3">
-            <i class="bi bi-plus-lg me-2"></i>Add Membership
-        </a>
-    </header>
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+    @await Html.PartialAsync("_SearchForm", search)
 
-    @if (Model != null && Model.Any())
+    @if (Model is not null && Model.Items.Any())
     {
-        <div class="table-responsive" style="overflow: visible;">
-            <table class="table table-borderless">
-                <thead>
-                    <tr>
-                        <th><span>Member</span></th>
-                        <th><span>Plan</span></th>
-                        <th><span>Price</span></th>
-                        <th><span>Start Date</span></th>
-                        <th><span>End Date</span></th>
-                        <th><span>Status</span></th>
-                        <th><span>Action</span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var membership in Model)
-                    {
+        <div class="app-card">
+            <div class="table-responsive">
+                <table class="table-app">
+                    <thead>
                         <tr>
-                            <td><span>@membership.MemberName</span></td>
-                            <td><span>@membership.PlanName</span></td>
-                            <td><span>@membership.Price EGP</span></td>
-                            <td><span>@membership.StartDate.ToString("MMM dd, yyyy")</span></td>
-                            <td><span>@membership.EndDate.ToString("MMM dd, yyyy")</span></td>
-                            <td>
-                                <span class="badge @(membership.IsActive ? "bg-success" : "bg-secondary")">@membership.Status</span>
-                            </td>
-                            <td class="action">
-                                <div class="d-flex gap-2">
-                                    <a asp-action="Details" asp-route-id="@membership.Id" class="btn btn-outline btn-sm">
-                                        <i class="bi bi-eye me-1"></i>Details
-                                    </a>
-                                    @if (membership.IsActive)
-                                    {
-                                        <form asp-action="Cancel" asp-route-id="@membership.Id" method="post">
-                                            <button type="submit" class="btn btn-outline text-danger btn-sm">
-                                                <i class="bi bi-x-circle me-1"></i>Cancel
-                                            </button>
-                                        </form>
-                                    }
-                                </div>
-                            </td>
+                            <th>Member</th>
+                            <th>Plan</th>
+                            <th>Price</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var membership in Model.Items)
+                        {
+                            <tr>
+                                <td class="cell-strong">@membership.MemberName</td>
+                                <td>@membership.PlanName</td>
+                                <td>@membership.Price EGP</td>
+                                <td>@membership.StartDate.ToString("MMM dd, yyyy")</td>
+                                <td>@membership.EndDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <span class="badge-soft @(membership.IsActive ? "badge-ok" : "badge-warn")">@membership.Status</span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <a class="btn-icon" title="Details" asp-action="Details" asp-route-id="@membership.Id">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        @if (membership.IsActive)
+                                        {
+                                            <form asp-action="Cancel" asp-route-id="@membership.Id" method="post" class="d-inline">
+                                                <button type="submit" class="btn-icon btn-danger-soft" title="Cancel">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
+        @await Html.PartialAsync("_Pagination", Model)
     }
     else
     {
-        <div class="text-center py-5">
-            <i class="bi bi-card-checklist display-1 text-muted"></i>
-            <h4 class="mt-3 text-muted">No Memberships Available</h4>
-            <p class="text-muted">Add your first membership to get started</p>
-        </div>
+        @await Html.PartialAsync("_EmptyState", empty)
     }
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const alertBox = document.getElementById("Alert");
-        if (alertBox) {
-            setTimeout(() => {
-                alertBox.style.transition = "opacity 0.5s ease";
-                alertBox.style.opacity = "0";
-                setTimeout(() => alertBox.remove(), 500);
-            }, 1500);
-        }
-    });
-</script>

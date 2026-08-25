@@ -11,6 +11,21 @@ namespace GymManagementSystem.DAL.Configurations
     {
         public void Configure(EntityTypeBuilder<Session> builder)
         {
+            builder.Property(s => s.Description)
+                .HasMaxLength(500);
+
+            builder.HasIndex(s => new { s.StartDate, s.EndDate });
+
+            builder.HasOne(s => s.Trainer)
+                .WithMany(t => t.Sessions)
+                .HasForeignKey(s => s.TrainerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(s => s.Category)
+                .WithMany()
+                .HasForeignKey(s => s.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.ToTable(tb =>
             {
                 tb.HasCheckConstraint("SessionCapacityCheck", "Capacity Between 1 and 25");

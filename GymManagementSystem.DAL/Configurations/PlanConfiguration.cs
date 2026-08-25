@@ -17,10 +17,10 @@ namespace GymManagement.Configurations
                 .HasColumnType("varchar");
 
             builder.Property(p => p.Price)
-                .HasPrecision(18, 3);
+                .HasPrecision(18, 2);
 
             builder.Property(p => p.CreatedAt)
-                .HasDefaultValueSql("GetDate()");
+                .HasDefaultValueSql("SYSUTCDATETIME()");
 
             builder.ToTable(tb =>
             {

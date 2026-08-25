@@ -14,8 +14,12 @@ namespace GymManagementSystem.DAL.Models
         // start date ==> CreatedAt from Base
         //EndDate
         public DateTime EndDate { get; set; }
-        public bool IsActive => EndDate > DateTime.UtcNow;
-        public string Status => EndDate > DateTime.UtcNow ? "Active" : "Expired";
+        public bool IsActive => Status == "Active";
+        public string Status { get; set; } = "Active";
+        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
+        public string? DiscountCode { get; set; }
+        public decimal DiscountAmount { get; set; } = 0m;
 
     }
 }

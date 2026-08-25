@@ -3,9 +3,22 @@
 ################################################################################
 
 /GymManagementSystem.BLL/bin/Debug/net10.0
-/GymManagement/bin/Debug/net10.0
-/.vs
-/GymManagement/obj
 /GymManagementSystem.BLL/obj
+/GymManagement/bin/Debug/net10.0
+/GymManagement/obj/Debug/net10.0
+/GymManagement/obj/Debug/net10.0/compressed/04zwc0kwk0-{0}-37tfw0ft22-37tfw0ft22.gz
+/GymManagement/obj/Release/net10.0
+/GymManagement/obj
 /GymManagementSystem.DAL/bin/Debug/net10.0
+/GymManagementSystem.DAL/obj/Debug/net10.0
+/GymManagementSystem.DAL/obj/Release/net10.0
+/GymManagementSystem.PL/obj
+/GymManagementSystmem.PL/obj
+/.vs
 /GymManagementSystem.DAL/obj
+/GymManagementSystem.DAL/Migrations
+/GymManagementSystem.DAL/Data/Migrations/20260707210322_Initial Create.cs
+/GymManagementSystem.DAL/Data/Migrations/20260707210322_Initial Create.Designer.cs
+/GymManagementSystem.DAL/Data/Migrations/GymDbContextModelSnapshot.cs
+/GymManagementSystem.PL
+/GymManagementSystmem.PL

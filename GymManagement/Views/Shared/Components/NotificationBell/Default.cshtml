@@ -1,0 +1,14 @@
+@model int
+@{
+    var count = (int)Model;
+}
+<a class="nav-link px-3 position-relative" asp-controller="Notifications" asp-action="Index" title="Notifications">
+    <i class="bi bi-bell me-1"></i>Notifications
+    @if (count > 0)
+    {
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:.65rem;">
+            @count
+            <span class="visually-hidden">unread notifications</span>
+        </span>
+    }
+</a>

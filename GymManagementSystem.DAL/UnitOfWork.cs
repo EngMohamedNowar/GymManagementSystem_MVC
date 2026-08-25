@@ -1,4 +1,4 @@
-﻿using GymManagement.DbContexts;
+using GymManagement.DbContexts;
 using GymManagementSystem.DAL.Models;
 using GymManagementSystem.DAL.Repositories.Classes;
 using GymManagementSystem.DAL.Repositories.Interfaces;
@@ -42,7 +42,7 @@ namespace GymManagementSystem.DAL
             return repo;
         }
 
-        public async Task<int> SaveChanegesAsync(CancellationToken ct = default)
+        public async Task<int> SaveChangesAsync(CancellationToken ct = default)
          =>   await _context.SaveChangesAsync(ct);
 
     } 

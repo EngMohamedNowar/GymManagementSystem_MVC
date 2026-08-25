@@ -1,0 +1,90 @@
+@using GymManagementSystem.BLL.ViewModels.Members
+@model IEnumerable<MemberBookingViewModel>
+
+@{
+    ViewData["Title"] = "My Bookings";
+
+    var header = new PageHeaderModel
+    {
+        Title = "My Bookings",
+        Subtitle = "Sessions you are registered for",
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction
+            {
+                Text = "Browse Sessions",
+                Icon = "bi bi-plus-lg",
+                Controller = "SessionsSchedule",
+                Action = "Index",
+                CssClass = "btn-fill rounded-pill px-3"
+            }
+        }
+    };
+
+    var empty = new EmptyStateModel
+    {
+        Icon = "bi bi-calendar-x",
+        Title = "No Bookings",
+        Message = "You haven't booked any sessions yet.",
+        Action = new EmptyStateAction
+        {
+            Text = "Browse Sessions",
+            Icon = "bi bi-plus-lg",
+            Controller = "SessionsSchedule",
+            Action = "Index",
+            CssClass = "btn-fill rounded-pill px-3"
+        }
+    };
+}
+
+<div class="container">
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
+
+    @if (Model is not null && Model.Any())
+    {
+        <div class="app-card">
+            <div class="table-responsive">
+                <table class="table-app">
+                    <thead>
+                        <tr><th>Session</th><th>When</th><th>Status</th><th class="text-end">Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var b in Model)
+                        {
+                            <tr>
+                                <td>@b.SessionTitle</td>
+                                <td>@b.StartDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>
+                                    @if (b.IsAttended)
+                                    {
+                                        <span class="badge-soft badge-ok">Attended</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-soft">Booked</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @if (b.CanCancel)
+                                    {
+                                        <form asp-action="CancelBooking" method="post" class="d-inline">
+                                            <input type="hidden" name="bookingId" value="@b.BookingId" />
+                                            <button type="submit" class="btn-icon btn-danger-soft" title="Cancel booking" onclick="return confirm('Cancel this booking?');">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        @await Html.PartialAsync("_EmptyState", empty)
+    }
+</div>
