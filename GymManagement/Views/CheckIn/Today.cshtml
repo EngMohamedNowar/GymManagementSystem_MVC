@@ -10,14 +10,7 @@
         Subtitle = @DateTime.UtcNow.ToString("yyyy-MM-dd"),
         Actions = new List<PageHeaderAction>
         {
-            new PageHeaderAction
-            {
-                Text = "New Check-in",
-                Icon = "bi bi-plus-lg",
-                Controller = "CheckIn",
-                Action = "Scan",
-                CssClass = "btn-fill rounded-pill px-3"
-            }
+            new PageHeaderAction { Text = "New Check-in", Icon = "bi bi-plus-lg", Controller = "CheckIn", Action = "Scan", CssClass = "btn-fill rounded-pill px-3" }
         }
     };
 
@@ -26,14 +19,7 @@
         Icon = "bi bi-box-arrow-in-right",
         Title = "No Check-ins Today",
         Message = "Members who check in will appear here.",
-        Action = new EmptyStateAction
-        {
-            Text = "New Check-in",
-            Icon = "bi bi-plus-lg",
-            Controller = "CheckIn",
-            Action = "Scan",
-            CssClass = "btn-fill rounded-pill px-3"
-        }
+        Action = new EmptyStateAction { Text = "New Check-in", Icon = "bi bi-plus-lg", Controller = "CheckIn", Action = "Scan", CssClass = "btn-fill rounded-pill px-3" }
     };
 }
 
@@ -54,9 +40,9 @@
                         {
                             <tr>
                                 <td>@c.CheckInTime.ToString("HH:mm")</td>
-                                <td>@c.MemberName</td>
+                                <td class="cell-strong">@c.MemberName</td>
                                 <td>@c.MemberId</td>
-                                <td>@(c.Note ?? "—")</td>
+                                <td class="cell-sub">@(c.Note ?? "—")</td>
                             </tr>
                         }
                     </tbody>

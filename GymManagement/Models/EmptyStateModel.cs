@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace GymManagement.PL.Models
 {
     public class EmptyStateModel
@@ -14,7 +16,7 @@ namespace GymManagement.PL.Models
         public string Icon { get; set; } = "";
         public string Controller { get; set; } = "";
         public string Action { get; set; } = "";
-        public object RouteValues { get; set; } = null!;
+        public Dictionary<string, string> RouteValues { get; set; } = new();
         public string CssClass { get; set; } = "btn-fill rounded-pill px-3";
     }
 }

@@ -1,6 +1,8 @@
 ﻿using GymManagement.BLL.ViewModel.Accounts;
 using GymManagementSystem.BLL.Services.Interfaces;
+using GymManagementSystem.DAL;
 using GymManagementSystem.DAL.Models;
+using GymManagementSystem.DAL.Models.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,12 +13,18 @@ namespace GymManagement.PL.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSmsService _emailSms;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AccountController(UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser>signInManager, IEmailSmsService emailSms)
+        public AccountController(
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            IEmailSmsService emailSms,
+            IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSms = emailSms;
+            _unitOfWork = unitOfWork;
         }
         [HttpGet]
         public IActionResult Login() => View();
@@ -42,6 +50,72 @@ namespace GymManagement.PL.Controllers
                 ModelState.AddModelError("InvalidLogin", "Invalid Email Or Password");
                 return View(model);
             }
+        }
+
+        [HttpGet]
+        public IActionResult Register() => View(new RegisterViewModel());
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model, CancellationToken ct = default)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser is not null)
+            {
+                ModelState.AddModelError("Email", "An account with this email already exists");
+                return View(model);
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FirstName = model.Name.Split(' ').FirstOrDefault() ?? model.Name,
+                LastName = model.Name.Contains(' ') ? model.Name.Substring(model.Name.IndexOf(' ') + 1) : "",
+                PhoneNumber = model.Phone,
+                EmailConfirmed = true
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+                return View(model);
+            }
+
+            await _userManager.AddToRoleAsync(user, "Member");
+
+            var member = new Member
+            {
+                Name = model.Name,
+                Email = model.Email,
+                Phone = model.Phone,
+                DateOfBirth = DateOnly.FromDateTime(DateTime.Today.AddYears(-25)),
+                Gender = Gender.Male,
+                Address = new Address { City = "", Street = "", BuildingNumber = 0 }
+            };
+
+            var health = new HealthRecord
+            {
+                Height = 0,
+                weight = 0,
+                BloodType = "N/A",
+                Note = "Created during registration"
+            };
+
+            _unitOfWork.GetRepositories<HealthRecord>().Add(health);
+            await _unitOfWork.SaveChangesAsync(ct);
+
+            member.HealthId = health.Id;
+            _unitOfWork.GetRepositories<Member>().Add(member);
+            await _unitOfWork.SaveChangesAsync(ct);
+
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            TempData["SuccessMessage"] = "Welcome to FITGYM! Your account has been created.";
+            return RedirectToAction("Index", "Member");
         }
 
         [HttpPost]

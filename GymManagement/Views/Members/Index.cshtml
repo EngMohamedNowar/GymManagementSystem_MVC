@@ -1,80 +1,32 @@
 @using GymManagementSystem.BLL.ViewModels.Members
 @using GymManagementSystem.BLL.ViewModels.Common
 @model PaginationViewModel<MemberViewModel>
-
-@{
-    ViewData["Title"] = "Members";
-
-    var header = new PageHeaderModel
-    {
-        Title = "Members",
-        Subtitle = "Manage gym members and their subscriptions",
-        Actions = new List<PageHeaderAction>
-        {
-            new PageHeaderAction
-            {
-                Text = "Export CSV",
-                Icon = "bi bi-download",
-                Controller = "Members",
-                Action = "ExportCsv",
-                CssClass = "btn-soft rounded-pill px-3 py-2"
-            },
-            new PageHeaderAction
-            {
-                Text = "Add Member",
-                Icon = "bi bi-person-plus",
-                Controller = "Members",
-                Action = "Create",
-                CssClass = "btn-fill rounded-pill px-3 py-2"
-            }
-        }
-    };
-
-    var search = new SearchFormModel
-    {
-        Controller = "Members",
-        Action = "Index",
-        SearchLabel = "Search",
-        SearchPlaceholder = "Name, email or phone",
-        SearchValue = ViewBag.Search?.ToString() ?? "",
-        Filters = new List<SearchFilter>
-        {
-            new SearchFilter
-            {
-                Name = "gender",
-                Label = "Gender",
-                Value = ViewBag.Gender?.ToString() ?? "",
-                Options = new List<SelectOption>
-                {
-                    new SelectOption { Value = "Male", Text = "Male" },
-                    new SelectOption { Value = "Female", Text = "Female" }
-                }
-            }
-        }
-    };
-
-    var empty = new EmptyStateModel
-    {
-        Icon = "bi bi-people",
-        Title = "No Members Yet",
-        Message = "Add your first member to get started.",
-        Action = new EmptyStateAction
-        {
-            Text = "Add Member",
-            Icon = "bi bi-person-plus",
-            Controller = "Members",
-            Action = "Create",
-            CssClass = "btn-fill rounded-pill px-3"
-        }
-    };
-}
+@{ ViewData["Title"] = "Members"; }
 
 <div class="container">
     @await Html.PartialAsync("_Alerts")
-    @await Html.PartialAsync("_PageHeader", header)
-    @await Html.PartialAsync("_SearchForm", search)
+    @await Html.PartialAsync("_PageHeader", new PageHeaderModel { Title = "Members", Subtitle = "Manage gym members", Actions = new List<PageHeaderAction> { new PageHeaderAction { Text = "Export CSV", Icon = "bi bi-download", Controller = "Members", Action = "ExportCsv", CssClass = "btn-soft rounded-pill px-3 py-2" }, new PageHeaderAction { Text = "Add Member", Icon = "bi bi-person-plus", Controller = "Members", Action = "Create", CssClass = "btn-fill rounded-pill px-3 py-2" } } })
 
-    @if (Model is not null && Model.Items.Any())
+    <form method="get" class="mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <input type="text" name="search" class="form-control" placeholder="Name, email or phone" value="@ViewBag.Search" />
+            </div>
+            <div class="col-md-3">
+                <select name="gender" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Genders</option>
+                    <option value="Male" selected="@(ViewBag.Gender?.ToString() == "Male")">Male</option>
+                    <option value="Female" selected="@(ViewBag.Gender?.ToString() == "Female")">Female</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-fill btn-sm px-3"><i class="bi bi-search me-1"></i>Search</button>
+                <a asp-action="Index" class="btn btn-soft btn-sm px-3">Clear</a>
+            </div>
+        </div>
+    </form>
+
+    @if (Model?.Items?.Any() == true)
     {
         <div class="app-card">
             <div class="table-responsive">
@@ -89,41 +41,31 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var member in Model.Items)
+                        @foreach (var m in Model.Items)
                         {
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
-                                        @if (member.Photo is null)
+                                        @if (m.Photo is null)
                                         {
-                                            <span class="avatar">@(string.IsNullOrEmpty(member.Name) ? "?" : member.Name[0].ToString())</span>
+                                            <span class="avatar">@(string.IsNullOrEmpty(m.Name) ? "?" : m.Name[0].ToString())</span>
                                         }
                                         else
                                         {
-                                            <img class="avatar" src="@Url.Action("Picture", "Members", new { id = member.Id })" alt="@member.Name" />
+                                            <img class="avatar" src="@Url.Action("Picture", "Members", new { id = m.Id })" alt="@m.Name" />
                                         }
-                                        <div>
-                                            <div class="cell-strong">@member.Name</div>
-                                        </div>
+                                        <span class="cell-strong">@m.Name</span>
                                     </div>
                                 </td>
-                                <td>@member.Email</td>
-                                <td>@member.Gender</td>
-                                <td>@member.Phone</td>
+                                <td>@m.Email</td>
+                                <td>@m.Gender</td>
+                                <td>@m.Phone</td>
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-1">
-                                        <a class="btn-icon" title="Details" asp-controller="Members" asp-action="MemberDetails" asp-route-id="@member.Id">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a class="btn-icon" title="Health Record" asp-controller="Members" asp-action="HealthRecordDetails" asp-route-id="@member.Id">
-                                            <i class="bi bi-heart-pulse"></i>
-                                        </a>
-                                        <a class="btn-icon" title="Edit" asp-controller="Members" asp-action="EditMember" asp-route-id="@member.Id">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a class="btn-icon btn-danger-soft" title="Delete" asp-controller="Members" asp-action="Delete" asp-route-id="@member.Id">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+                                        <a class="btn-icon" title="Details" asp-action="MemberDetails" asp-route-id="@m.Id"><i class="bi bi-eye"></i></a>
+                                        <a class="btn-icon" title="Health" asp-action="HealthRecordDetails" asp-route-id="@m.Id"><i class="bi bi-heart-pulse"></i></a>
+                                        <a class="btn-icon" title="Edit" asp-action="EditMember" asp-route-id="@m.Id"><i class="bi bi-pencil"></i></a>
+                                        <a class="btn-icon btn-danger-soft" title="Delete" asp-action="Delete" asp-route-id="@m.Id"><i class="bi bi-trash"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -136,6 +78,6 @@
     }
     else
     {
-        @await Html.PartialAsync("_EmptyState", empty)
+        @await Html.PartialAsync("_EmptyState", new EmptyStateModel { Icon = "bi bi-people", Title = "No Members Yet", Message = "Add your first member to get started.", Action = new EmptyStateAction { Text = "Add Member", Icon = "bi bi-person-plus", Controller = "Members", Action = "Create" } })
     }
 </div>

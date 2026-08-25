@@ -25,7 +25,7 @@
                 Icon = "bi bi-plus-lg",
                 Controller = "Measurements",
                 Action = "Create",
-                RouteValues = new { memberId = memberId },
+                RouteValues = new Dictionary<string, string> { { "memberId", memberId?.ToString() ?? "" } },
                 CssClass = "btn-fill rounded-pill px-3"
             }
         }
@@ -42,7 +42,7 @@
             Icon = "bi bi-plus-lg",
             Controller = "Measurements",
             Action = "Create",
-            RouteValues = new { memberId = memberId },
+            RouteValues = new Dictionary<string, string> { { "memberId", memberId?.ToString() ?? "" } },
             CssClass = "btn-fill rounded-pill px-3"
         }
     };
@@ -55,16 +55,13 @@
     @if (members is not null && members.Any())
     {
         <form asp-action="Index" method="get" class="form-app mb-3" style="max-width:420px;">
-            <label class="form-label">Select Member</label>
-            <div class="input-group">
-                <select name="memberId" class="form-select" onchange="this.form.submit()">
-                    <option value="">-- Choose member --</option>
-                    @foreach (var m in members)
-                    {
-                        <option value="@m.Id" selected="@(memberId == m.Id)">@m.Name</option>
-                    }
-                </select>
-            </div>
+            <select name="memberId" class="form-select" onchange="this.form.submit()">
+                <option value="">-- Choose member --</option>
+                @foreach (var m in members)
+                {
+                    <option value="@m.Id" selected="@(memberId == m.Id)">@m.Name</option>
+                }
+            </select>
         </form>
     }
 

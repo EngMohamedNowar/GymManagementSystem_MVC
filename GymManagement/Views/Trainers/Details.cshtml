@@ -23,7 +23,7 @@
                 Icon = "bi bi-pencil",
                 Controller = "Trainers",
                 Action = "Edit",
-                RouteValues = new { id = Model.Id },
+                RouteValues = new Dictionary<string, string> { { "id", Model.Id.ToString() } },
                 CssClass = "btn-fill rounded-pill px-3 py-2"
             },
             new PageHeaderAction
@@ -32,7 +32,7 @@
                 Icon = "bi bi-trash",
                 Controller = "Trainers",
                 Action = "Delete",
-                RouteValues = new { id = Model.Id },
+                RouteValues = new Dictionary<string, string> { { "id", Model.Id.ToString() } },
                 CssClass = "btn-danger-soft rounded-pill px-3 py-2"
             }
         }
@@ -49,18 +49,32 @@
                 <span class="avatar avatar-lg">@(string.IsNullOrEmpty(Model.Name) ? "?" : Model.Name[0].ToString())</span>
             </div>
 
-            @await Html.PartialAsync("_DetailList", new DetailListModel
-            {
-                Items = new List<DetailItem>
-                {
-                    new DetailItem { Key = "<i class=\"bi bi-envelope me-2\"></i>Email", Value = Model.Email },
-                    new DetailItem { Key = "<i class=\"bi bi-phone me-2\"></i>Phone", Value = Model.Phone },
-                    new DetailItem { Key = "<i class=\"bi bi-gender-ambiguous me-2\"></i>Gender", Value = Model.Gender },
-                    new DetailItem { Key = "<i class=\"bi bi-calendar me-2\"></i>Date of Birth", Value = Model.DateOfBirth?.ToString("MMM dd, yyyy") ?? "—" },
-                    new DetailItem { Key = "<i class=\"bi bi-geo-alt me-2\"></i>Address", Value = Model.Address ?? "—" },
-                    new DetailItem { Key = "<i class=\"bi bi-award me-2\"></i>Specialization", Value = Model.Specialization }
-                }
-            })
+            <div class="detail-list">
+                <div class="detail-row">
+                    <span class="detail-key">Email</span>
+                    <span class="detail-val">@Model.Email</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Phone</span>
+                    <span class="detail-val">@Model.Phone</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Gender</span>
+                    <span class="detail-val">@Model.Gender</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Date of Birth</span>
+                    <span class="detail-val">@(Model.DateOfBirth != null ? Model.DateOfBirth : "—")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Address</span>
+                    <span class="detail-val">@(Model.Address ?? "—")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Specialization</span>
+                    <span class="detail-val">@Model.Specialization</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>

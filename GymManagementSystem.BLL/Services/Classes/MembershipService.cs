@@ -291,5 +291,106 @@ namespace GymManagementSystem.BLL.Services.Classes
 
             return count > 0 ? Result.Ok() : Result.Fail("Failed to renew membership");
         }
+
+        public async Task<(bool valid, decimal discountedPrice, string? error)> GetDiscountedPriceAsync(string? discountCode, decimal basePrice, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(discountCode))
+                return (false, basePrice, "No discount code provided");
+
+            var (valid, discounted, _) = await _discountService.ValidateAsync(discountCode, basePrice, ct);
+            if (!valid)
+                return (false, basePrice, "Invalid discount code");
+
+            return (true, discounted, null);
+        }
+
+        public async Task<Result<int>> CreateForMemberAsync(int memberId, int planId, string? discountCode, decimal discountAmount, CancellationToken ct = default)
+        {
+            var member = await _unitOfWork.GetRepositories<Member>().GetByIdAsync(memberId, ct);
+            if (member is null) return Result<int>.NotFound("Member not found");
+
+            var plan = await _unitOfWork.GetRepositories<Plan>().GetByIdAsync(planId, ct);
+            if (plan is null) return Result<int>.NotFound("Plan not found");
+            if (!plan.IsActive) return Result<int>.Validation("Cannot subscribe to an inactive plan");
+
+            var activeMembership = await _unitOfWork.membershipRepository.GetActiveMembershipByMemberIdAsync(memberId, ct);
+            if (activeMembership is not null) return Result<int>.Fail("Member already has an active membership");
+
+            var membership = new MemberShip()
+            {
+                MemberId = memberId,
+                PlanId = planId,
+                EndDate = DateTime.UtcNow.AddDays(plan.DurationDays),
+                Status = "Active",
+                DiscountCode = discountCode,
+                DiscountAmount = discountAmount
+            };
+
+            _unitOfWork.membershipRepository.Add(membership);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
+
+            return count > 0 ? Result<int>.Ok(membership.Id) : Result<int>.Fail("Failed to create membership");
+        }
+
+        public async Task<Result<int>> CreatePendingForMemberAsync(int memberId, int planId, string? discountCode, decimal discountAmount, CancellationToken ct = default)
+        {
+            var member = await _unitOfWork.GetRepositories<Member>().GetByIdAsync(memberId, ct);
+            if (member is null) return Result<int>.NotFound("Member not found");
+
+            var plan = await _unitOfWork.GetRepositories<Plan>().GetByIdAsync(planId, ct);
+            if (plan is null) return Result<int>.NotFound("Plan not found");
+            if (!plan.IsActive) return Result<int>.Validation("Cannot subscribe to an inactive plan");
+
+            var activeMembership = await _unitOfWork.membershipRepository.GetActiveMembershipByMemberIdAsync(memberId, ct);
+            if (activeMembership is not null) return Result<int>.Fail("Member already has an active membership");
+
+            var membership = new MemberShip()
+            {
+                MemberId = memberId,
+                PlanId = planId,
+                EndDate = DateTime.UtcNow.AddDays(plan.DurationDays),
+                Status = "Pending",
+                DiscountCode = discountCode,
+                DiscountAmount = discountAmount
+            };
+
+            _unitOfWork.membershipRepository.Add(membership);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
+
+            return count > 0 ? Result<int>.Ok(membership.Id) : Result<int>.Fail("Failed to create pending membership");
+        }
+
+        public async Task<Result> ActivateMembershipAsync(int membershipId, CancellationToken ct = default)
+        {
+            var membership = await _unitOfWork.GetRepositories<MemberShip>().GetByIdAsync(membershipId, ct);
+            if (membership is null) return Result.NotFound("Membership not found");
+
+            membership.Status = "Active";
+            membership.UpdatedAt = DateTime.UtcNow;
+            _unitOfWork.GetRepositories<MemberShip>().Update(membership);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
+            return count > 0 ? Result.Ok() : Result.Fail("Failed to activate membership");
+        }
+
+        public async Task<Result> RecordMemberPaymentAsync(int membershipId, decimal amount, string method, string? reference, string? notes, CancellationToken ct = default)
+        {
+            var membership = await _unitOfWork.membershipRepository.GetMembershipByIdWithDetailsAsync(membershipId, ct);
+            if (membership is null) return Result.NotFound("Membership not found");
+
+            var payment = new Payment
+            {
+                MembershipId = membershipId,
+                Amount = amount,
+                PaymentDate = DateTime.UtcNow,
+                Method = method,
+                Reference = reference,
+                Notes = notes
+            };
+
+            _unitOfWork.GetRepositories<Payment>().Add(payment);
+            var count = await _unitOfWork.SaveChangesAsync(ct);
+
+            return count > 0 ? Result.Ok() : Result.Fail("Failed to record payment");
+        }
     }
 }

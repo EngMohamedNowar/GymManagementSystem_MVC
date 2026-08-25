@@ -7,8 +7,7 @@
     var header = new PageHeaderModel
     {
         Title = "Sessions Schedule",
-        Subtitle = "Timetable of all training sessions grouped by day",
-        Actions = new List<PageHeaderAction>()
+        Subtitle = "Timetable of all training sessions grouped by day"
     };
 
     var empty = new EmptyStateModel
@@ -27,9 +26,7 @@
     {
         @foreach (var day in Model.GroupBy(s => s.StartDate.Date).OrderBy(g => g.Key))
         {
-            <h5 class="section-title">
-                <i class="bi bi-calendar3 me-2"></i>@day.Key.ToString("dddd, MMM dd, yyyy")
-            </h5>
+            <h5 class="section-title"><i class="bi bi-calendar3 me-2"></i>@day.Key.ToString("dddd, MMM dd, yyyy")</h5>
             <div class="app-card mb-4">
                 <div class="table-responsive">
                     <table class="table-app">

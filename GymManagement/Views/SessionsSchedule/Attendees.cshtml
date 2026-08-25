@@ -11,14 +11,7 @@
         Subtitle = "Mark who actually showed up to this session",
         Actions = new List<PageHeaderAction>
         {
-            new PageHeaderAction
-            {
-                Text = "Back to Schedule",
-                Icon = "bi bi-arrow-left",
-                Controller = "SessionsSchedule",
-                Action = "Index",
-                CssClass = "btn-soft rounded-pill px-3 py-2"
-            }
+            new PageHeaderAction { Text = "Back to Schedule", Icon = "bi bi-arrow-left", Controller = "SessionsSchedule", Action = "Index", CssClass = "btn-soft rounded-pill px-3 py-2" }
         }
     };
 
@@ -50,7 +43,7 @@
                         @foreach (var attendee in Model)
                         {
                             <tr>
-                                <td>@attendee.MemberName</td>
+                                <td class="cell-strong">@attendee.MemberName</td>
                                 <td>@attendee.Phone</td>
                                 <td class="text-end">
                                     <div class="d-inline-flex align-items-center justify-content-end gap-2">

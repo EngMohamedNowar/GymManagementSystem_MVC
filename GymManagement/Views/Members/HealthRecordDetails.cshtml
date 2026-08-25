@@ -6,12 +6,12 @@
     var header = new PageHeaderModel
     {
         Title = "Health Record",
-        Subtitle = "Member fitness and medical metrics",
+        Subtitle = "Member fitness metrics",
         Actions = new List<PageHeaderAction>
         {
             new PageHeaderAction
             {
-                Text = "Back to List",
+                Text = "Back",
                 Icon = "bi bi-arrow-left",
                 Controller = "Members",
                 Action = "Index",
@@ -27,16 +27,24 @@
 
     <div class="app-card">
         <div class="app-card-body">
-            @await Html.PartialAsync("_DetailList", new DetailListModel
-            {
-                Items = new List<DetailItem>
-                {
-                    new DetailItem { Key = "<i class=\"bi bi-arrow-up-right-circle me-2\"></i>Height", Value = $"{Model.Height} <small>cm</small>" },
-                    new DetailItem { Key = "<i class=\"bi bi-arrow-down-right-circle me-2\"></i>Weight", Value = $"{Model.Weight} <small>kg</small>" },
-                    new DetailItem { Key = "<i class=\"bi bi-droplet me-2\"></i>Blood Type", Value = Model.BloodType?.ToString() ?? "—" },
-                    new DetailItem { Key = "<i class=\"bi bi-info-circle me-2\"></i>Note", Value = Model.Note ?? "—" }
-                }
-            })
+            <div class="detail-list">
+                <div class="detail-row">
+                    <span class="detail-key">Height</span>
+                    <span class="detail-val">@Model.Height <small>cm</small></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Weight</span>
+                    <span class="detail-val">@Model.Weight <small>kg</small></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Blood Type</span>
+                    <span class="detail-val">@(Model.BloodType?.ToString() ?? "—")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Note</span>
+                    <span class="detail-val">@(Model.Note ?? "—")</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>

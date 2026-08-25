@@ -1,58 +1,25 @@
 ﻿@using GymManagementSystem.BLL.ViewModels.Trainers
 @using GymManagementSystem.BLL.ViewModels.Common
 @model PaginationViewModel<TrainerViewModel>
-
-@{
-    ViewData["Title"] = "Trainers";
-
-    var header = new PageHeaderModel
-    {
-        Title = "Trainers",
-        Subtitle = "Professional fitness instructors",
-        Actions = new List<PageHeaderAction>
-        {
-            new PageHeaderAction
-            {
-                Text = "Add Trainer",
-                Icon = "bi bi-person-plus",
-                Controller = "Trainers",
-                Action = "Create",
-                CssClass = "btn-fill rounded-pill px-3 py-2"
-            }
-        }
-    };
-
-    var search = new SearchFormModel
-    {
-        Controller = "Trainers",
-        Action = "Index",
-        SearchLabel = "Search",
-        SearchPlaceholder = "Name, email or specialty",
-        SearchValue = ViewBag.Search?.ToString() ?? ""
-    };
-
-    var empty = new EmptyStateModel
-    {
-        Icon = "bi bi-person-workspace",
-        Title = "No Trainers Yet",
-        Message = "Add your first trainer to get started.",
-        Action = new EmptyStateAction
-        {
-            Text = "Add Trainer",
-            Icon = "bi bi-person-plus",
-            Controller = "Trainers",
-            Action = "Create",
-            CssClass = "btn-fill rounded-pill px-3"
-        }
-    };
-}
+@{ ViewData["Title"] = "Trainers"; }
 
 <div class="container">
     @await Html.PartialAsync("_Alerts")
-    @await Html.PartialAsync("_PageHeader", header)
-    @await Html.PartialAsync("_SearchForm", search)
+    @await Html.PartialAsync("_PageHeader", new PageHeaderModel { Title = "Trainers", Subtitle = "Professional fitness instructors", Actions = new List<PageHeaderAction> { new PageHeaderAction { Text = "Add Trainer", Icon = "bi bi-person-plus", Controller = "Trainers", Action = "Create", CssClass = "btn-fill rounded-pill px-3 py-2" } } })
 
-    @if (Model is not null && Model.Items.Any())
+    <form method="get" class="mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <input type="text" name="search" class="form-control" placeholder="Name, email or specialty" value="@ViewBag.Search" />
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-fill btn-sm px-3"><i class="bi bi-search me-1"></i>Search</button>
+                <a asp-action="Index" class="btn btn-soft btn-sm px-3">Clear</a>
+            </div>
+        </div>
+    </form>
+
+    @if (Model?.Items?.Any() == true)
     {
         <div class="app-card">
             <div class="table-responsive">
@@ -67,31 +34,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var trainer in Model.Items)
+                        @foreach (var t in Model.Items)
                         {
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
-                                        <span class="avatar">@(string.IsNullOrEmpty(trainer.Name) ? "?" : trainer.Name[0].ToString())</span>
-                                        <div>
-                                            <div class="cell-strong">@trainer.Name</div>
-                                        </div>
+                                        <span class="avatar">@(string.IsNullOrEmpty(t.Name) ? "?" : t.Name[0].ToString())</span>
+                                        <span class="cell-strong">@t.Name</span>
                                     </div>
                                 </td>
-                                <td>@trainer.Email</td>
-                                <td>@trainer.Phone</td>
-                                <td><span class="badge-soft">@trainer.Specialization</span></td>
+                                <td>@t.Email</td>
+                                <td>@t.Phone</td>
+                                <td><span class="badge-soft">@t.Specialization</span></td>
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-1">
-                                        <a class="btn-icon" title="Details" asp-controller="Trainers" asp-action="Details" asp-route-id="@trainer.Id">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a class="btn-icon" title="Edit" asp-controller="Trainers" asp-action="Edit" asp-route-id="@trainer.Id">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a class="btn-icon btn-danger-soft" title="Delete" asp-controller="Trainers" asp-action="Delete" asp-route-id="@trainer.Id">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+                                        <a class="btn-icon" title="Details" asp-action="Details" asp-route-id="@t.Id"><i class="bi bi-eye"></i></a>
+                                        <a class="btn-icon" title="Edit" asp-action="Edit" asp-route-id="@t.Id"><i class="bi bi-pencil"></i></a>
+                                        <a class="btn-icon btn-danger-soft" title="Delete" asp-action="Delete" asp-route-id="@t.Id"><i class="bi bi-trash"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -104,6 +63,6 @@
     }
     else
     {
-        @await Html.PartialAsync("_EmptyState", empty)
+        @await Html.PartialAsync("_EmptyState", new EmptyStateModel { Icon = "bi bi-person-workspace", Title = "No Trainers Yet", Message = "Add your first trainer to get started.", Action = new EmptyStateAction { Text = "Add Trainer", Icon = "bi bi-person-plus", Controller = "Trainers", Action = "Create" } })
     }
 </div>

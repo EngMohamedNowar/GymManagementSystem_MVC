@@ -1,57 +1,24 @@
 ﻿@using GymManagementSystem.BLL.ViewModels.Common
 @model PaginationViewModel<SessionViewModel>
-
-@{
-    ViewData["Title"] = "Sessions";
-
-    var header = new PageHeaderModel
-    {
-        Title = "Training Sessions",
-        Subtitle = "Manage gym training sessions and classes",
-        Actions = new List<PageHeaderAction>
-        {
-            new PageHeaderAction
-            {
-                Text = "Add Session",
-                Icon = "bi bi-plus-lg",
-                Controller = "Sessions",
-                Action = "Create",
-                CssClass = "btn-fill rounded-pill px-3 py-2"
-            }
-        }
-    };
-
-    var search = new SearchFormModel
-    {
-        Controller = "Sessions",
-        Action = "Index",
-        SearchLabel = "Search",
-        SearchPlaceholder = "Title, trainer or category",
-        SearchValue = ViewBag.Search?.ToString() ?? ""
-    };
-
-    var empty = new EmptyStateModel
-    {
-        Icon = "bi bi-calendar-x",
-        Title = "No Sessions Available",
-        Message = "Create your first training session to get started.",
-        Action = new EmptyStateAction
-        {
-            Text = "Add Session",
-            Icon = "bi bi-plus-lg",
-            Controller = "Sessions",
-            Action = "Create",
-            CssClass = "btn-fill rounded-pill px-3"
-        }
-    };
-}
+@{ ViewData["Title"] = "Sessions"; }
 
 <div class="container">
     @await Html.PartialAsync("_Alerts")
-    @await Html.PartialAsync("_PageHeader", header)
-    @await Html.PartialAsync("_SearchForm", search)
+    @await Html.PartialAsync("_PageHeader", new PageHeaderModel { Title = "Sessions", Subtitle = "Manage training sessions", Actions = new List<PageHeaderAction> { new PageHeaderAction { Text = "Add Session", Icon = "bi bi-plus-lg", Controller = "Sessions", Action = "Create", CssClass = "btn-fill rounded-pill px-3 py-2" } } })
 
-    @if (Model is not null && Model.Items.Any())
+    <form method="get" class="mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <input type="text" name="search" class="form-control" placeholder="Title, trainer or category" value="@ViewBag.Search" />
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-fill btn-sm px-3"><i class="bi bi-search me-1"></i>Search</button>
+                <a asp-action="Index" class="btn btn-soft btn-sm px-3">Clear</a>
+            </div>
+        </div>
+    </form>
+
+    @if (Model?.Items?.Any() == true)
     {
         <div class="app-card">
             <div class="table-responsive">
@@ -68,31 +35,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var session in Model.Items)
+                        @foreach (var s in Model.Items)
                         {
                             <tr>
                                 <td>
-                                    <div class="cell-strong">@session.CategoryName</div>
-                                    <div class="cell-sub">@session.Description</div>
+                                    <div class="cell-strong">@s.CategoryName</div>
+                                    <div class="cell-sub">@s.Description</div>
                                 </td>
-                                <td>@session.TrainerName</td>
-                                <td>@session.DateDisplay</td>
-                                <td>@session.TimeRangeDisplay</td>
-                                <td>@session.AvailableSlots / @session.Capacity</td>
-                                <td>
-                                    <span class="badge-soft @(session.Status == "Ongoing" ? "badge-ok" : session.Status == "Upcoming" ? "" : "badge-warn")">@session.Status</span>
-                                </td>
+                                <td>@s.TrainerName</td>
+                                <td>@s.DateDisplay</td>
+                                <td>@s.TimeRangeDisplay</td>
+                                <td>@s.AvailableSlots / @s.Capacity</td>
+                                <td><span class="badge-soft @(s.Status == "Ongoing" ? "badge-ok" : s.Status == "Upcoming" ? "" : "badge-warn")">@s.Status</span></td>
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-1">
-                                        <a class="btn-icon" title="Details" asp-action="Details" asp-route-id="@session.Id">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a class="btn-icon" title="Edit" asp-action="Edit" asp-route-id="@session.Id">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a class="btn-icon btn-danger-soft" title="Delete" asp-action="Delete" asp-route-id="@session.Id">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+                                        <a class="btn-icon" title="Details" asp-action="Details" asp-route-id="@s.Id"><i class="bi bi-eye"></i></a>
+                                        <a class="btn-icon" title="Edit" asp-action="Edit" asp-route-id="@s.Id"><i class="bi bi-pencil"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -105,6 +63,6 @@
     }
     else
     {
-        @await Html.PartialAsync("_EmptyState", empty)
+        @await Html.PartialAsync("_EmptyState", new EmptyStateModel { Icon = "bi bi-calendar-x", Title = "No Sessions", Message = "Create your first training session.", Action = new EmptyStateAction { Text = "Add Session", Icon = "bi bi-plus-lg", Controller = "Sessions", Action = "Create" } })
     }
 </div>

@@ -2,26 +2,46 @@
 
 @{
     ViewData["Title"] = "Member Details";
+
+    var header = new PageHeaderModel
+    {
+        Title = Model.Name,
+        Subtitle = Model.PlanName ?? "No Plan",
+        Actions = new List<PageHeaderAction>
+        {
+            new PageHeaderAction
+            {
+                Text = "Back",
+                Icon = "bi bi-arrow-left",
+                Controller = "Members",
+                Action = "Index",
+                CssClass = "btn-outline rounded-pill px-3 py-2"
+            },
+            new PageHeaderAction
+            {
+                Text = "Edit",
+                Icon = "bi bi-pencil",
+                Controller = "Members",
+                Action = "EditMember",
+                RouteValues = new Dictionary<string, string> { { "id", Model.Id.ToString() } },
+                CssClass = "btn-fill rounded-pill px-3 py-2"
+            },
+            new PageHeaderAction
+            {
+                Text = "Delete",
+                Icon = "bi bi-trash",
+                Controller = "Members",
+                Action = "Delete",
+                RouteValues = new Dictionary<string, string> { { "id", Model.Id.ToString() } },
+                CssClass = "btn-danger-soft rounded-pill px-3 py-2"
+            }
+        }
+    };
 }
 
 <div class="container">
-    <div class="page-header">
-        <div class="ph-text">
-            <h1>@Model.Name</h1>
-            <p>@(Model.PlanName ?? "No Plan")</p>
-        </div>
-        <div class="d-inline-flex gap-2">
-            <a asp-controller="Members" asp-action="Index" class="btn btn-outline rounded-pill px-3 py-2">
-                <i class="bi bi-arrow-left me-1"></i> Back
-            </a>
-            <a asp-controller="Members" asp-action="EditMember" asp-route-id="@Model.Id" class="btn btn-fill rounded-pill px-3 py-2">
-                <i class="bi bi-pencil me-1"></i> Edit
-            </a>
-            <a asp-controller="Members" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger-soft rounded-pill px-3 py-2">
-                <i class="bi bi-trash me-1"></i> Delete
-            </a>
-        </div>
-    </div>
+    @await Html.PartialAsync("_Alerts")
+    @await Html.PartialAsync("_PageHeader", header)
 
     <div class="app-card">
         <div class="app-card-body">
@@ -54,11 +74,11 @@
                     <span class="detail-val">@Model.DateOfBirth</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-key">Membership Start Date</span>
+                    <span class="detail-key">Membership Start</span>
                     <span class="detail-val">@Model.MemberShipStartDate</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-key">Membership End Date</span>
+                    <span class="detail-key">Membership End</span>
                     <span class="detail-val">@Model.MemberShipEndDate</span>
                 </div>
                 <div class="detail-row">

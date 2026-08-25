@@ -24,18 +24,22 @@ namespace GymManagement.Controllers
         private readonly IBodyMeasurementService _bodyMeasurementService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAuditService _auditService;
+        private readonly IStripePaymentService _stripePayment;
 
-        public MemberController(IMemberService memberService,
+        public MemberController(
+            IMemberService memberService,
             IMembershipService membershipService,
             IBodyMeasurementService bodyMeasurementService,
             IUnitOfWork unitOfWork,
-            IAuditService auditService)
+            IAuditService auditService,
+            IStripePaymentService stripePayment)
         {
             _memberService = memberService;
             _membershipService = membershipService;
             _bodyMeasurementService = bodyMeasurementService;
             _unitOfWork = unitOfWork;
             _auditService = auditService;
+            _stripePayment = stripePayment;
         }
 
         private async Task<MemberViewModel?> GetCurrentMemberAsync(CancellationToken ct)
@@ -268,6 +272,166 @@ namespace GymManagement.Controllers
             var qrBytes = qrCode.GetGraphic(8);
 
             return File(qrBytes, "image/png");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Subscribe(CancellationToken ct = default)
+        {
+            var member = await GetCurrentMemberAsync(ct);
+            if (member is null)
+            {
+                TempData["FailedMessage"] = "No member profile is linked to your account.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var plans = (await _membershipService.GetAllPlansForDropDownAsync(ct))?.ToList() ?? new();
+            ViewBag.Plans = plans;
+            return View(new SubscribeViewModel());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Subscribe(SubscribeViewModel model, CancellationToken ct = default)
+        {
+            var member = await GetCurrentMemberAsync(ct);
+            if (member is null)
+            {
+                TempData["FailedMessage"] = "No member profile is linked to your account.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var plans = (await _membershipService.GetAllPlansForDropDownAsync(ct))?.ToList() ?? new();
+            ViewBag.Plans = plans;
+
+            if (!ModelState.IsValid) return View(model);
+
+            var plan = plans.FirstOrDefault(p => p.Id == model.PlanId);
+            if (plan is null)
+            {
+                ModelState.AddModelError("PlanId", "Selected plan is not available");
+                return View(model);
+            }
+
+            var allMemberships = (await _membershipService.GetAllAsync(ct))?.ToList() ?? new();
+            if (allMemberships.Any(m => m.MemberId == member.Id && m.Status == "Active"))
+            {
+                TempData["FailedMessage"] = "You already have an active membership. Please wait for it to expire before subscribing to a new plan.";
+                return RedirectToAction(nameof(MyMembership));
+            }
+
+            decimal discountAmount = 0m;
+            string? discountCode = null;
+            if (!string.IsNullOrWhiteSpace(model.DiscountCode))
+            {
+                var (valid, discounted, _) = await _membershipService.GetDiscountedPriceAsync(model.DiscountCode, plan.Price, ct);
+                if (valid)
+                {
+                    discountCode = model.DiscountCode.Trim();
+                    discountAmount = Math.Round(plan.Price - discounted, 2, MidpointRounding.AwayFromZero);
+                }
+            }
+
+            var total = plan.Price - discountAmount;
+
+            var membershipResult = await _membershipService.CreatePendingForMemberAsync(member.Id, model.PlanId, discountCode, discountAmount, ct);
+            if (!membershipResult.success)
+            {
+                TempData["FailedMessage"] = membershipResult.error;
+                return View(model);
+            }
+
+            try
+            {
+                var successUrl = $"{Request.Scheme}://{Request.Host}/Member/PaySuccess?membershipId={membershipResult.value}";
+                var cancelUrl = $"{Request.Scheme}://{Request.Host}/Member/PayCancel?membershipId={membershipResult.value}";
+
+                var checkoutUrl = await _stripePayment.CreateCheckoutSessionAsync(
+                    model.PlanId,
+                    member.Id,
+                    plan.Name,
+                    total,
+                    "EGP",
+                    member.Email,
+                    successUrl,
+                    cancelUrl,
+                    ct);
+
+                await _auditService.LogAsync(User.Identity?.Name, "Init Stripe Checkout", "Membership", membershipResult.value.ToString(), $"Plan {plan.Id} / {total:C}", ct);
+
+                return Redirect(checkoutUrl);
+            }
+            catch (Exception ex)
+            {
+                TempData["FailedMessage"] = $"Payment gateway error: {ex.Message}. Please try again.";
+                return RedirectToAction(nameof(Subscribe));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PaySuccess(int membershipId, CancellationToken ct = default)
+        {
+            var member = await GetCurrentMemberAsync(ct);
+            if (member is null) return RedirectToAction("Index", "Home");
+
+            var result = await _membershipService.GetDetailsAsync(membershipId, ct);
+            if (result.success)
+            {
+                TempData["SuccessMessage"] = "Payment successful! Your membership is now active.";
+                await _auditService.LogAsync(User.Identity?.Name, "Stripe Payment Success", "Membership", membershipId.ToString(), null, ct);
+            }
+
+            return RedirectToAction(nameof(MyMembership));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PayCancel(int membershipId, CancellationToken ct = default)
+        {
+            var member = await GetCurrentMemberAsync(ct);
+            if (member is null) return RedirectToAction("Index", "Home");
+
+            await _membershipService.CancelAsync(membershipId, ct);
+            TempData["FailedMessage"] = "Payment was cancelled. Your membership has been removed.";
+            return RedirectToAction(nameof(Subscribe));
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> StripeWebhook(CancellationToken ct = default)
+        {
+            var jsonBody = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync(ct);
+            var signature = Request.Headers["Stripe-Signature"].FirstOrDefault();
+
+            if (string.IsNullOrEmpty(signature))
+                return BadRequest("Missing Stripe signature");
+
+            try
+            {
+                var verified = await _stripePayment.VerifyWebhookAsync(jsonBody, signature, ct);
+                if (!verified) return BadRequest("Invalid Stripe signature");
+
+                var (planId, memberId, amount, currency, paymentIntentId) =
+                    await _stripePayment.ParseWebhookEventAsync(jsonBody, ct);
+
+                var memberships = (await _membershipService.GetAllAsync(ct))?.ToList() ?? new();
+                var pending = memberships.FirstOrDefault(m =>
+                    m.MemberId == memberId && m.PlanId == planId && m.Status == "Pending");
+
+                if (pending is not null)
+                {
+                    await _membershipService.ActivateMembershipAsync(pending.Id, ct);
+                    await _membershipService.RecordMemberPaymentAsync(
+                        pending.Id, amount, "Stripe", paymentIntentId, $"Stripe payment confirmed", ct);
+
+                    await _auditService.LogAsync("Stripe Webhook", "Activate Membership", "Membership", pending.Id.ToString(), $"Amount {amount:C}", ct);
+                }
+
+                return Ok();
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
         }
     }
 }

@@ -9,7 +9,7 @@
     var header = new PageHeaderModel
     {
         Title = "My Membership",
-        Subtitle = $@(member?.Name ?? "Member") — subscriptions & payments
+        Subtitle = $"{member?.Name ?? "Member"} — subscriptions & payments"
     };
 
     var empty = new EmptyStateModel
@@ -28,59 +28,73 @@
     {
         foreach (var ms in Model)
         {
-            var badge = ms.Status == "Active" ? "badge-ok" : (ms.Status == "Expired" ? "badge-bad" : "badge-warn");
+            var badge = ms.Status == "Active" ? "badge-ok" : ms.Status == "Expired" ? "badge-bad" : "badge-warn";
             <div class="app-card mb-4">
                 <div class="app-card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0"><i class="bi bi-credit-card me-2"></i>@ms.PlanName</h5>
+                        <h5 class="mb-0">@ms.PlanName</h5>
                         <span class="badge-soft @badge">@ms.Status</span>
                     </div>
 
-                    @await Html.PartialAsync("_DetailList", new DetailListModel
+                    <div class="detail-list">
+                        <div class="detail-row">
+                            <span class="detail-key">Start</span>
+                            <span class="detail-val">@ms.StartDate.ToString("yyyy-MM-dd")</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-key">End</span>
+                            <span class="detail-val">@ms.EndDate.ToString("yyyy-MM-dd")</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-key">Plan Price</span>
+                            <span class="detail-val">@ms.Price.ToString("C")</span>
+                        </div>
+                    </div>
+
+                    <h6 class="text-muted mt-4">Payments</h6>
+                    @{
+                        var payments = (IEnumerable<PaymentViewModel>?)ViewBag.Payments;
+                        var hasPayments = payments is not null && payments.Any(p => p.MembershipId == ms.Id);
+                    }
+                    @if (hasPayments)
                     {
-                        Items = new List<DetailItem>
-                        {
-                            new DetailItem { Key = "Start", Value = ms.StartDate.ToString("yyyy-MM-dd") },
-                            new DetailItem { Key = "End", Value = ms.EndDate.ToString("yyyy-MM-dd") },
-                            new DetailItem { Key = "Plan Price", Value = ms.Price.ToString("C") },
-                        }
-                    })
+                        <div class="table-responsive">
+                            <table class="table-app">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Method</th>
+                                        <th>Amount</th>
+                                        <th>Reference</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var p in payments.Where(p => p.MembershipId == ms.Id))
+                                    {
+                                        <tr>
+                                            <td>@p.PaymentDate.ToString("yyyy-MM-dd")</td>
+                                            <td>@p.Method</td>
+                                            <td>@p.Amount.ToString("C")</td>
+                                            <td>@(p.Reference ?? "—")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mb-0">No payments recorded yet.</p>
+                    }
                 </div>
             </div>
-        }
-
-        <h6 class="text-muted">Payments</h6>
-        @{
-            var payments = (IEnumerable<PaymentViewModel>?)ViewBag.Payments;
-        }
-        @if (payments is not null && payments.Any(p => p.MembershipId == ms.Id))
-        {
-            <div class="table-responsive">
-                <table class="table-app">
-                    <thead>
-                        <tr><th>Date</th><th>Method</th><th>Amount</th><th>Reference</th></tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var p in payments.Where(p => p.MembershipId == ms.Id))
-                        {
-                            <tr>
-                                <td>@p.PaymentDate.ToString("yyyy-MM-dd")</td>
-                                <td>@p.Method</td>
-                                <td>@p.Amount.ToString("C")</td>
-                                <td>@(p.Reference ?? "—")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <p class="text-muted small">No payments recorded yet.</p>
         }
     }
     else
     {
         @await Html.PartialAsync("_EmptyState", empty)
+        <div class="text-center mt-3">
+            <a asp-action="Subscribe" class="btn btn-fill rounded-pill px-4"><i class="bi bi-credit-card me-1"></i> Subscribe Now</a>
+        </div>
     }
 </div>

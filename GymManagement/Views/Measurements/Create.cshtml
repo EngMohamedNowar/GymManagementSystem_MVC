@@ -4,83 +4,61 @@
 
 @{
     ViewData["Title"] = "Add Measurement";
-    var members = (IEnumerable<MemberViewModel>?)ViewBag.Members;
+    var header = new PageHeaderModel { Title = "Add Measurement", Subtitle = "Record weight, height and body fat" };
     var canChoose = (bool?)ViewBag.CanChoose ?? false;
-
-    var header = new PageHeaderModel
-    {
-        Title = "Add Measurement",
-        Subtitle = "Record weight, height and body fat"
-    };
-
-    var backAction = new FormAction
-    {
-        Text = "Cancel",
-        Icon = "bi bi-arrow-left",
-        Controller = "Measurements",
-        Action = "Index",
-        CssClass = "btn-soft rounded-pill px-4"
-    };
-
-    var submitAction = new FormAction
-    {
-        Text = "Save",
-        Icon = "bi bi-check-lg",
-        CssClass = "btn-fill rounded-pill px-4"
-    };
 }
 
-<div class="container">
-    @await Html.PartialAsync("_Alerts")
-    @await Html.PartialAsync("_PageHeader", header)
+@await Html.PartialAsync("_Alerts")
+@await Html.PartialAsync("_PageHeader", header)
 
-    <div class="app-card" style="max-width:640px;">
-        <div class="app-card-body">
-            <form asp-action="Create" method="post" class="form-app">
-                <div asp-validation-summary="All" class="text-danger small"></div>
-
-                @if (canChoose && members is not null)
+<div class="app-card">
+    <div class="app-card-body">
+        <form asp-action="Create" method="post" class="form-app">
+            <div class="row g-3">
+                @if (canChoose)
                 {
-                    <div class="mb-3">
-                        <label asp-for="MemberId" class="form-label"><i class="bi bi-person me-2"></i>Member</label>
-                        <select asp-for="MemberId" class="form-select" asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(members, "Id", "Name", Model.MemberId))"></select>
+                    <div class="col-md-6">
+                        <label asp-for="MemberId" class="form-label">Member</label>
+                        <select asp-for="MemberId" class="form-select" asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList((IEnumerable<MemberViewModel>)ViewBag.Members, "Id", "Name", Model.MemberId))">
+                            <option value="">Select...</option>
+                        </select>
                     </div>
                 }
-
-                <div class="mb-3">
-                    <label asp-for="Date" class="form-label"><i class="bi bi-calendar me-2"></i>Date</label>
+                <div class="col-md-6">
+                    <label asp-for="Date" class="form-label">Date</label>
                     <input asp-for="Date" class="form-control" type="date" />
                     <span asp-validation-for="Date" class="text-danger small"></span>
                 </div>
-
-                <div class="row g-2">
-                    <div class="col-md-4">
-                        <label asp-for="Weight" class="form-label"><i class="bi bi-scale me-2"></i>Weight (kg)</label>
-                        <input asp-for="Weight" class="form-control" step="0.1" />
-                        <span asp-validation-for="Weight" class="text-danger small"></span>
-                    </div>
-                    <div class="col-md-4">
-                        <label asp-for="Height" class="form-label"><i class="bi bi-rulers me-2"></i>Height (m)</label>
-                        <input asp-for="Height" class="form-control" step="0.01" />
-                        <span asp-validation-for="Height" class="text-danger small"></span>
-                    </div>
-                    <div class="col-md-4">
-                        <label asp-for="BodyFat" class="form-label"><i class="bi bi-percent me-2"></i>Body Fat %</label>
-                        <input asp-for="BodyFat" class="form-control" step="0.1" />
-                    </div>
+                <div class="col-md-4">
+                    <label asp-for="Weight" class="form-label">Weight (kg)</label>
+                    <input asp-for="Weight" class="form-control" step="0.1" />
+                    <span asp-validation-for="Weight" class="text-danger small"></span>
                 </div>
-
-                <div class="mb-3 mt-3">
-                    <label asp-for="Notes" class="form-label"><i class="bi bi-card-text me-2"></i>Notes</label>
+                <div class="col-md-4">
+                    <label asp-for="Height" class="form-label">Height (m)</label>
+                    <input asp-for="Height" class="form-control" step="0.01" />
+                    <span asp-validation-for="Height" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="BodyFat" class="form-label">Body Fat %</label>
+                    <input asp-for="BodyFat" class="form-control" step="0.1" />
+                    <span asp-validation-for="BodyFat" class="text-danger small"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Notes" class="form-label">Notes</label>
                     <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
                 </div>
+            </div>
 
-                @await Html.PartialAsync("_FormActions", new FormActionsModel
-                {
-                    BackAction = backAction,
-                    SubmitAction = submitAction
-                })
-            </form>
-        </div>
+            @await Html.PartialAsync("_FormActions", new FormActionsModel
+            {
+                BackAction = new FormAction { Text = "Cancel", Icon = "bi bi-arrow-left", Controller = "Measurements", Action = "Index", CssClass = "btn-soft rounded-pill px-4" },
+                SubmitAction = new FormAction { Text = "Save", Icon = "bi bi-check-circle", CssClass = "btn-fill rounded-pill px-4" }
+            })
+        </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

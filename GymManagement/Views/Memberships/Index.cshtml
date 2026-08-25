@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = "Memberships";
+    var search = ViewBag.Search?.ToString() ?? "";
+    var status = ViewBag.Status?.ToString() ?? "";
 
     var header = new PageHeaderModel
     {
@@ -10,38 +12,7 @@
         Subtitle = "Manage member subscriptions to plans",
         Actions = new List<PageHeaderAction>
         {
-            new PageHeaderAction
-            {
-                Text = "Add Membership",
-                Icon = "bi bi-plus-lg",
-                Controller = "Memberships",
-                Action = "Create",
-                CssClass = "btn-fill rounded-pill px-3 py-2"
-            }
-        }
-    };
-
-    var search = new SearchFormModel
-    {
-        Controller = "Memberships",
-        Action = "Index",
-        SearchLabel = "Search",
-        SearchPlaceholder = "Member or plan",
-        SearchValue = ViewBag.Search?.ToString() ?? "",
-        Filters = new List<SearchFilter>
-        {
-            new SearchFilter
-            {
-                Name = "status",
-                Label = "Status",
-                Value = ViewBag.Status?.ToString() ?? "",
-                Options = new List<SelectOption>
-                {
-                    new SelectOption { Value = "Active", Text = "Active" },
-                    new SelectOption { Value = "Expired", Text = "Expired" },
-                    new SelectOption { Value = "Cancelled", Text = "Cancelled" }
-                }
-            }
+            new PageHeaderAction { Text = "Add Membership", Icon = "bi bi-plus-lg", Controller = "Memberships", Action = "Create", CssClass = "btn-fill rounded-pill px-3 py-2" }
         }
     };
 
@@ -50,21 +21,26 @@
         Icon = "bi bi-card-checklist",
         Title = "No Memberships Available",
         Message = "Add your first membership to get started.",
-        Action = new EmptyStateAction
-        {
-            Text = "Add Membership",
-            Icon = "bi bi-plus-lg",
-            Controller = "Memberships",
-            Action = "Create",
-            CssClass = "btn-fill rounded-pill px-3"
-        }
+        Action = new EmptyStateAction { Text = "Add Membership", Icon = "bi bi-plus-lg", Controller = "Memberships", Action = "Create", CssClass = "btn-fill rounded-pill px-3" }
     };
 }
 
 <div class="container">
     @await Html.PartialAsync("_Alerts")
     @await Html.PartialAsync("_PageHeader", header)
-    @await Html.PartialAsync("_SearchForm", search)
+
+    <form method="get" class="form-app mb-3">
+        <div class="d-flex gap-2" style="max-width:520px;">
+            <input type="text" name="search" value="@search" class="form-control" placeholder="Member or plan" />
+            <select name="status" class="form-select" style="max-width:180px;">
+                <option value="">All Statuses</option>
+                <option value="Active" selected="@(status == "Active")">Active</option>
+                <option value="Expired" selected="@(status == "Expired")">Expired</option>
+                <option value="Cancelled" selected="@(status == "Cancelled")">Cancelled</option>
+            </select>
+            <button type="submit" class="btn btn-soft"><i class="bi bi-search"></i></button>
+        </div>
+    </form>
 
     @if (Model is not null && Model.Items.Any())
     {
@@ -96,15 +72,11 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-1">
-                                        <a class="btn-icon" title="Details" asp-action="Details" asp-route-id="@membership.Id">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
+                                        <a class="btn-icon" title="Details" asp-action="Details" asp-route-id="@membership.Id"><i class="bi bi-eye"></i></a>
                                         @if (membership.IsActive)
                                         {
                                             <form asp-action="Cancel" asp-route-id="@membership.Id" method="post" class="d-inline">
-                                                <button type="submit" class="btn-icon btn-danger-soft" title="Cancel">
-                                                    <i class="bi bi-x-circle"></i>
-                                                </button>
+                                                <button type="submit" class="btn-icon btn-danger-soft" title="Cancel"><i class="bi bi-x-circle"></i></button>
                                             </form>
                                         }
                                     </div>

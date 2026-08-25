@@ -48,9 +48,7 @@
                                     @if (!n.IsRead)
                                     {
                                         <form asp-action="MarkRead" asp-route-id="@n.Id" method="post" class="d-inline">
-                                            <button type="submit" class="btn-icon" title="Mark as read">
-                                                <i class="bi bi-check2"></i>
-                                            </button>
+                                            <button type="submit" class="btn-icon" title="Mark as read"><i class="bi bi-check2"></i></button>
                                         </form>
                                     }
                                     else

@@ -22,3 +22,8 @@
 /GymManagementSystem.DAL/Data/Migrations/GymDbContextModelSnapshot.cs
 /GymManagementSystem.PL
 /GymManagementSystmem.PL
+
+# Uploaded member photos
+GymManagement/wwwroot/MembersPicture/*.jpeg
+GymManagement/wwwroot/MembersPicture/*.jpg
+GymManagement/wwwroot/MembersPicture/*.png

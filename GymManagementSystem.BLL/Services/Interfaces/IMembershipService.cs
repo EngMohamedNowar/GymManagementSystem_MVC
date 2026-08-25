@@ -21,5 +21,10 @@ namespace GymManagementSystem.BLL.Services.Interfaces
         Task<IEnumerable<PaymentViewModel>> GetAllPaymentsAsync(CancellationToken ct = default);
         Task<decimal> GetTotalRevenueAsync(CancellationToken ct = default);
         Task<Result> RenewAsync(int id, CancellationToken ct = default);
+        Task<(bool valid, decimal discountedPrice, string? error)> GetDiscountedPriceAsync(string? discountCode, decimal basePrice, CancellationToken ct = default);
+        Task<Result<int>> CreateForMemberAsync(int memberId, int planId, string? discountCode, decimal discountAmount, CancellationToken ct = default);
+        Task<Result<int>> CreatePendingForMemberAsync(int memberId, int planId, string? discountCode, decimal discountAmount, CancellationToken ct = default);
+        Task<Result> ActivateMembershipAsync(int membershipId, CancellationToken ct = default);
+        Task<Result> RecordMemberPaymentAsync(int membershipId, decimal amount, string method, string? reference, string? notes, CancellationToken ct = default);
     }
 }
