@@ -11,6 +11,6 @@ namespace GymManagementSystem.BLL.Services.Interfaces
         Task NotifyAsync(string recipient, string title, string message, string type, CancellationToken ct = default);
         Task<IEnumerable<NotificationViewModel>> GetForUserAsync(string userName, bool isAdmin, CancellationToken ct = default);
         Task<int> GetUnreadCountAsync(string userName, bool isAdmin, CancellationToken ct = default);
-        Task MarkReadAsync(int id, CancellationToken ct = default);
+        Task MarkReadAsync(int id, string userName, bool isAdmin, CancellationToken ct = default);
     }
 }

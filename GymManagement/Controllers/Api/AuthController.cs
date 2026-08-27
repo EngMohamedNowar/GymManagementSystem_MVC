@@ -46,7 +46,7 @@ namespace GymManagement.Controllers.Api
             if (user is null)
                 return Unauthorized(new { error = "Invalid credentials" });
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, true);
             if (!result.Succeeded)
                 return Unauthorized(new { error = "Invalid credentials" });
 
@@ -59,7 +59,11 @@ namespace GymManagement.Controllers.Api
             };
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+            var jwtKey = _configuration["Jwt:Key"];
+            if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Contains("Dev_Super_Secret"))
+                return StatusCode(503, new { error = "JWT signing key is not configured" });
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
@@ -74,7 +78,7 @@ namespace GymManagement.Controllers.Api
         }
 
         [HttpGet("members")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> Members(CancellationToken ct = default)
         {
             var members = await _unitOfWork.GetRepositories<Member>().GetAllAsync(tracking: false, ct: ct);
@@ -90,7 +94,7 @@ namespace GymManagement.Controllers.Api
         }
 
         [HttpGet("sessions")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> Sessions(CancellationToken ct = default)
         {
             var sessions = await _unitOfWork.GetRepositories<Session>().GetAllAsync(tracking: false, ct: ct);

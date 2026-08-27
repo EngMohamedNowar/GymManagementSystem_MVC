@@ -21,6 +21,11 @@ namespace GymManagementSystem.BLL.Services.Classes
             _configuration = configuration;
         }
 
+        public bool IsEmailConfigured =>
+            !string.IsNullOrWhiteSpace(_configuration["Smtp:Host"])
+            && !string.IsNullOrWhiteSpace(_configuration["Smtp:User"])
+            && !string.IsNullOrWhiteSpace(_configuration["Smtp:Pass"]);
+
         public Task SendEmailAsync(string to, string subject, string body, CancellationToken ct = default)
         {
             var host = _configuration["Smtp:Host"];

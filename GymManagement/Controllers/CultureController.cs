@@ -22,10 +22,15 @@ namespace GymManagement.Controllers
                     });
             }
 
-            if (string.IsNullOrWhiteSpace(redirectUri))
-                redirectUri = "/";
+            // Only allow local redirects to prevent open-redirect attacks.
+            var destination = "/";
+            if (!string.IsNullOrWhiteSpace(redirectUri)
+                && Url.IsLocalUrl(redirectUri))
+            {
+                destination = redirectUri;
+            }
 
-            return Redirect(redirectUri);
+            return LocalRedirect(destination);
         }
     }
 }

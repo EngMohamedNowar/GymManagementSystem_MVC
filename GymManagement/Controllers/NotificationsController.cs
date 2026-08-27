@@ -25,7 +25,9 @@ namespace GymManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> MarkRead(int id, CancellationToken ct)
         {
-            await _notificationService.MarkReadAsync(id, ct);
+            var userName = User.Identity?.Name ?? string.Empty;
+            var isAdmin = User.IsInRole("SuperAdmin");
+            await _notificationService.MarkReadAsync(id, userName, isAdmin, ct);
             return RedirectToAction(nameof(Index));
         }
     }

@@ -374,10 +374,14 @@ namespace GymManagement.Controllers
             if (member is null) return RedirectToAction("Index", "Home");
 
             var result = await _membershipService.GetDetailsAsync(membershipId, ct);
-            if (result.success)
+            if (result.success && result.value is not null && result.value.MemberId == member.Id)
             {
                 TempData["SuccessMessage"] = "Payment successful! Your membership is now active.";
                 await _auditService.LogAsync(User.Identity?.Name, "Stripe Payment Success", "Membership", membershipId.ToString(), null, ct);
+            }
+            else
+            {
+                TempData["FailedMessage"] = "Unable to confirm payment for this membership.";
             }
 
             return RedirectToAction(nameof(MyMembership));
@@ -389,8 +393,13 @@ namespace GymManagement.Controllers
             var member = await GetCurrentMemberAsync(ct);
             if (member is null) return RedirectToAction("Index", "Home");
 
-            await _membershipService.CancelAsync(membershipId, ct);
-            TempData["FailedMessage"] = "Payment was cancelled. Your membership has been removed.";
+            var result = await _membershipService.GetDetailsAsync(membershipId, ct);
+            if (result.success && result.value is not null && result.value.MemberId == member.Id)
+            {
+                await _membershipService.CancelAsync(membershipId, ct);
+                TempData["FailedMessage"] = "Payment was cancelled. Your membership has been removed.";
+            }
+
             return RedirectToAction(nameof(Subscribe));
         }
 

@@ -35,6 +35,7 @@ builder.Services.AddLocalization();
 builder.Services.AddScoped(typeof(IGenericRepositories<>), typeof(GenericRepositories<>));
 
 builder.Services.AddScoped<IMemberService, MemberService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IPlanService, PlanService>();
 builder.Services.AddScoped<ITrainerService, TrainerService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -68,6 +69,14 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.AddAuthentication()
     .AddJwtBearer("Bearer", options =>
     {
+        var jwtKey = builder.Configuration["Jwt:Key"];
+        if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Contains("Dev_Super_Secret"))
+        {
+            throw new InvalidOperationException(
+                "Jwt:Key is not configured. Set it via dotnet user-secrets or the Jwt__Key environment variable " +
+                "before running the application. Never commit a real signing key to source.");
+        }
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -76,7 +85,7 @@ builder.Services.AddAuthentication()
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
         options.Events = new JwtBearerEvents
         {
@@ -223,7 +232,7 @@ public sealed class LoginRateLimiter
     private readonly RequestDelegate _next;
     private readonly int _permitLimit = 5;
     private readonly TimeSpan _window = TimeSpan.FromMinutes(1);
-    private readonly ConcurrentDictionary<string, FixedWindowRateLimiter> _limiters = new();
+    private readonly ConcurrentDictionary<string, (FixedWindowRateLimiter Limiter, DateTime LastUsed)> _limiters = new();
 
     public LoginRateLimiter(RequestDelegate next)
     {
@@ -232,18 +241,35 @@ public sealed class LoginRateLimiter
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (context.Request.Path.Equals("/Account/Login", StringComparison.OrdinalIgnoreCase)
-            && string.Equals(context.Request.Method, "POST", StringComparison.OrdinalIgnoreCase))
+        bool isLogin = (context.Request.Path.Equals("/Account/Login", StringComparison.OrdinalIgnoreCase)
+                        || context.Request.Path.Equals("/api/Auth/login", StringComparison.OrdinalIgnoreCase))
+                       && string.Equals(context.Request.Method, "POST", StringComparison.OrdinalIgnoreCase);
+
+        if (isLogin)
         {
             var key = context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
-            var limiter = _limiters.GetOrAdd(key, _ =>
-                new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions
+            var now = DateTime.UtcNow;
+
+            var entry = _limiters.AddOrUpdate(key,
+                _ => (new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions
                 {
                     PermitLimit = _permitLimit,
                     Window = _window
-                }));
+                }), now),
+                (_, existing) => (existing.Limiter, now));
 
-            using var lease = await limiter.AcquireAsync(1, context.RequestAborted);
+            // Opportunistic cleanup: evict entries idling longer than a few windows to
+            // prevent unbounded memory growth from unique IPs.
+            if (_limiters.Count > 1000)
+            {
+                foreach (var kvp in _limiters)
+                {
+                    if (now - kvp.Value.LastUsed > TimeSpan.FromMinutes(5))
+                        _limiters.TryRemove(kvp.Key, out _);
+                }
+            }
+
+            using var lease = await entry.Limiter.AcquireAsync(1, context.RequestAborted);
             if (!lease.IsAcquired)
             {
                 context.Response.StatusCode = StatusCodes.Status429TooManyRequests;

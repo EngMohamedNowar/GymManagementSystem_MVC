@@ -25,28 +25,33 @@ namespace GymManagement.Controllers
             _auditService = auditService;
         }
 
-        private async Task<int?> ResolveMemberIdAsync(int? memberId, CancellationToken ct)
+        private async Task<(int? MemberId, string? Error)> ResolveMemberIdAsync(int? memberId, CancellationToken ct)
         {
-            if (memberId.HasValue) return memberId;
+            var isStaff = User.IsInRole("SuperAdmin") || User.IsInRole("Admin");
 
-            if (User.IsInRole("Member"))
+            if (User.IsInRole("Member") && !isStaff)
             {
-                var email = User.Identity?.Name;
+                var email = User.Identity?.Name ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(email)) return (null, "Member profile not found");
                 var me = await _memberService.GetMemberByEmailAsync(email, ct);
-                return me?.Id;
+                return (me?.Id, me is null ? "Member profile not found" : null);
             }
 
-            return null;
+            if (isStaff && memberId.HasValue)
+                return (memberId.Value, null);
+
+            return (null, "Please select a member");
         }
 
         [HttpGet]
         public async Task<IActionResult> Index(int? memberId, CancellationToken ct = default)
         {
-            var resolvedId = await ResolveMemberIdAsync(memberId, ct);
+            var (resolvedId, error) = await ResolveMemberIdAsync(memberId, ct);
             if (!resolvedId.HasValue)
             {
-                TempData["FailedMessage"] = "Please select a member";
-                ViewBag.Members = await _memberService.GetAllMembersAsync(ct);
+                TempData["FailedMessage"] = error ?? "Please select a member";
+                if (User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
+                    ViewBag.Members = await _memberService.GetAllMembersAsync(ct);
                 return View(Enumerable.Empty<BodyMeasurementViewModel>());
             }
 
@@ -69,13 +74,14 @@ namespace GymManagement.Controllers
             int? resolvedId = null;
             if (!isMemberOnly)
             {
-                resolvedId = await ResolveMemberIdAsync(memberId, ct);
+                resolvedId = memberId;
                 ViewBag.Members = await _memberService.GetAllMembersAsync(ct);
                 ViewBag.CanChoose = true;
             }
             else
             {
-                resolvedId = await ResolveMemberIdAsync(null, ct);
+                var (meId, _) = await ResolveMemberIdAsync(null, ct);
+                resolvedId = meId;
                 ViewBag.CanChoose = false;
             }
 
@@ -95,8 +101,8 @@ namespace GymManagement.Controllers
             var isMemberOnly = User.IsInRole("Member") && !(User.IsInRole("SuperAdmin") || User.IsInRole("Admin"));
             if (isMemberOnly)
             {
-                var me = await ResolveMemberIdAsync(null, ct);
-                if (me.HasValue) model.MemberId = me.Value;
+                var (meId, _) = await ResolveMemberIdAsync(null, ct);
+                if (meId.HasValue) model.MemberId = meId.Value;
             }
 
             if (!ModelState.IsValid)

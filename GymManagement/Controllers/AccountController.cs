@@ -150,7 +150,12 @@ namespace GymManagement.PL.Controllers
                 await _emailSms.SendEmailAsync(model.Email, "Reset your GymMS password",
                     $"Click the link to reset your password: {resetLink}", HttpContext.RequestAborted);
 
-                ViewBag.ResetLink = resetLink;
+                // Only expose the reset link when real email delivery is unavailable (demo/dev fallback),
+                // so the token is never rendered on the page in production.
+                if (!_emailSms.IsEmailConfigured)
+                {
+                    ViewBag.ResetLink = resetLink;
+                }
             }
 
             ViewBag.EmailSent = true;

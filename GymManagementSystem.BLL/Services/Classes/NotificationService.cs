@@ -82,10 +82,17 @@ namespace GymManagementSystem.BLL.Services.Classes
             return query.Count(n => !n.IsRead);
         }
 
-        public async Task MarkReadAsync(int id, CancellationToken ct = default)
+        public async Task MarkReadAsync(int id, string userName, bool isAdmin, CancellationToken ct = default)
         {
             var notification = await _unitOfWork.GetRepositories<Notification>().GetByIdAsync(id, ct);
             if (notification is null) return;
+
+            // Ownership guard: members may only mark their own or global notifications as read.
+            if (!isAdmin && !string.Equals(notification.UserId, userName, StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(notification.UserId))
+            {
+                return;
+            }
 
             notification.IsRead = true;
             _unitOfWork.GetRepositories<Notification>().Update(notification);
