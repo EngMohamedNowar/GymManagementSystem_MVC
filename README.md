@@ -16,6 +16,8 @@
 ## Table of Contents
 
 - [About](#about)
+- [Demo](#demo)
+- [Screenshots](#screenshots)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
 - [Features](#features)
@@ -43,6 +45,113 @@
 **Admin Credentials (seeded):**
 - Email: `superadmin@example.com` | Password: `ChangeMe_Str0ngP@ss!`
 - Email: `admin@example.com` | Password: `ChangeMe_Str0ngP@ss!`
+
+---
+
+<a id="demo"></a>
+
+## Demo
+
+🔗 **Live Demo:** [https://fitgym.runasp.net/](https://fitgym.runasp.net/)
+
+**Admin Credentials (seeded):**
+- Email: `superadmin@example.com` | Password: `ChangeMe_Str0ngP@ss!`
+
+---
+
+<a id="screenshots"></a>
+
+## Screenshots
+
+### 🏠 Public Landing Page
+
+<p align="center">
+  <img src="screenshots/01-Home-Hero.png" width="900" alt="Home Hero Section"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/02-Home-Services-Stats.png" width="900" alt="Services and Stats Section"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/03-Home-CTA-Footer.png" width="900" alt="CTA and Footer Section"/>
+</p>
+
+### 🔐 Authentication
+
+<p align="center">
+  <img src="screenshots/04-Login-Page.png" width="900" alt="Login Page"/>
+</p>
+
+### 📊 Admin Dashboard
+
+<p align="center">
+  <img src="screenshots/05-Admin-Home-LoggedIn.png" width="900" alt="Admin Home After Login"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/06-Admin-Dashboard-Overview.png" width="900" alt="Dashboard Overview with Analytics"/>
+</p>
+
+### 👥 People Management
+
+<p align="center">
+  <img src="screenshots/07-People-Dropdown-Menu.png" width="900" alt="People Dropdown Menu"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/08-Members-Management.png" width="900" alt="Members Management"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/09-Trainers-Management.png" width="900" alt="Trainers Management"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/10-CheckIn-Today.png" width="900" alt="Today's Check-ins"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/11-Body-Measurements.png" width="900" alt="Body Measurements Tracking"/>
+</p>
+
+### 📅 Content Management
+
+<p align="center">
+  <img src="screenshots/12-Content-Dropdown-Sessions.png" width="900" alt="Content Dropdown - Sessions"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/13-Sessions-Schedule.png" width="900" alt="Sessions Schedule"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/14-Membership-Plans.png" width="900" alt="Membership Plans"/>
+</p>
+
+### 💳 Business Management
+
+<p align="center">
+  <img src="screenshots/15-Memberships-Management.png" width="900" alt="Memberships Management"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/16-Discounts-PromoCodes.png" width="900" alt="Discounts and Promo Codes"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/17-Bookings-Management.png" width="900" alt="Bookings Management"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/18-Audit-Log.png" width="900" alt="Audit Log"/>
+</p>
+
+### 🌍 Localization
+
+<p align="center">
+  <img src="screenshots/19-Arabic-Localization-RTL.png" width="900" alt="Arabic RTL Localization"/>
+</p>
 
 ---
 
