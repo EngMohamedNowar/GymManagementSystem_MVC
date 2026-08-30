@@ -1,91 +1,89 @@
-﻿@model MemberViewModel
-
+﻿
+@model MemberViewModel;
 @{
-    ViewData["Title"] = "Member Details";
-
-    var header = new PageHeaderModel
-    {
-        Title = Model.Name,
-        Subtitle = Model.PlanName ?? "No Plan",
-        Actions = new List<PageHeaderAction>
-        {
-            new PageHeaderAction
-            {
-                Text = "Back",
-                Icon = "bi bi-arrow-left",
-                Controller = "Members",
-                Action = "Index",
-                CssClass = "btn-outline rounded-pill px-3 py-2"
-            },
-            new PageHeaderAction
-            {
-                Text = "Edit",
-                Icon = "bi bi-pencil",
-                Controller = "Members",
-                Action = "EditMember",
-                RouteValues = new Dictionary<string, string> { { "id", Model.Id.ToString() } },
-                CssClass = "btn-fill rounded-pill px-3 py-2"
-            },
-            new PageHeaderAction
-            {
-                Text = "Delete",
-                Icon = "bi bi-trash",
-                Controller = "Members",
-                Action = "Delete",
-                RouteValues = new Dictionary<string, string> { { "id", Model.Id.ToString() } },
-                CssClass = "btn-danger-soft rounded-pill px-3 py-2"
-            }
-        }
-    };
+    ViewData["Title"] = "MemberDetails";
 }
-
 <div class="container">
-    @await Html.PartialAsync("_Alerts")
-    @await Html.PartialAsync("_PageHeader", header)
+    <main role="main" class="pb-3">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card card-details border-0 p-2 shadow">
+                        <div class="text-center mt-3">
+                            @if (Model.Photo is null)
+                            {
+                                <img src="~/images/Ellipse 7.jpg"
+                                     alt="Default Avatar"
+                                     class="rounded-circle"
+                                     style="width: 40px; height: 40px;" />
+                            }
+                            else
+                            {
+                                <img src="@Url.Action("Picture", "Members", new { id = Model.Id })"
+                                     alt="Default Avatar"
+                                     class="rounded-circle"
+                                     style="width: 40px; height: 40px;" />
+                            }
+                        </div>
+                        <div class="card-body text-center">
+                            <h2 class="mb-1 text-primary-color">@Model.Name</h2>
+                            <h4 class="mb-2 pb-1 border-bottom d-block">@(Model.PlanName ?? "No Plan") </h4>
+                            <div class="mt-4 text-start">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted d-block mb-1">Email</small>
+                                            <strong>@Model.Email</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted d-block mb-1">Phone</small>
+                                            <strong>@Model.Phone</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted d-block mb-1">Gender</small>
+                                            <strong>@Model.Gender</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted d-block mb-1">Date of Birth</small>
+                                            <strong>@Model.DateOfBirth</strong>
+                                        </div>
+                                    </div>
 
-    <div class="app-card">
-        <div class="app-card-body">
-            <div class="text-center mb-4">
-                @if (Model.Photo is null)
-                {
-                    <span class="avatar avatar-lg">@(string.IsNullOrEmpty(Model.Name) ? "?" : Model.Name[0].ToString())</span>
-                }
-                else
-                {
-                    <img class="avatar-lg" src="@Url.Action("Picture", "Members", new { id = Model.Id })" alt="@Model.Name" />
-                }
-            </div>
+                                    <div class="col-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted d-block mb-1">Membership Start Date</small>
+                                            <strong>@Model.MemberShipStartDate</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted d-block mb-1">Membership End Date</small>
+                                            <strong>@Model.MemberShipEndDate</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted d-block mb-1">Address</small>
+                                            <strong>@Model.Address</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-            <div class="detail-list">
-                <div class="detail-row">
-                    <span class="detail-key">Email</span>
-                    <span class="detail-val">@Model.Email</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-key">Phone</span>
-                    <span class="detail-val">@Model.Phone</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-key">Gender</span>
-                    <span class="detail-val">@Model.Gender</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-key">Date of Birth</span>
-                    <span class="detail-val">@Model.DateOfBirth</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-key">Membership Start</span>
-                    <span class="detail-val">@Model.MemberShipStartDate</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-key">Membership End</span>
-                    <span class="detail-val">@Model.MemberShipEndDate</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-key">Address</span>
-                    <span class="detail-val">@Model.Address</span>
+                        <div class="d-flex justify-content-between gap-2 px-3 pb-3">
+                            <a asp-controller="Members" asp-action="Index" class="btn btn-fill flex-fill">Back to List</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
+    </main>
 </div>

@@ -29,7 +29,10 @@ namespace GymManagementSystem.BLL
                 .ForMember(D=> D.DateOfBirth, O=> O.MapFrom(S=>S.DateOfBirth.ToString()))
                 .ForMember(D=>D.Address,O=>O.MapFrom(s=>$"{s.Address.BuildingNumber } - {s.Address.Street} - {s.Address.City}"));
             CreateMap<HealthRecord,HealthRecordViewModel>();
-            CreateMap<Member, UpdateMemberDTOs>();
+            CreateMap<Member, UpdateMemberDTOs>()
+                .ForMember(D => D.BuildingNumber, O => O.MapFrom(s => s.Address.BuildingNumber))
+                .ForMember(D => D.City, O => O.MapFrom(s => s.Address.City))
+                .ForMember(D => D.Street, O => O.MapFrom(s => s.Address.Street));
             CreateMap<Session, UpdateSessionViewModel>();
             CreateMap<Session, SessionViewModel>()
                 .ForMember(D => D.TrainerName, opt => opt.MapFrom(s => s.Trainer.Name))

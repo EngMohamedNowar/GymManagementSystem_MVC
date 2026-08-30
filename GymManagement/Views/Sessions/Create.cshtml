@@ -1,87 +1,158 @@
 ﻿@model CreateSessionViewModel
-
 @{
     ViewData["Title"] = "Create Session";
-    var header = new PageHeaderModel { Title = "Create Session", Subtitle = "Schedule a new training session" };
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-@await Html.PartialAsync("_Alerts")
-@await Html.PartialAsync("_PageHeader", header)
-
-<div class="app-card">
-    <div class="app-card-body">
-        <form asp-action="Create" method="post" class="form-app">
-            <div class="section-title mb-2">Session Information</div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label asp-for="CategoryId" class="form-label">Category</label>
-                    <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select">
-                        <option value="">Select...</option>
-                    </select>
-                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="TrainerId" class="form-label">Trainer</label>
-                    <select asp-for="TrainerId" asp-items="ViewBag.Trainers" class="form-select">
-                        <option value="">Select...</option>
-                    </select>
-                    <span asp-validation-for="TrainerId" class="text-danger small"></span>
-                </div>
-                <div class="col-12">
-                    <label asp-for="Description" class="form-label">Description</label>
-                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                    <span asp-validation-for="Description" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="Capacity" class="form-label">Capacity</label>
-                    <input asp-for="Capacity" type="number" class="form-control" min="1" max="25" />
-                    <span asp-validation-for="Capacity" class="text-danger small"></span>
-                </div>
-            </div>
-
-            <div class="section-title mt-3 mb-2">Date & Time</div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label asp-for="StartDate" class="form-label">Start Date & Time</label>
-                    <input asp-for="StartDate" type="datetime-local" class="form-control" />
-                    <span asp-validation-for="StartDate" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="EndDate" class="form-label">End Date & Time</label>
-                    <input asp-for="EndDate" type="datetime-local" class="form-control" />
-                    <span asp-validation-for="EndDate" class="text-danger small"></span>
-                </div>
-            </div>
-
-            @await Html.PartialAsync("_FormActions", new FormActionsModel
-            {
-                BackAction = new FormAction { Text = "Cancel", Icon = "bi bi-arrow-left", Controller = "Sessions", Action = "Index", CssClass = "btn-soft rounded-pill px-4" },
-                SubmitAction = new FormAction { Text = "Create Session", Icon = "bi bi-check-circle", CssClass = "btn-fill rounded-pill px-4" }
-            })
-        </form>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div id="Alert" class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+}
+else if (TempData["ErrorMessage"] != null)
+{
+    <div id="Alert" class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+<div class="container mt-4">
+    <header class="mb-4">
+        <h3 class="text-primary-color">Create New Session</h3>
+        <p class="text-muted">Schedule a new training session</p>
+    </header>
+
+    <form asp-action="Create" method="post">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+
+                        <!-- Session Information -->
+                        <div class="section-header mb-3">
+                            <h5 class="text-primary fw-bold">Session Information</h5>
+                            <hr class="mt-2">
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="CategoryId" class="form-label fw-semibold">
+                                    Category <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select">
+                                    <option value="">Select Category</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="TrainerId" class="form-label fw-semibold">
+                                    Trainer <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="TrainerId" asp-items="ViewBag.Trainers" class="form-select">
+                                    <option value="">Select Trainer</option>
+                                </select>
+                                <span asp-validation-for="TrainerId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="Description" class="form-label fw-semibold">
+                                    Description <span class="text-danger">*</span>
+                                </label>
+                                <textarea asp-for="Description" class="form-control" rows="3"
+                                          placeholder="Describe the session content and objectives..."></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Capacity" class="form-label fw-semibold">
+                                    Capacity <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Capacity" type="number" class="form-control" placeholder="25" min="1" max="25" />
+                                <small class="text-muted">Maximum number of participants</small>
+                                <span asp-validation-for="Capacity" class="text-danger d-block"></span>
+                            </div>
+                        </div>
+
+                        <!-- Date & Time -->
+                        <div class="section-header mb-3">
+                            <h5 class="text-primary fw-bold">Date & Time</h5>
+                            <hr class="mt-2">
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="StartDate" class="form-label fw-semibold">
+                                    Start Date & Time <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="StartDate" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="EndDate" class="form-label fw-semibold">
+                                    End Date & Time <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="EndDate" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-outline">
+                                <i class="bi bi-arrow-left me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-fill">
+                                <i class="bi bi-check-lg me-1"></i>Create Session
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const start = document.querySelector('input[name="StartDate"]');
-            const end = document.querySelector('input[name="EndDate"]');
-            if (!start || !end) return;
+            const startInput = document.querySelector('input[name="StartDate"]');
+            const endInput = document.querySelector('input[name="EndDate"]');
+
+            if (!startInput || !endInput) return;
 
             const now = new Date();
-            const fmt = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-            start.min = fmt(now);
-            end.min = fmt(now);
+            const localNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+                .toISOString()
+                .slice(0, 16); // yyyy-MM-ddTHH:mm
 
-            if (!start.value || start.value.startsWith("0001")) start.value = fmt(now);
-            if (!end.value || end.value.startsWith("0001")) end.value = fmt(new Date(now.getTime() + 3600000));
+            startInput.min = localNow;
+            endInput.min = localNow;
 
-            start.addEventListener("change", function () {
-                end.min = start.value;
-                if (end.value && end.value < start.value) end.value = "";
+            if (!startInput.value || startInput.value.startsWith("0001")) {
+                startInput.value = localNow;
+            }
+            if (!endInput.value || endInput.value.startsWith("0001")) {
+                const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+                const localOneHourLater = new Date(oneHourLater.getTime() - now.getTimezoneOffset() * 60000)
+                    .toISOString()
+                    .slice(0, 16);
+                endInput.value = localOneHourLater;
+            }
+
+            startInput.addEventListener("change", function () {
+                endInput.min = startInput.value;
+                if (endInput.value && endInput.value < startInput.value) {
+                    endInput.value = "";
+                }
             });
         });
     </script>
+
+
+
 }

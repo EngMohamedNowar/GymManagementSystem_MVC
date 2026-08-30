@@ -25,7 +25,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         public async Task<IEnumerable<MembershipViewModel>> GetAllAsync(CancellationToken ct = default)
         {
             var memberships = await _unitOfWork.membershipRepository.GetAllMembershipsWithDetailsAsync(ct);
-            if (memberships is null) return null;
+            if (memberships is null) return Enumerable.Empty<MembershipViewModel>();
 
             var membershipsDTOs = memberships.Select(m => new MembershipViewModel()
             {
@@ -71,7 +71,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         public async Task<IEnumerable<MemberSelectViewModel>> GetAllMembersForDropDownAsync(CancellationToken ct = default)
         {
             var members = await _unitOfWork.GetRepositories<Member>().GetAllAsync(ct: ct);
-            if (members is null) return null;
+            if (members is null) return Enumerable.Empty<MemberSelectViewModel>();
 
             var membersDTOs = members.Select(m => new MemberSelectViewModel()
             {
@@ -85,7 +85,7 @@ namespace GymManagementSystem.BLL.Services.Classes
         public async Task<IEnumerable<PlanSelectViewModel>> GetAllPlansForDropDownAsync(CancellationToken ct = default)
         {
             var plans = await _unitOfWork.GetRepositories<Plan>().GetAllAsync(ct: ct);
-            if (plans is null) return null;
+            if (plans is null) return Enumerable.Empty<PlanSelectViewModel>();
 
             var plansDTOs = plans.Where(p => p.IsActive).Select(p => new PlanSelectViewModel()
             {

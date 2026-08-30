@@ -7,9 +7,9 @@ namespace GymManagementSystem.DAL.Models
 {
     public class MemberShip : Base
     {
-        public Member Member { get; set; }
+        public Member Member { get; set; } = null!;
         public int MemberId { get; set; }
-        public Plan Plan { get; set; }
+        public Plan Plan { get; set; } = null!;
         public int PlanId { get; set; }
         // start date ==> CreatedAt from Base
         //EndDate

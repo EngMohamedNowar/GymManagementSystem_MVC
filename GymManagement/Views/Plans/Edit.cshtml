@@ -1,55 +1,58 @@
 ﻿@model PlanViewModel
+<div class="container mt-4">
+    <header class="mb-4">
+        <h3 class="text-primary-color">Edit Plan</h3>
+        <p class="text-muted">Update plan details</p>
+    </header>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label asp-for="Name" class="form-label fw-semibold">
+                                    Plan Name <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Name" class="form-control" readonly />
+                            </div>
 
-@{
-    ViewData["Title"] = "Edit Plan";
-    var header = new PageHeaderModel { Title = "Edit Plan", Subtitle = "Update plan details" };
-}
+                            <div class="col-md-6">
+                                <label asp-for="DurationDays" class="form-label fw-semibold">
+                                    Duration (Days) <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="DurationDays" type="number" class="form-control" />
+                                <small class="text-muted">e.g., 30 days = 1 month</small>
+                                <span asp-validation-for="DurationDays" class="text-danger d-block"></span>
+                            </div>
 
-@await Html.PartialAsync("_Alerts")
-@await Html.PartialAsync("_PageHeader", header)
+                            <div class="col-md-6">
+                                <label asp-for="Price" class="form-label fw-semibold">
+                                    Price (EGP) <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Price" type="number" step="0.01" class="form-control" />
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
 
-<div class="app-card">
-    <div class="app-card-body">
-        <form asp-action="Edit" method="post" class="form-app">
-            <input type="hidden" asp-for="Id" />
-
-            <div class="row g-3">
-                <div class="col-12">
-                    <label asp-for="Name" class="form-label">Plan Name</label>
-                    <input asp-for="Name" class="form-control" readonly />
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="DurationDays" class="form-label">Duration (Days)</label>
-                    <input asp-for="DurationDays" type="number" class="form-control" />
-                    <span asp-validation-for="DurationDays" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="Price" class="form-label">Price (EGP)</label>
-                    <input asp-for="Price" type="number" step="0.01" class="form-control" />
-                    <span asp-validation-for="Price" class="text-danger small"></span>
-                </div>
-                <div class="col-12">
-                    <label asp-for="Description" class="form-label">Description</label>
-                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-                    <span asp-validation-for="Description" class="text-danger small"></span>
-                </div>
-                <div class="col-12">
-                    <div class="form-check">
-                        <input asp-for="IsActive" class="form-check-input" />
-                        <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
-                    </div>
+                            <div class="col-12">
+                                <label asp-for="Description" class="form-label fw-semibold">
+                                    Description <span class="text-danger">*</span>
+                                </label>
+                                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-outline">
+                                <i class="bi bi-arrow-left me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-fill">
+                                <i class="bi bi-check-lg me-1"></i>Update Plan
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            @await Html.PartialAsync("_FormActions", new FormActionsModel
-            {
-                BackAction = new FormAction { Text = "Cancel", Icon = "bi bi-arrow-left", Controller = "Plans", Action = "Index", CssClass = "btn-soft rounded-pill px-4" },
-                SubmitAction = new FormAction { Text = "Update Plan", Icon = "bi bi-check-circle", CssClass = "btn-fill rounded-pill px-4" }
-            })
-        </form>
+        </div>
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

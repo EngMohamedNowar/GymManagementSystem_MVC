@@ -13,7 +13,7 @@ namespace GymManagementSystem.BLL.Services.Interfaces
 
         Task<bool> CreateTrainerAsync(CreateTrainerDTOs model, CancellationToken ct = default);
 
-        Task<UpdateTrainerDTOs> TrainerToUpdateAsync(int memberId, CancellationToken ct = default);
+        Task<UpdateTrainerDTOs?> TrainerToUpdateAsync(int memberId, CancellationToken ct = default);
 
         Task<bool> UpdateTrainerAsync(int memberId, UpdateTrainerDTOs model, CancellationToken ct = default);
 

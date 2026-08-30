@@ -1,89 +1,93 @@
-@using GymManagementSystem.BLL.ViewModels.Plans
-@using GymManagementSystem.BLL.ViewModels.Common
-@model PaginationViewModel<PlanViewModel>
-
-@{
-    ViewData["Title"] = "Plans";
-    var search = ViewBag.Search?.ToString() ?? "";
-
-    var header = new PageHeaderModel
-    {
-        Title = "Membership Plans",
-        Subtitle = "Manage your gym membership packages",
-        Actions = new List<PageHeaderAction>
-        {
-            new PageHeaderAction { Text = "Add Plan", Icon = "bi bi-plus-lg", Controller = "Plans", Action = "Create", CssClass = "btn-fill rounded-pill px-3 py-2" }
-        }
-    };
-
-    var empty = new EmptyStateModel
-    {
-        Icon = "bi bi-inbox",
-        Title = "No Plans Available",
-        Message = "Create your first membership plan to get started.",
-        Action = new EmptyStateAction { Text = "Add Plan", Icon = "bi bi-plus-lg", Controller = "Plans", Action = "Create", CssClass = "btn-fill rounded-pill px-3" }
-    };
-}
+﻿@using GymManagementSystem.BLL.ViewModels
+@model List<PlanViewModel>
 
 <div class="container">
-    @await Html.PartialAsync("_Alerts")
-    @await Html.PartialAsync("_PageHeader", header)
+    <main role="main" class="pb-3">
+        <div class="container">
+            <header class="d-flex justify-content-between mt-5 mb-4 align-items-center">
+                <div>
+                    <h2 class="text-primary-color mb-0">Membership Plans</h2>
+                    <p class="text-muted">Manage your gym membership packages</p>
+                </div>
+            </header>
 
-    <form method="get" class="form-app mb-3" style="max-width:420px;">
-        <div class="input-group">
-            <input type="text" name="search" value="@search" class="form-control" placeholder="Plan name or description" />
-            <button type="submit" class="btn btn-soft"><i class="bi bi-search"></i></button>
-        </div>
-    </form>
+            @if (Model is not null && Model.Any())
+            {
+                <div class="row g-4">
 
-    @if (Model is not null && Model.Items.Any())
-    {
-        <div class="app-card">
-            <div class="table-responsive">
-                <table class="table-app">
-                    <thead>
-                        <tr>
-                            <th>Plan</th>
-                            <th>Price</th>
-                            <th>Duration</th>
-                            <th>Status</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var plan in Model.Items)
-                        {
-                            <tr>
-                                <td>
-                                    <div class="cell-strong">@plan.Name</div>
-                                    <div class="cell-sub">@plan.Description</div>
-                                </td>
-                                <td><span class="cell-strong">@plan.Price</span> <span class="cell-sub">EGP</span></td>
-                                <td>@plan.DurationDays days</td>
-                                <td>
-                                    <span class="badge-soft @(plan.IsActive ? "badge-ok" : "badge-warn")">@(plan.IsActive ? "Active" : "Inactive")</span>
-                                </td>
-                                <td class="text-end">
-                                    <div class="d-inline-flex gap-1">
-                                        <a class="btn-icon" title="Details" asp-action="Details" asp-route-id="@plan.Id"><i class="bi bi-eye"></i></a>
-                                        <a class="btn-icon" title="Edit" asp-action="Edit" asp-route-id="@plan.Id"><i class="bi bi-pencil"></i></a>
-                                        <form asp-action="ToggleStatus" asp-route-id="@plan.Id" method="post" class="d-inline">
-                                            <button type="submit" class="btn-icon @(plan.IsActive ? "btn-danger-soft" : "")" title="@(plan.IsActive ? "Deactivate" : "Activate")">
-                                                <i class="bi @(plan.IsActive ? "bi-x-circle" : "bi-check-circle")"></i>
-                                            </button>
-                                        </form>
+                    @foreach (var plan in Model)
+                    {
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="card h-100 shadow-sm border-0 plan-card">
+                                @* If Plan is Active put class bg-primary-color if not bg-secondary *@
+                                <div class="card-header text-white text-center py-4 @(plan.IsActive ? "bg-primary-color" : "bg-secondary")">
+                                    <h4 class="mb-0">@plan.Name</h4>
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <div class="text-center mb-4">
+                                        <div class="display-4 fw-bold text-primary-color">@plan.Price</div>
+                                        <small class="text-muted">EGP</small>
                                     </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+
+                                    <div class="mb-3">
+                                        <p class="text-muted mb-2">
+                                            <i class="bi bi-calendar-check text-primary-color me-2"></i>
+                                            <strong>Duration:</strong> @plan.DurationDays
+                                        </p>
+                                        <p class="text-muted mb-3">
+                                            <i class="bi bi-file-text text-primary-color me-2"></i>
+                                            <strong>Description</strong>
+                                        </p>
+                                        <p class="small">@plan.Description</p>
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <div class="d-grid gap-2">
+
+                                            <a asp-action="Details" asp-route-id="@plan.Id" class="btn btn-outline btn-sm">
+                                                <i class="bi bi-eye me-1"></i>View Details
+                                            </a>
+
+                                            <div class="d-flex gap-2">
+                                                <a asp-action="Edit" asp-route-id="@plan.Id" class="btn btn-outline btn-sm flex-fill">
+                                                    <i class="bi bi-pencil me-1"></i>Edit
+                                                </a>
+
+                                                <form asp-action="ToggleStatus" asp-route-id="@plan.Id" method="post" class="flex-fill">
+                                                    @* If Plan is Active put class text-danger if not text-success *@
+                                                    <button type="submit" class="btn btn-outline btn-sm w-100 @(plan.IsActive ? "text-danger" : "text-success")">
+                                                        @if (plan.IsActive)
+                                                        {
+                                                            @* Display if Plan is Active - show Deactivate *@
+                                                            <i class="bi bi-x-circle me-1"></i><text>Deactivate</text>
+                                                        }
+                                                        else
+                                                        {
+                                                            @* Display if Plan is Inactive - show Activate *@
+                                                            <i class="bi bi-check-circle me-1"></i><text>Activate</text>
+                                                        }
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @* Loop Through Plans and Display Each Plan in a Card *@
+
+                </div>
+            }
+            else
+            {
+                @* Display This Div If No Plans Are Available *@
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">No Plans Available</h4>
+                </div>
+            }
         </div>
-        @await Html.PartialAsync("_Pagination", Model)
-    }
-    else
-    {
-        @await Html.PartialAsync("_EmptyState", empty)
-    }
+    </main>
 </div>

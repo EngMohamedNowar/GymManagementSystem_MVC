@@ -4,7 +4,7 @@ namespace GymManagement.PL.Models
 {
     public class FormActionsModel
     {
-        public FormAction BackAction { get; set; } = new()
+        public FormAction? BackAction { get; set; } = new()
         {
             Text = "Back to List",
             Icon = "bi bi-arrow-left",

@@ -1,155 +1,102 @@
 ﻿@model MembershipViewModel
-@using GymManagementSystem.BLL.ViewModels.Payments
-
 @{
     ViewData["Title"] = "Membership Details";
-    var payments = (IEnumerable<PaymentViewModel>?)ViewBag.Payments ?? new List<PaymentViewModel>();
-
-    var headerActions = new List<PageHeaderAction>
-    {
-        new PageHeaderAction
-        {
-            Text = "Back",
-            Icon = "bi bi-arrow-left",
-            Controller = "Memberships",
-            Action = "Index",
-            CssClass = "btn-outline rounded-pill px-3 py-2"
-        },
-        new PageHeaderAction
-        {
-            Text = "Record Payment",
-            Icon = "bi bi-cash-coin",
-            Controller = "Memberships",
-            Action = "RecordPayment",
-            RouteValues = new Dictionary<string, string> { { "membershipId", Model.Id.ToString() } },
-            CssClass = "btn-fill rounded-pill px-3 py-2"
-        }
-    };
-
-    if (Model.Status == "Active")
-    {
-        headerActions.Add(new PageHeaderAction
-        {
-            Text = "Cancel",
-            Icon = "bi bi-x-circle",
-            Controller = "Memberships",
-            Action = "Cancel",
-            RouteValues = new Dictionary<string, string> { { "id", Model.Id.ToString() } },
-            CssClass = "btn-danger-soft rounded-pill px-3 py-2"
-        });
-    }
-    else if (Model.Status != "Active")
-    {
-        headerActions.Add(new PageHeaderAction
-        {
-            Text = "Renew",
-            Icon = "bi bi-arrow-repeat",
-            Controller = "Memberships",
-            Action = "Renew",
-            RouteValues = new Dictionary<string, string> { { "id", Model.Id.ToString() } },
-            CssClass = "btn-fill rounded-pill px-3 py-2"
-        });
-    }
-
-    var header = new PageHeaderModel
-    {
-        Title = Model.PlanName,
-        Subtitle = "",
-        Actions = headerActions
-    };
-
-    string GetStatusBadge(string status)
-    {
-        var badgeClass = status == "Active" ? "badge-ok" : status == "Cancelled" ? "badge-bad" : "badge-warn";
-        return $"<span class=\"badge-soft {badgeClass}\">{status}</span>";
-    }
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container">
-    @await Html.PartialAsync("_Alerts")
-    @await Html.PartialAsync("_PageHeader", header)
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header @(Model.IsActive ? "bg-primary-color" : "bg-secondary") text-white text-center py-4">
+                    <i class="bi bi-card-checklist display-4 mb-3"></i>
+                    <h2 class="mb-2">@Model.PlanName</h2>
+                    <span class="badge bg-light text-dark fs-6">@Model.Status</span>
+                </div>
 
-    <div class="app-card mb-4">
-        <div class="app-card-body">
-            <div class="detail-list">
-                <div class="detail-row">
-                    <span class="detail-key">Plan</span>
-                    <span class="detail-val">@Model.PlanName</span>
+                <div class="card-body p-4">
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <h6 class="text-primary-color mb-2">
+                            <i class="bi bi-person-circle me-2"></i>Member
+                        </h6>
+                        <p class="mb-0">@Model.MemberName</p>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="detail-box p-3 border rounded">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-box me-3">
+                                        <i class="bi bi-cash-coin text-primary-color fs-3"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Price</small>
+                                        <strong>@Model.Price EGP</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-box p-3 border rounded">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-box me-3">
+                                        <i class="bi bi-calendar-check text-primary-color fs-3"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Start Date</small>
+                                        <strong>@Model.StartDate.ToString("MMM dd, yyyy")</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-box p-3 border rounded">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-box me-3">
+                                        <i class="bi bi-calendar-x text-primary-color fs-3"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">End Date</small>
+                                        <strong>@Model.EndDate.ToString("MMM dd, yyyy")</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-box p-3 border rounded bg-light">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-box me-3">
+                                        <i class="bi bi-shield-check text-primary-color fs-3"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Status</small>
+                                        <strong class="text-primary-color fs-5">@Model.Status</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-key">Price</span>
-                    <span class="detail-val">@Model.Price EGP</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-key">Start Date</span>
-                    <span class="detail-val">@Model.StartDate.ToString("MMM dd, yyyy")</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-key">End Date</span>
-                    <span class="detail-val">@Model.EndDate.ToString("MMM dd, yyyy")</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-key">Status</span>
-                    <span class="detail-val">@Html.Raw(GetStatusBadge(Model.Status))</span>
+
+                <div class="card-footer bg-white border-0 p-4">
+                    <div class="d-flex justify-content-between gap-2">
+                        <a asp-action="Index" class="btn btn-outline flex-fill">
+                            <i class="bi bi-arrow-left me-1"></i>Back to List
+                        </a>
+                        @if (Model.IsActive)
+                        {
+                            <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="flex-fill">
+                                <button type="submit" class="btn btn-outline text-danger w-100">
+                                    <i class="bi bi-x-circle me-1"></i>Cancel Membership
+                                </button>
+                            </form>
+                        }
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="app-card">
-        <div class="app-card-header">
-            <h6 class="section-title mb-0">Payments</h6>
-            <a asp-action="RecordPayment" asp-route-membershipId="@Model.Id" class="btn btn-soft rounded-pill px-3 py-1">
-                <i class="bi bi-plus-lg me-1"></i> Add
-            </a>
-        </div>
-        <div class="app-card-body">
-            @if (payments.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table-app">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Amount</th>
-                                <th>Method</th>
-                                <th>Reference</th>
-                                <th>Notes</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var p in payments)
-                            {
-                                <tr>
-                                    <td>@p.PaymentDate.ToString("MMM dd, yyyy")</td>
-                                    <td class="cell-strong">@p.Amount EGP</td>
-                                    <td><span class="badge-soft">@p.Method</span></td>
-                                    <td>@p.Reference</td>
-                                    <td>@p.Notes</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                @await Html.PartialAsync("_EmptyState", new EmptyStateModel
-                {
-                    Icon = "bi bi-receipt",
-                    Title = "No Payments Yet",
-                    Message = "Record a payment for this membership.",
-                    Action = new EmptyStateAction
-                    {
-                        Text = "Record Payment",
-                        Icon = "bi bi-plus-lg",
-                        Controller = "Memberships",
-                        Action = "RecordPayment",
-                        RouteValues = new Dictionary<string, string> { { "membershipId", Model.Id.ToString() } },
-                        CssClass = "btn-fill rounded-pill px-3"
-                    }
-                })
-            }
         </div>
     </div>
 </div>

@@ -107,7 +107,7 @@ namespace GymManagement.PL.Controllers
             ViewBag.Trainers = new SelectList(await _sessionService.GetAllTrainersForDropDownAsync(ct), "Id", "Name");
             ViewBag.Categories = new SelectList(await _sessionService.GetAllCategoriesForDropDownAsync(ct), "Id", "Name");
 
-            return View();
+            return View(new CreateSessionViewModel());
         }
 
         [HttpPost]
@@ -118,7 +118,7 @@ namespace GymManagement.PL.Controllers
                 var result = await _sessionService.CreateSessionAsync(model, ct);
                 if (result.success)
                 {
-                    TempData["SuccessMessage"] = "session Created Successfully";
+                TempData["SuccessMessage"] = "Session updated successfully";
                     await _auditService.LogAsync(User.Identity?.Name, "Create Session", "Session", null, model.Description, ct);
                 }
                 else

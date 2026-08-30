@@ -100,6 +100,48 @@ namespace GymManagement.Controllers
             if (!success)
                 return NotFound();
 
+            TempData["SuccessMessage"] = "Plan updated successfully";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View(new PlanViewModel());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(PlanViewModel model, CancellationToken ct = default)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var (success, message) = await _planService.CreateAsync(model, ct);
+
+            if (success)
+            {
+                TempData["SuccessMessage"] = message;
+                await _auditService.LogAsync(User.Identity?.Name, "Create Plan", "Plan", null, message, ct);
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["FailedMessage"] = message;
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id, CancellationToken ct = default)
+        {
+            var success = await _planService.DeleteAsync(id, ct);
+            if (success)
+            {
+                TempData["SuccessMessage"] = "Plan deleted successfully";
+                await _auditService.LogAsync(User.Identity?.Name, "Delete Plan", "Plan", id.ToString(), null, ct);
+            }
+            else
+            {
+                TempData["FailedMessage"] = "Failed to delete plan or plan not found";
+            }
             return RedirectToAction(nameof(Index));
         }
 
