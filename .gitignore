@@ -27,3 +27,6 @@
 GymManagement/wwwroot/MembersPicture/*.jpeg
 GymManagement/wwwroot/MembersPicture/*.jpg
 GymManagement/wwwroot/MembersPicture/*.png
+/GymManagement/bin/Release/net10.0
+/GymManagementSystem.BLL/bin/Release/net10.0
+/GymManagementSystem.DAL/bin/Release/net10.0

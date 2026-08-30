@@ -24,10 +24,10 @@ namespace GymManagementSystem.DAL.DataSeeding
                 // Secrets are sourced from configuration (e.g. appsettings.json / environment variables)
                 // under the "AdminSeed" section. Provide safe placeholder defaults so the seeder still
                 // works locally without committing real credentials.
-                var adminPassword = configuration["AdminSeed:Password"] ?? "ChangeMe_Str0ngP@ss!";
-                var superAdminEmail = configuration["AdminSeed:SuperAdminEmail"] ?? "superadmin@example.com";
-                var adminEmail = configuration["AdminSeed:AdminEmail"] ?? "admin@example.com";
-                var superAdminPhone = configuration["AdminSeed:SuperAdminPhone"] ?? "01000000001";
+                var adminPassword = configuration["AdminSeed:Password"] ?? "sdfg@HJKL123";
+                var superAdminEmail = configuration["AdminSeed:SuperAdminEmail"] ?? "superadmin@fitgym.com";
+                var adminEmail = configuration["AdminSeed:AdminEmail"] ?? "mohamednowar2002@gmail.com";
+                var superAdminPhone = configuration["AdminSeed:SuperAdminPhone"] ?? "01557722675";
                 var adminPhone = configuration["AdminSeed:AdminPhone"] ?? "01000000002";
 
                 var hasUsers = await userManager.Users.AnyAsync(ct);
