@@ -7,7 +7,7 @@ namespace GymManagementSystem.BLL.ViewModels.Sessions
     public class TrainerSelectViewModel
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
     }
 }

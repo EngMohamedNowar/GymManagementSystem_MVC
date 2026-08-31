@@ -22,7 +22,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             _logger = logger;
         }
 
-        public async Task LogAsync(string userName, string action, string entity, string? entityId, string? details, CancellationToken ct = default)
+        public async Task LogAsync(string? userName, string action, string entity, string? entityId, string? details, CancellationToken ct = default)
         {
             try
             {

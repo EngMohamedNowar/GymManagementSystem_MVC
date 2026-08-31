@@ -1,238 +1,457 @@
-﻿@using System.Globalization
-@using GymManagement.PL.SharedResources
-@using Microsoft.Extensions.Localization
-@inject IStringLocalizer<SharedResource> Localizer
-<!DOCTYPE html>
-<html lang="@CultureInfo.CurrentUICulture.Name" dir="@(CultureInfo.CurrentUICulture.Name.StartsWith("ar") ? "rtl" : "ltr")" data-bs-theme="dark" data-theme="dark">
+﻿<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/style.css" />
-    <link rel="stylesheet" href="~/css/app.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <title>@ViewData["Title"]</title>
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-lg sticky-top site-nav" id="siteNav">
-            <div class="container">
-                <!-- Brand -->
-                <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
-                    <span class="brand-mark">
-                        <i class="bi bi-diamond-fill"></i>
-                    </span>
-                    <span class="brand-name">FITGYM</span>
-                </a>
 
-                <!-- Toggler -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-                        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+    <meta charset="utf-8" />
 
-                <!-- Nav content -->
-                <div class="collapse navbar-collapse" id="mainNav">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
 
-                    <!-- Left / center nav -->
-                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 nav-center">
+    <title>
+        @ViewData["Title"] - GymManagement
+    </title>
 
-                        <!-- Always: Home -->
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-house nav-icon"></i>@Localizer["Home"]
-                            </a>
-                        </li>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
-                        @if (User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
-                        {
-                            <!-- Dashboard -->
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
-                                    <i class="bi bi-grid-1x2 nav-icon"></i>@Localizer["Dashboard"]
-                                </a>
-                            </li>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-                            <!-- People dropdown -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                                    <i class="bi bi-people nav-icon"></i>@Localizer["People"]
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-lg">
-                                    <li class="dropdown-header-sm">Manage people</li>
-                                    <li><a class="dropdown-item" asp-controller="Members" asp-action="Index"><i class="bi bi-person me-2"></i>@Localizer["Members"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Trainers" asp-action="Index"><i class="bi bi-person-video2 me-2"></i>@Localizer["Trainers"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="CheckIn" asp-action="Today"><i class="bi bi-qr-code-scan me-2"></i>@Localizer["CheckIn"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Measurements" asp-action="Index"><i class="bi bi-activity me-2"></i>@Localizer["Measurements"]</a></li>
-                                </ul>
-                            </li>
+    <!-- Custom CSS -->
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
 
-                            <!-- Content dropdown -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                                    <i class="bi bi-calendar3 nav-icon"></i>@Localizer["Content"]
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-lg">
-                                    <li class="dropdown-header-sm">Manage content</li>
-                                    <li><a class="dropdown-item" asp-controller="Sessions" asp-action="Index"><i class="bi bi-easel me-2"></i>@Localizer["Sessions"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="SessionsSchedule" asp-action="Index"><i class="bi bi-calendar-week me-2"></i>@Localizer["Schedule"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Plans" asp-action="Index"><i class="bi bi-tag me-2"></i>@Localizer["Plans"]</a></li>
-                                </ul>
-                            </li>
-
-                            <!-- Business dropdown -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                                    <i class="bi bi-currency-dollar nav-icon"></i>@Localizer["Business"]
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-lg">
-                                    <li class="dropdown-header-sm">Manage business</li>
-                                    <li><a class="dropdown-item" asp-controller="Memberships" asp-action="Index"><i class="bi bi-credit-card me-2"></i>@Localizer["Memberships"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Discounts" asp-action="Index"><i class="bi bi-percent me-2"></i>@Localizer["Discounts"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Bookings" asp-action="Index"><i class="bi bi-journal-check me-2"></i>@Localizer["Bookings"]</a></li>
-                                    @if (User.IsInRole("SuperAdmin"))
-                                    {
-                                        <li><hr class="dropdown-divider" /></li>
-                                        <li><a class="dropdown-item" asp-controller="Audit" asp-action="Index"><i class="bi bi-clock-history me-2"></i>@Localizer["Audit"]</a></li>
-                                    }
-                                </ul>
-                            </li>
-                        }
-
-                        @if (User.IsInRole("Member"))
-                        {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                                    <i class="bi bi-person-circle nav-icon"></i>@Localizer["MyAccount"]
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-lg">
-                                    <li class="dropdown-header-sm">My account</li>
-                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="Index"><i class="bi bi-speedometer2 me-2"></i>@Localizer["MyDashboard"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="MyMembership"><i class="bi bi-credit-card me-2"></i>@Localizer["MyMembership"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="MyBookings"><i class="bi bi-calendar-check me-2"></i>@Localizer["MyBookings"]</a></li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="MyProfile"><i class="bi bi-gear me-2"></i>@Localizer["MyProfile"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Member" asp-action="MyQR"><i class="bi bi-qr-code me-2"></i>@Localizer["MyQR"]</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Measurements" asp-action="Index"><i class="bi bi-activity me-2"></i>@Localizer["Measurements"]</a></li>
-                                </ul>
-                            </li>
-                        }
-
-                        <!-- Language -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-globe2 nav-icon"></i>@Localizer["Language"]
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="@Url.Action("SetCulture", "Culture", new { culture = "en-US", redirectUri = Context.Request.Path })"><span class="me-2">🇺🇸</span>English</a></li>
-                                <li><a class="dropdown-item" href="@Url.Action("SetCulture", "Culture", new { culture = "ar-EG", redirectUri = Context.Request.Path })"><span class="me-2">🇪🇬</span>العربية</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-
-                    <!-- Right actions -->
-                    <ul class="navbar-nav mb-2 mb-lg-0 nav-right">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item d-flex align-items-center">
-                                @await Component.InvokeAsync("NotificationBell")
-                            </li>
-                            <!-- User menu -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link nav-user dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="nav-avatar">
-                                        @((User.Identity?.Name ?? "?")[0].ToString().ToUpper())
-                                    </span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li class="dropdown-header-sm">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="nav-avatar" style="width:28px;height:28px;font-size:.7rem;">
-                                                @((User.Identity?.Name ?? "?")[0].ToString().ToUpper())
-                                            </span>
-                                            <div>
-                                                <div class="fw-semibold small">@User.Identity?.Name</div>
-                                                <div class="text-muted" style="font-size:.7rem;">
-                                                    @(User.IsInRole("SuperAdmin") ? "Super Admin" : User.IsInRole("Admin") ? "Admin" : "Member")
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li>
-                                        <form asp-action="Logout" asp-controller="Account" method="post">
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="bi bi-box-arrow-right me-2"></i>@Localizer["Logout"]
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="btn btn-nav-ghost" asp-controller="Account" asp-action="Register">@Localizer["Register"]</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-nav-fill" asp-controller="Account" asp-action="Login">@Localizer["Login"]</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <main role="main">
-        @RenderBody()
-    </main>
-
-    <footer class="site-footer">
-        <div class="container">
-            <div class="d-flex flex-wrap justify-content-between align-items-center py-3">
-                <span class="footer-brand">FITGYM</span>
-                <span class="footer-copy">&copy; @DateTime.Now.Year All rights reserved</span>
-            </div>
-        </div>
-    </footer>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <script>
-        (function () {
-            /* Active link highlight */
-            var path = (window.location.pathname || '').toLowerCase();
-            var seg = path.split('/').filter(Boolean)[0] || 'home';
-            document.querySelectorAll('#mainNav .nav-link').forEach(function (a) {
-                var href = (a.getAttribute('href') || '').toLowerCase();
-                var cseg = href.split('/').filter(Boolean)[0] || 'home';
-                if (cseg === seg && !a.classList.contains('dropdown-toggle')) {
-                    a.classList.add('active');
-                }
-            });
-
-            /* Scroll effect on navbar */
-            var nav = document.getElementById('siteNav');
-            if (nav) {
-                var onScroll = function () {
-                    if (window.scrollY > 20) {
-                        nav.classList.add('nav-scrolled');
-                    } else {
-                        nav.classList.remove('nav-scrolled');
-                    }
-                };
-                window.addEventListener('scroll', onScroll, { passive: true });
-                onScroll();
+    <style>
+            /* ===== Compact, professional footer ===== */
+            .gym-footer {
+                padding: 28px 0 0;
+                font-size: 13px;
             }
-        })();
-    </script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+                .gym-footer .footer-content {
+                    gap: 24px;
+                    padding-bottom: 18px;
+                }
+
+                .gym-footer .footer-logo {
+                    font-size: 16px;
+                }
+
+                .gym-footer .footer-description {
+                    font-size: 12px;
+                    margin-top: 6px;
+                }
+
+                .gym-footer h6 {
+                    font-size: 13px;
+                    margin-bottom: 10px;
+                }
+
+                .gym-footer .footer-links a {
+                    font-size: 12.5px;
+                    display: block;
+                    margin-bottom: 6px;
+                }
+
+                .gym-footer .footer-bottom {
+                    padding: 12px 0;
+                    font-size: 11.5px;
+                }
+    </style>
+
+</head>
+
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <header>
+
+        <nav class="navbar navbar-expand-lg gym-navbar shadow-sm">
+
+            <div class="container-fluid px-4">
+
+
+                <!-- Logo -->
+
+                <a class="navbar-brand fw-bold text-white fs-3"
+                   asp-controller="Home"
+                   asp-action="Index">
+
+                    <i class="bi bi-activity me-2"></i>
+
+                    Gym<span class="brand-highlight">
+                    Management
+                </span>
+
+            </a>
+
+
+            <!-- Mobile Menu Button -->
+
+            <button class="navbar-toggler border-0 shadow-none"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+
+                <span class="navbar-toggler-icon"></span>
+
+            </button>
+
+
+            <!-- Menu -->
+
+            <div class="collapse navbar-collapse"
+                 id="navbarSupportedContent">
+
+
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 mt-3 mt-lg-0">
+
+
+                    <!-- Home -->
+
+                    <li class="nav-item">
+
+                        <a class="nav-link"
+                           asp-controller="Home"
+                           asp-action="Index">
+
+                            <i class="bi bi-house-door"></i>
+
+                            <span>Home</span>
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- Members -->
+
+                    <li class="nav-item">
+
+                        <a class="nav-link"
+                           asp-controller="Members"
+                           asp-action="Index">
+
+                            <i class="bi bi-people"></i>
+
+                            <span>Members</span>
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- Trainers -->
+
+                    <li class="nav-item">
+
+                        <a class="nav-link"
+                           asp-controller="Trainers"
+                           asp-action="Index">
+
+                            <i class="bi bi-person-badge"></i>
+
+                            <span>Trainers</span>
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- Sessions -->
+
+                    <li class="nav-item">
+
+                        <a class="nav-link"
+                           asp-controller="Sessions"
+                           asp-action="Index">
+
+                            <i class="bi bi-calendar-event"></i>
+
+                            <span>Sessions</span>
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- Plans -->
+
+                    <li class="nav-item">
+
+                        <a class="nav-link"
+                           asp-controller="Plans"
+                           asp-action="Index">
+
+                            <i class="bi bi-card-checklist"></i>
+
+                            <span>Plans</span>
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- Memberships -->
+
+                    <li class="nav-item">
+
+                        <a class="nav-link"
+                           asp-controller="Memberships"
+                           asp-action="Index">
+
+                            <i class="bi bi-person-check"></i>
+
+                            <span>Memberships</span>
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- Schedule -->
+
+                    <li class="nav-item">
+
+                        <a class="nav-link"
+                           asp-controller="SessionsSchedule"
+                           asp-action="Index">
+
+                            <i class="bi bi-calendar3"></i>
+
+                            <span>Schedule</span>
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- Bookings -->
+
+                    <li class="nav-item">
+
+                        <a class="nav-link"
+                           asp-controller="Bookings"
+                           asp-action="Index">
+
+                            <i class="bi bi-bookmark-check"></i>
+
+                            <span>Bookings</span>
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+
+                <!-- Right Side -->
+
+                <div class="navbar-actions">
+
+
+                    <!-- Logout -->
+
+                    <form asp-controller="Account"
+                          asp-action="Logout"
+                          method="post">
+
+                        <button type="submit"
+                                class="logout-btn">
+
+                            <i class="bi bi-box-arrow-right"></i>
+
+                            Logout
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+</header>
+
+
+<!-- ================= MAIN CONTENT ================= -->
+
+<main>
+
+    @RenderBody()
+
+</main>
+
+@{
+    var isHomeIndex = ViewContext.RouteData.Values["controller"]?.ToString() == "Home"
+                       && ViewContext.RouteData.Values["action"]?.ToString() == "Index";
+}
+
+@if (isHomeIndex)
+{
+    <footer class="gym-footer">
+
+        <div class="container">
+
+            <div class="footer-content">
+
+                <!-- Brand -->
+                <div class="footer-brand">
+
+                    <div class="footer-logo">
+                        <i class="bi bi-activity"></i>
+
+                        Gym
+                        <span>Management</span>
+                    </div>
+
+                    <p class="footer-description">
+                        Manage your gym smarter.
+                        Train harder. Grow stronger.
+                    </p>
+
+                </div>
+
+
+                <!-- Quick Links -->
+                <div class="footer-links">
+
+                    <h6>Quick Links</h6>
+
+                    <a asp-controller="Home"
+                       asp-action="Index">
+
+                        <i class="bi bi-house-door"></i>
+                        Home
+
+                    </a>
+
+                    <a asp-controller="Members"
+                       asp-action="Index">
+
+                        <i class="bi bi-people"></i>
+                        Members
+
+                    </a>
+
+                    <a asp-controller="Trainers"
+                       asp-action="Index">
+
+                        <i class="bi bi-person-badge"></i>
+                        Trainers
+
+                    </a>
+
+                    <a asp-controller="Sessions"
+                       asp-action="Index">
+
+                        <i class="bi bi-calendar-event"></i>
+                        Sessions
+
+                    </a>
+
+                </div>
+
+
+                <!-- Management -->
+                <div class="footer-links">
+
+                    <h6>Management</h6>
+
+                    <a asp-controller="Plans"
+                       asp-action="Index">
+
+                        <i class="bi bi-card-checklist"></i>
+                        Plans
+
+                    </a>
+
+                    <a asp-controller="Memberships"
+                       asp-action="Index">
+
+                        <i class="bi bi-person-check"></i>
+                        Memberships
+
+                    </a>
+
+                    <a asp-controller="Bookings"
+                       asp-action="Index">
+
+                        <i class="bi bi-bookmark-check"></i>
+                        Bookings
+
+                    </a>
+
+                    <a asp-controller="Home"
+                       asp-action="Privacy">
+
+                        <i class="bi bi-shield-check"></i>
+                        Privacy
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Bottom Footer -->
+
+            <div class="footer-bottom">
+
+                <div class="copyright">
+
+                    <i class="bi bi-c-circle"></i>
+
+                    2026 GymManagement.
+                    All rights reserved.
+
+                </div>
+
+
+                <div class="footer-message">
+
+                    Built for a stronger community
+
+                    <i class="bi bi-heart-fill"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </footer>
+}
+
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="~/js/site.js"
+        asp-append-version="true">
+</script>
+
+@await RenderSectionAsync("Scripts",
+                          required: false)
+
 </body>
+
 </html>

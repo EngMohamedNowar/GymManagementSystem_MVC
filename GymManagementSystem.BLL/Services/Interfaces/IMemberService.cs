@@ -13,7 +13,7 @@ namespace GymManagementSystem.BLL.Services.Interfaces
         Task <MemberViewModel?> GetMemberDetailsAsync(int memberId,CancellationToken ct = default);
         Task<MemberViewModel?> GetMemberByEmailAsync(string email, CancellationToken ct = default);
         Task<int> CreateMemberAsync(CreateMemberDTOs model, CancellationToken ct = default);
-        Task<UpdateMemberDTOs> MemberToUpdateAsync(int memberId, CancellationToken ct = default);
+        Task<UpdateMemberDTOs?> MemberToUpdateAsync(int memberId, CancellationToken ct = default);
         Task<bool> UpdateMemberAsync(int memberId, UpdateMemberDTOs model, CancellationToken ct = default);
         Task<MemberProfileEditViewModel?> GetMemberProfileAsync(int memberId, CancellationToken ct = default);
         Task<bool> UpdateMemberProfileAsync(int memberId, MemberProfileEditViewModel model, CancellationToken ct = default);

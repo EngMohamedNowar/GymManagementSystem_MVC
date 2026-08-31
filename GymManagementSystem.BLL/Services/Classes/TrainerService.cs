@@ -83,7 +83,7 @@ namespace GymManagementSystem.BLL.Services.Classes
             return trainerDTOs;
         }
 
-        public async Task<UpdateTrainerDTOs> TrainerToUpdateAsync(int memberId, CancellationToken ct = default)
+        public async Task<UpdateTrainerDTOs?> TrainerToUpdateAsync(int memberId, CancellationToken ct = default)
         {
             var trainer = await _unitOfWork.GetRepositories<Trainer>().GetByIdAsync(memberId, ct);
             if (trainer is null) return null;

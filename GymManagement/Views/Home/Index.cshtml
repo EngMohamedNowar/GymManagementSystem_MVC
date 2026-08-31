@@ -1,203 +1,786 @@
-@model AnalyticsViewModel
-@{ ViewData["Title"] = "Home"; }
+﻿@model AnalyticsViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
 
-<section class="home-hero">
-    <div class="hero-bg"></div>
-    <div class="container position-relative">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6">
-                <span class="home-badge reveal">Premium Fitness</span>
-                <h1 class="reveal reveal-delay-1">Build Your<br /><span class="text-gradient">Strongest</span> Self</h1>
-                <p class="reveal reveal-delay-2">World-class training, expert coaches, and a community that pushes you beyond your limits.</p>
-                <div class="d-flex gap-3 mt-4 reveal reveal-delay-3">
-                    <a asp-controller="Account" asp-action="Login" class="btn btn-fill btn-lg px-5">
-                        Get Started <i class="bi bi-arrow-right ms-2"></i>
+<style>
+    /* =========================================================
+           Home / Dashboard — scoped dark theme.
+           Everything below lives under .gm-dark so it never leaks
+           into the rest of the (light) site.
+        ========================================================= */
+    .gm-dark {
+        --gm-bg: #0b0b12;
+        --gm-bg-alt: #121220;
+        --gm-card: #171726;
+        --gm-card-hover: #1e1e30;
+        --gm-border: #26263a;
+        --gm-text: #f4f4f8;
+        --gm-muted: #9d9db0;
+        --gm-accent: #7c6cff;
+        --gm-accent-2: #ffb020;
+        --gm-radius: 18px;
+        background: var(--gm-bg);
+        color: var(--gm-text);
+        /* break out of the layout's .container so it goes full-bleed */
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        overflow-x: clip;
+        font-family: 'Rubik', sans-serif;
+    }
+
+        .gm-dark .gm-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .gm-dark h1, .gm-dark h2, .gm-dark h3, .gm-dark h4, .gm-dark h5 {
+            font-family: 'Baloo Thambi 2', system-ui;
+            color: var(--gm-text);
+        }
+
+        .gm-dark a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .gm-dark p {
+            color: var(--gm-muted);
+        }
+
+        .gm-dark .gm-accent-text {
+            color: var(--gm-accent);
+        }
+
+    /* ---------- buttons ---------- */
+    .gm-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 26px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 15px;
+        border: 2px solid transparent;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease, color 0.25s ease;
+        cursor: pointer;
+    }
+
+        .gm-btn.gm-btn-solid {
+            background: linear-gradient(135deg, var(--gm-accent), #a08bff);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(124, 108, 255, 0.35);
+        }
+
+            .gm-btn.gm-btn-solid:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 26px rgba(124, 108, 255, 0.45);
+                color: #fff;
+            }
+
+        .gm-btn.gm-btn-ghost {
+            background: transparent;
+            border-color: var(--gm-border);
+            color: var(--gm-text);
+        }
+
+            .gm-btn.gm-btn-ghost:hover {
+                border-color: var(--gm-accent);
+                color: var(--gm-accent);
+                transform: translateY(-3px);
+            }
+
+    /* ---------- hero ---------- */
+    .gm-hero {
+        padding: 64px 0 40px;
+        position: relative;
+    }
+
+        .gm-hero .gm-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--gm-accent-2);
+            background: rgba(255, 176, 32, 0.1);
+            padding: 6px 14px;
+            border-radius: 50px;
+            margin-bottom: 18px;
+        }
+
+        .gm-hero h1 {
+            font-size: clamp(32px, 5vw, 56px);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+        }
+
+        .gm-hero p.lead {
+            font-size: 18px;
+            max-width: 560px;
+            margin-bottom: 32px;
+        }
+
+        .gm-hero img.gm-hero-img {
+            border-radius: var(--gm-radius);
+            width: 100%;
+            max-width: 340px;
+            object-fit: cover;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+    /* ---------- stats ---------- */
+    .gm-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    @@media (max-width: 576px) {
+        .gm-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .gm-stat-card {
+        background: var(--gm-card);
+        border: 1px solid var(--gm-border);
+        border-radius: var(--gm-radius);
+        padding: 20px 16px;
+        transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+        display: block;
+    }
+
+        .gm-stat-card:hover {
+            transform: translateY(-4px);
+            background: var(--gm-card-hover);
+            border-color: var(--gm-accent);
+        }
+
+        .gm-stat-card .gm-stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            display: block;
+            color: var(--gm-text);
+        }
+
+        .gm-stat-card .gm-stat-label {
+            font-size: 13px;
+            color: var(--gm-muted);
+            margin-top: 4px;
+        }
+
+    /* ---------- marquee ---------- */
+    .gm-marquee {
+        background: linear-gradient(90deg, var(--gm-accent), #5b4bd6);
+        color: #fff;
+        font-weight: 700;
+        padding: 16px 0;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+        .gm-marquee p {
+            color: #fff;
+            margin: 0;
+        }
+
+        .gm-marquee img {
+            height: 16px;
+            margin: 0 10px;
+            vertical-align: middle;
+        }
+
+    /* ---------- section heading ---------- */
+    .gm-kicker {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+        .gm-kicker .gm-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gm-accent-2);
+        }
+
+        .gm-kicker span {
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gm-accent);
+        }
+
+    /* ---------- quick actions ---------- */
+    .gm-quick-actions {
+        padding: 60px 0;
+    }
+
+    .gm-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+        margin-top: 28px;
+    }
+
+    .gm-action-card {
+        background: var(--gm-card);
+        border: 1px solid var(--gm-border);
+        border-radius: var(--gm-radius);
+        padding: 26px 22px;
+        transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+        .gm-action-card:hover {
+            transform: translateY(-6px);
+            background: var(--gm-card-hover);
+            border-color: var(--gm-accent);
+        }
+
+        .gm-action-card .gm-action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(124, 108, 255, 0.15);
+            color: var(--gm-accent);
+            font-size: 22px;
+        }
+
+        .gm-action-card h5 {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        .gm-action-card p {
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .gm-action-card .gm-go {
+            margin-top: auto;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gm-accent-2);
+        }
+
+    /* ---------- about ---------- */
+    .gm-about {
+        padding: 60px 0;
+        background: var(--gm-bg-alt);
+    }
+
+    .gm-about-images {
+        position: relative;
+    }
+
+        .gm-about-images img {
+            border-radius: var(--gm-radius);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+    .gm-feature {
+        background: var(--gm-card);
+        border: 1px solid var(--gm-border);
+        border-radius: 14px;
+        padding: 18px;
+        height: 100%;
+    }
+
+        .gm-feature img {
+            width: 28px;
+            height: 28px;
+        }
+
+        .gm-feature h6 {
+            color: var(--gm-text);
+            font-weight: 700;
+            margin: 8px 0 4px;
+        }
+
+        .gm-feature p {
+            font-size: 13px;
+            margin: 0;
+        }
+
+    /* ---------- workouts ---------- */
+    .gm-workout {
+        padding: 70px 0;
+    }
+
+        .gm-workout .gm-kicker span {
+            color: var(--gm-accent-2);
+        }
+
+    .gm-workout-card {
+        border-radius: var(--gm-radius);
+        overflow: hidden;
+        position: relative;
+        background: var(--gm-card);
+        border: 1px solid var(--gm-border);
+    }
+
+        .gm-workout-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+            filter: brightness(0.75);
+            transition: transform 0.4s ease, filter 0.4s ease;
+        }
+
+        .gm-workout-card:hover img {
+            transform: scale(1.06);
+            filter: brightness(0.9);
+        }
+
+        .gm-workout-card .gm-workout-body {
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gm-workout-card h5 {
+            font-size: 15px;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .gm-workout-card a.gm-explore {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--gm-accent);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+    /* ---------- why us ---------- */
+    .gm-why {
+        padding: 70px 0;
+        background: var(--gm-bg-alt);
+    }
+
+    .gm-why-list .gm-count {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: rgba(124, 108, 255, 0.15);
+        color: var(--gm-accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    /* ---------- footer ---------- */
+    .gm-footer {
+        padding-top: 40px;
+        background: #08080d;
+        border-top: 1px solid var(--gm-border);
+    }
+
+        .gm-footer h4 {
+            font-size: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 18px;
+        }
+
+        .gm-footer ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .gm-footer ul li {
+                margin-bottom: 12px;
+            }
+
+                .gm-footer ul li a:hover {
+                    color: var(--gm-accent);
+                }
+
+        .gm-footer .gm-icon-chip {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: var(--gm-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .gm-footer .gm-icon-chip:hover {
+                background: var(--gm-accent);
+                color: #fff;
+            }
+
+        .gm-footer .gm-bottom {
+            border-top: 1px solid var(--gm-border);
+            margin-top: 30px;
+            padding: 20px 0;
+            font-size: 13px;
+            color: var(--gm-muted);
+            text-align: center;
+        }
+</style>
+
+<div class="gm-dark">
+
+    <!-- ============ Hero ============ -->
+    <section class="gm-hero">
+        <div class="gm-container">
+            <div class="row align-items-center g-5">
+                <div class="col-12 col-lg-7">
+                    <span class="gm-eyebrow"><i class="bi bi-lightning-charge-fill"></i>Welcome back</span>
+                    <h1>
+                        Your body can
+                        <span class="gm-accent-text">stand almost</span> anything
+                    </h1>
+                    <p class="lead">
+                        It's your mind that needs convincing. Push past your limits, stay committed,
+                        and watch your body transform into a powerhouse of strength and resilience.
+                        Here's what's happening in your gym right now.
+                    </p>
+
+                    <div class="d-flex flex-wrap gap-3 mb-5">
+                        <a asp-controller="Bookings" asp-action="Create" class="gm-btn gm-btn-solid">
+                            <i class="bi bi-calendar-plus"></i> Get Started — Book a Session
+                        </a>
+                        <a href="#quick-actions" class="gm-btn gm-btn-ghost">
+                            <i class="bi bi-grid-1x2"></i> Explore More
+                        </a>
+                    </div>
+
+                    <div class="gm-stats">
+                        <a asp-controller="Members" asp-action="Index" class="gm-stat-card">
+                            <span class="gm-stat-value">@Model.TotalMembers</span>
+                            <span class="gm-stat-label">Total Members</span>
+                        </a>
+                        <a asp-controller="Memberships" asp-action="Index" class="gm-stat-card">
+                            <span class="gm-stat-value">@Model.ActiveMembers</span>
+                            <span class="gm-stat-label">Active Members</span>
+                        </a>
+                        <a asp-controller="Trainers" asp-action="Index" class="gm-stat-card">
+                            <span class="gm-stat-value">@Model.TotalTrainers</span>
+                            <span class="gm-stat-label">Trainers</span>
+                        </a>
+                        <a asp-controller="SessionsSchedule" asp-action="Index" class="gm-stat-card">
+                            <span class="gm-stat-value">@Model.UpcomingSessions</span>
+                            <span class="gm-stat-label">Upcoming Sessions</span>
+                        </a>
+                        <a asp-controller="SessionsSchedule" asp-action="Index" class="gm-stat-card">
+                            <span class="gm-stat-value">@Model.OngoingSessions</span>
+                            <span class="gm-stat-label">Ongoing Sessions</span>
+                        </a>
+                        <a asp-controller="SessionsSchedule" asp-action="Index" class="gm-stat-card">
+                            <span class="gm-stat-value">@Model.CompletedSessions</span>
+                            <span class="gm-stat-label">Completed Sessions</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-5 text-center">
+                    <img class="gm-hero-img" src="~/Images/Theo Vance.jpg" alt="Trainer" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- ============ Quick Actions / Management ============ -->
+    <section id="quick-actions" class="gm-quick-actions">
+        <div class="gm-container">
+            <div class="gm-kicker"><span class="gm-dot"></span><span>Manage</span></div>
+            <h2 class="mb-0">Everything you need, one click away</h2>
+
+            <div class="gm-actions-grid">
+                <a asp-controller="Members" asp-action="Index" class="gm-action-card">
+                    <div class="gm-action-icon"><i class="bi bi-people-fill"></i></div>
+                    <h5>Members</h5>
+                    <p>View, add and manage gym members.</p>
+                    <span class="gm-go">Open Members <i class="bi bi-arrow-right"></i></span>
+                </a>
+
+                <a asp-controller="Trainers" asp-action="Index" class="gm-action-card">
+                    <div class="gm-action-icon"><i class="bi bi-person-badge-fill"></i></div>
+                    <h5>Trainers</h5>
+                    <p>Manage your certified training staff.</p>
+                    <span class="gm-go">Open Trainers <i class="bi bi-arrow-right"></i></span>
+                </a>
+
+                <a asp-controller="Sessions" asp-action="Index" class="gm-action-card">
+                    <div class="gm-action-icon"><i class="bi bi-calendar-event-fill"></i></div>
+                    <h5>Sessions</h5>
+                    <p>Create and edit training sessions.</p>
+                    <span class="gm-go">Open Sessions <i class="bi bi-arrow-right"></i></span>
+                </a>
+
+                <a asp-controller="SessionsSchedule" asp-action="Index" class="gm-action-card">
+                    <div class="gm-action-icon"><i class="bi bi-calendar3"></i></div>
+                    <h5>Sessions Schedule</h5>
+                    <p>See the full timetable and attendance.</p>
+                    <span class="gm-go">Open Schedule <i class="bi bi-arrow-right"></i></span>
+                </a>
+
+                <a asp-controller="Bookings" asp-action="Index" class="gm-action-card">
+                    <div class="gm-action-icon"><i class="bi bi-journal-check"></i></div>
+                    <h5>Bookings</h5>
+                    <p>Book members into sessions and track attendance.</p>
+                    <span class="gm-go">Open Bookings <i class="bi bi-arrow-right"></i></span>
+                </a>
+
+                <a asp-controller="Plans" asp-action="Index" class="gm-action-card">
+                    <div class="gm-action-icon"><i class="bi bi-card-checklist"></i></div>
+                    <h5>Plans</h5>
+                    <p>Configure subscription plans and pricing.</p>
+                    <span class="gm-go">Open Plans <i class="bi bi-arrow-right"></i></span>
+                </a>
+
+                <a asp-controller="Memberships" asp-action="Index" class="gm-action-card">
+                    <div class="gm-action-icon"><i class="bi bi-wallet2"></i></div>
+                    <h5>Memberships</h5>
+                    <p>Subscribe members and manage renewals.</p>
+                    <span class="gm-go">Open Memberships <i class="bi bi-arrow-right"></i></span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ About ============ -->
+    <section class="gm-about">
+        <div class="gm-container">
+            <div class="row g-5 align-items-center">
+                <div class="col-12 col-lg-6">
+                    <div class="gm-about-images position-relative">
+                        <img class="img-fluid" src="~/Images/about p1.jpg" alt="person" />
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                    <div class="gm-kicker"><span class="gm-dot"></span><span>About Us</span></div>
+                    <h2 class="fw-bolder mb-3">
+                        EMPOWERING YOU TO ACHIEVE
+                        <span class="gm-accent-text">YOUR FITNESS</span> GOALS
+                    </h2>
+                    <p class="mb-4">
+                        We believe fitness is more than just a workout — it's a lifestyle. With
+                        top-of-the-line facilities, certified trainers, and a supportive community,
+                        we're here to inspire and guide you every step of the way.
+                    </p>
+
+                    <div class="row row-cols-1 row-cols-sm-2 g-3 mb-4">
+                        <div class="col">
+                            <div class="gm-feature">
+                                <img src="~/Images/feature icon.jpg" alt="icon" />
+                                <h6>Personal Trainer</h6>
+                                <p>Achieve your goals with the guidance of certified trainers.</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="gm-feature">
+                                <img src="~/Images/feature icon.jpg" alt="icon" />
+                                <h6>Flexible Scheduling</h6>
+                                <p>Book sessions that fit around your own routine.</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="gm-feature">
+                                <img src="~/Images/feature icon.jpg" alt="icon" />
+                                <h6>Live Attendance</h6>
+                                <p>Track who showed up, session by session.</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="gm-feature">
+                                <img src="~/Images/feature icon.jpg" alt="icon" />
+                                <h6>Membership Plans</h6>
+                                <p>Pick a plan that matches your commitment level.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a asp-controller="Trainers" asp-action="Index" class="gm-btn gm-btn-solid">
+                        Meet Our Trainers <i class="bi bi-arrow-right"></i>
                     </a>
-                    <a asp-controller="Home" asp-action="Privacy" class="btn btn-outline btn-lg px-5">Learn More</a>
                 </div>
             </div>
-            <div class="col-lg-6 text-center">
-                <div class="hero-visual reveal reveal-delay-2">
-                    <div class="hero-ring hero-ring-1"></div>
-                    <div class="hero-ring hero-ring-2"></div>
-                    <div class="hero-ring hero-ring-3"></div>
-                    <div class="hero-center">
-                        <i class="bi bi-lightning-charge-fill"></i>
+        </div>
+    </section>
+
+    <!-- ============ Workouts ============ -->
+    <section class="gm-workout">
+        <div class="gm-container">
+            <div class="gm-kicker"><span class="gm-dot"></span><span>Workouts</span></div>
+            <h2 class="mb-5">Transform your body with our dynamic upcoming workouts</h2>
+
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col">
+                    <div class="gm-workout-card">
+                        <img src="~/Images/workout 1.jpg" alt="Group workout" />
+                        <div class="gm-workout-body">
+                            <h5>Group Workout</h5>
+                            <a asp-controller="Sessions" asp-action="Index" class="gm-explore">
+                                Explore <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="gm-workout-card">
+                        <img src="~/Images/workout 2.jpg" alt="Strength training" />
+                        <div class="gm-workout-body">
+                            <h5>Strength Training</h5>
+                            <a asp-controller="Sessions" asp-action="Index" class="gm-explore">
+                                Explore <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="gm-workout-card">
+                        <img src="~/Images/workout 3.jpg" alt="Cardio" />
+                        <div class="gm-workout-body">
+                            <h5>Cardio Blast</h5>
+                            <a asp-controller="Sessions" asp-action="Index" class="gm-explore">
+                                Explore <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="home-stats">
-    <div class="container">
-        <div class="row g-3">
-            <div class="col-6 col-lg-3 reveal">
-                <div class="home-stat">
-                    <div class="home-stat-value" data-target="@Model.TotalMembers">0</div>
-                    <div class="home-stat-label">Active Members</div>
+    <!-- ============ Why Us ============ -->
+    <section class="gm-why">
+        <div class="gm-container">
+            <div class="row row-cols-1 row-cols-lg-2 g-5 align-items-center">
+                <div>
+                    <div class="gm-kicker"><span class="gm-dot"></span><span>Why Us</span></div>
+                    <h2 class="fw-bolder mb-3">
+                        Elevate fitness with <span class="gm-accent-text">the best</span> way possible
+                    </h2>
+                    <p class="mb-4">
+                        We believe fitness is more than just a workout — it's a lifestyle. With
+                        top-of-the-line facilities, certified trainers, and a supportive community,
+                        we're here to inspire and guide you every step of the way.
+                    </p>
+
+                    <ul class="list-unstyled gm-why-list">
+                        <li class="d-flex gap-3 align-items-start mb-4">
+                            <div class="gm-count">01</div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Personalized Fitness Plans</h6>
+                                <p class="mb-0">We tailor every workout to fit your unique goals and fitness level.</p>
+                            </div>
+                        </li>
+                        <li class="d-flex gap-3 align-items-start mb-4">
+                            <div class="gm-count">02</div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Certified, Attentive Trainers</h6>
+                                <p class="mb-0">Every session is guided by a specialist matched to your goals.</p>
+                            </div>
+                        </li>
+                        <li class="d-flex gap-3 align-items-start mb-4">
+                            <div class="gm-count">03</div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Real Attendance Tracking</h6>
+                                <p class="mb-0">Every booking and check-in is tracked, so nothing slips through.</p>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <a asp-controller="Memberships" asp-action="Create" class="gm-btn gm-btn-solid">
+                        Join a Plan <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
-            </div>
-            <div class="col-6 col-lg-3 reveal reveal-delay-1">
-                <div class="home-stat">
-                    <div class="home-stat-value" data-target="@Model.TotalTrainers">0</div>
-                    <div class="home-stat-label">Expert Trainers</div>
-                </div>
-            </div>
-            <div class="col-6 col-lg-3 reveal reveal-delay-2">
-                <div class="home-stat">
-                    <div class="home-stat-value" data-target="@Model.UpcomingSessions">0</div>
-                    <div class="home-stat-label">Weekly Sessions</div>
-                </div>
-            </div>
-            <div class="col-6 col-lg-3 reveal reveal-delay-3">
-                <div class="home-stat">
-                    <div class="home-stat-value" data-target="@Model.CompletedSessions">0</div>
-                    <div class="home-stat-label">Completed</div>
+
+                <div class="d-none d-lg-block text-center">
+                    <img class="img-fluid" src="~/Images/why us images.svg" alt="characters" />
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="home-marquee">
-    <div class="marquee-track">
-        <span>Personal Training</span>
-        <span class="marquee-dot"></span>
-        <span>Group Classes</span>
-        <span class="marquee-dot"></span>
-        <span>Cardio Zone</span>
-        <span class="marquee-dot"></span>
-        <span>Strength Training</span>
-        <span class="marquee-dot"></span>
-        <span>Health Tracking</span>
-        <span class="marquee-dot"></span>
-        <span>Expert Coaches</span>
-        <span class="marquee-dot"></span>
-        <span>Personal Training</span>
-        <span class="marquee-dot"></span>
-        <span>Group Classes</span>
-        <span class="marquee-dot"></span>
-        <span>Cardio Zone</span>
-        <span class="marquee-dot"></span>
-        <span>Strength Training</span>
-        <span class="marquee-dot"></span>
-        <span>Health Tracking</span>
-        <span class="marquee-dot"></span>
-        <span>Expert Coaches</span>
-        <span class="marquee-dot"></span>
+    <!-- ============ Bottom marquee ============ -->
+    <div class="gm-marquee">
+        <p class="overflow-hidden text-nowrap">
+            outdoor & online trainers
+            <img src="~/Images/star.svg" alt="star icon" /> personal training
+            <img src="~/Images/star.svg" alt="star icon" /> live classes
+            <img src="~/Images/star.svg" alt="star icon" /> personal trainers
+            <img src="~/Images/star.svg" alt="star icon" /> personal training
+        </p>
     </div>
-</section>
 
-<section class="home-features">
-    <div class="container">
-        <div class="text-center mb-5">
-            <span class="section-badge reveal">Our Services</span>
-            <h2 class="reveal reveal-delay-1">What We <span class="text-gradient">Offer</span></h2>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-4 reveal">
-                <div class="feature-card">
-                    <div class="feature-icon"><i class="bi bi-person-workspace"></i></div>
-                    <h5>Expert Trainers</h5>
-                    <p>Certified professionals dedicated to helping you reach your goals safely and effectively.</p>
-                    <div class="feature-arrow"><i class="bi bi-arrow-up-right"></i></div>
+    <!-- ============ Footer ============ -->
+    <footer class="gm-footer">
+        <div class="gm-container">
+            <div class="row g-4 py-4">
+                <div class="col-12 col-md-6">
+                    <h4>Developed By</h4>
+                    <p class="mb-1" style="color: var(--gm-text); font-weight: 600;">Mohamed Nowar</p>
+                    <p class="mb-3">Junior .NET Backend Developer — Cairo, Egypt</p>
+                    <div class="d-flex gap-2">
+                        <a href="https://engmohamednowar.github.io/portfolio/" target="_blank" class="gm-icon-chip" title="Portfolio">
+                            <i class="bi bi-globe2"></i>
+                        </a>
+                        <a href="https://github.com/EngMohamedNowar" target="_blank" class="gm-icon-chip" title="GitHub">
+                            <i class="bi bi-github"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/in/mohamednowar/" target="_blank" class="gm-icon-chip" title="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="mailto:mohamednowar2002@gmail.com" class="gm-icon-chip" title="Email">
+                            <i class="bi bi-envelope-fill"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a asp-controller="Members" asp-action="Index">Members</a></li>
+                        <li><a asp-controller="Trainers" asp-action="Index">Trainers</a></li>
+                        <li><a asp-controller="Sessions" asp-action="Index">Sessions</a></li>
+                        <li><a asp-controller="Memberships" asp-action="Index">Memberships</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="tel:+201557722675">+20 155 772 2675</a></li>
+                        <li><a href="mailto:mohamednowar2002@gmail.com">mohamednowar2002@gmail.com</a></li>
+                    </ul>
                 </div>
             </div>
-            <div class="col-md-4 reveal reveal-delay-1">
-                <div class="feature-card">
-                    <div class="feature-icon"><i class="bi bi-calendar-check"></i></div>
-                    <h5>Group Classes</h5>
-                    <p>High-energy sessions from yoga to HIIT, designed to keep you motivated and accountable.</p>
-                    <div class="feature-arrow"><i class="bi bi-arrow-up-right"></i></div>
-                </div>
-            </div>
-            <div class="col-md-4 reveal reveal-delay-2">
-                <div class="feature-card">
-                    <div class="feature-icon"><i class="bi bi-heart-pulse"></i></div>
-                    <h5>Health Tracking</h5>
-                    <p>Monitor your progress with detailed body measurements and comprehensive health records.</p>
-                    <div class="feature-arrow"><i class="bi bi-arrow-up-right"></i></div>
-                </div>
+
+            <div class="gm-bottom">
+                &copy; 2026 Gym Management System — Built by
+                <a href="https://engmohamednowar.github.io/portfolio/" target="_blank" style="color: var(--gm-accent); font-weight: 600;">Mohamed Nowar</a>
             </div>
         </div>
-    </div>
-</section>
+    </footer>
 
-<section class="home-numbers">
-    <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6">
-                <span class="section-badge reveal">Why Us</span>
-                <h2 class="reveal reveal-delay-1">The Numbers<br /><span class="text-gradient">Speak</span> For Themselves</h2>
-                <p class="reveal reveal-delay-2">We're committed to delivering results. Here's our track record of transforming lives through fitness.</p>
-            </div>
-            <div class="col-lg-6">
-                <div class="numbers-grid">
-                    <div class="number-item reveal">
-                        <div class="number-value">10+</div>
-                        <div class="number-label">Years Experience</div>
-                    </div>
-                    <div class="number-item reveal reveal-delay-1">
-                        <div class="number-value">50+</div>
-                        <div class="number-label">Weekly Classes</div>
-                    </div>
-                    <div class="number-item reveal reveal-delay-2">
-                        <div class="number-value">98%</div>
-                        <div class="number-label">Member Satisfaction</div>
-                    </div>
-                    <div class="number-item reveal reveal-delay-3">
-                        <div class="number-value">24/7</div>
-                        <div class="number-label">Gym Access</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="home-cta">
-    <div class="cta-glow"></div>
-    <div class="container text-center position-relative">
-        <h2 class="reveal">Ready to <span class="text-gradient">Start</span>?</h2>
-        <p class="text-muted mb-4 reveal reveal-delay-1">Join FitGym today and begin your transformation.</p>
-        <a asp-controller="Account" asp-action="Login" class="btn btn-fill btn-lg px-5 reveal reveal-delay-2">
-            Join Now <i class="bi bi-arrow-right ms-2"></i>
-        </a>
-    </div>
-</section>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var reveals = document.querySelectorAll('.reveal');
-        var observer = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('revealed');
-                }
-            });
-        }, { threshold: 0.15 });
-        reveals.forEach(function (el) { observer.observe(el); });
-
-        var counters = document.querySelectorAll('.home-stat-value[data-target]');
-        var counterObserver = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting && !entry.target.dataset.counted) {
-                    entry.target.dataset.counted = 'true';
-                    var target = parseInt(entry.target.dataset.target, 10);
-                    var duration = 1500;
-                    var start = performance.now();
-                    function animate(now) {
-                        var progress = Math.min((now - start) / duration, 1);
-                        var eased = 1 - Math.pow(1 - progress, 3);
-                        entry.target.textContent = Math.floor(eased * target).toLocaleString();
-                        if (progress < 1) requestAnimationFrame(animate);
-                    }
-                    requestAnimationFrame(animate);
-                }
-            });
-        }, { threshold: 0.5 });
-        counters.forEach(function (el) { counterObserver.observe(el); });
-    });
-</script>
+</div>

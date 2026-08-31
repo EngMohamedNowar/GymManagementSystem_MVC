@@ -1,5 +1,5 @@
 ﻿using GymManagementSystem.BLL.Common;
-using GymManagementSystem.BLL.ViewModes.Bookings;
+using GymManagementSystem.BLL.ViewModels.Bookings;
 using System;
 using System.Collections.Generic;
 using System.Text;
